@@ -1,0 +1,29 @@
+# Build Tools (install first)
+setuptools>=65.0.0
+wheel>=0.38.0
+
+# Upbit API
+pyupbit>=0.2.32
+
+# Data Analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# HTTP Requests
+requests>=2.31.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Scheduling
+schedule>=1.2.0
+
+# Logging
+colorlog>=6.7.0
+
+# Testing (optional)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Type Hints
+typing-extensions>=4.8.0
