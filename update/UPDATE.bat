@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ============================================================
-echo  Upbit AutoProfit Bot - 업데이트 v6.15
+echo  Upbit AutoProfit Bot - 업데이트 v6.16-SELLHISTORY
 echo ============================================================
 echo.
 echo 업데이트 내용:
@@ -9,6 +9,7 @@ echo  ✅ 화면 스크롤 완전 제거
 echo  ✅ 손익 동기화 개선
 echo  ✅ 리스크 관리 강화 (10%% 손실 시 자동 중단)
 echo  ✅ 디버그 출력 억제
+echo  ⭐ 매도 기록 영구 저장 (최근 10건 유지)
 echo.
 
 REM 현재 위치 확인
@@ -62,11 +63,13 @@ echo  업데이트 완료!
 echo ============================================================
 echo.
 echo 변경 사항:
-echo  • v6.15-UPDATE 적용
+echo  • v6.16-SELLHISTORY 적용
 echo  • 화면 스크롤 제거 (완전 고정)
 echo  • 손익 자동 계산 (initial_capital 기준)
 echo  • 디버그 출력 최소화
 echo  • 리스크 관리 강화
+echo  ⭐ 매도 기록 영구 저장 (최근 10건 유지, 화면에 5건 표시)
+echo  ⭐ 매수 기록처럼 사라지지 않는 매도 기록
 echo.
 echo 백업 위치: %BACKUP_DIR%
 echo.

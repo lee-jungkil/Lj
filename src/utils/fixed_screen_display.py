@@ -77,6 +77,10 @@ class FixedScreenDisplay:
         self.last_trade_result = None
         self.last_trade_time = 0
         
+        # ⭐ 매도 기록 영구 저장 (최대 10개)
+        self.sell_history = []  # [{ticker, profit_loss, profit_ratio, strategy, hold_time, time}]
+        self.max_sell_history = 10
+        
         # ⭐ 화면 크기: 중앙 정렬 + 80% 크기
         import os
         try:
@@ -173,7 +177,23 @@ class FixedScreenDisplay:
         
         position = self.positions[slot]
         
-        # 매도 결과 저장 (5초간 표시)
+        # ⭐ 매도 기록 영구 저장
+        sell_record = {
+            'ticker': position['ticker'],
+            'profit_loss': profit_loss,
+            'profit_ratio': profit_ratio,
+            'strategy': position['strategy'],
+            'hold_time': position['hold_time'],
+            'time': datetime.now().strftime('%H:%M:%S')
+        }
+        
+        # 최대 개수 제한 (FIFO)
+        if len(self.sell_history) >= self.max_sell_history:
+            self.sell_history.pop(0)
+        
+        self.sell_history.append(sell_record)
+        
+        # 임시 표시용 (5초간)
         emoji = "💰" if profit_loss > 0 else "📉"
         self.last_trade_result = (
             f"{emoji} {slot}️⃣ {position['ticker']} 매도 완료: "
@@ -181,6 +201,9 @@ class FixedScreenDisplay:
             f"보유: {position['hold_time']:.0f}초"
         )
         self.last_trade_time = time.time()
+        
+        # 매도 횟수 증가
+        self.sell_count += 1
         
         # 포지션 제거
         del self.positions[slot]
@@ -362,6 +385,11 @@ class FixedScreenDisplay:
         
         # 모니터링 상태 (4-5줄)
         for line in self._render_monitoring().split('\n'):
+            output_lines.append(margin + line)
+        output_lines.append(margin + "━" * self.screen_width)
+        
+        # ⭐ 매도 기록 (6-8줄)
+        for line in self._render_sell_history().split('\n'):
             output_lines.append(margin + line)
         output_lines.append(margin + "━" * self.screen_width)
         output_lines.append(margin)  # 마지막 빈 줄
@@ -598,6 +626,30 @@ class FixedScreenDisplay:
         if self.monitor_line3:
             line3 = self.monitor_line3[:self.screen_width - 10]
             lines.append(f"{Fore.BLUE}▸ {line3}{Style.RESET_ALL}")
+        
+        return '\n'.join(lines)
+    
+    def _render_sell_history(self) -> str:
+        """매도 기록 렌더링 (최근 5개)"""
+        lines = [f"{Fore.YELLOW}{Style.BRIGHT}[ 📜 매도 기록 ({len(self.sell_history)}건) ]{Style.RESET_ALL}"]
+        
+        if not self.sell_history:
+            lines.append("  기록 없음")
+        else:
+            # 최근 5개만 표시 (스크롤 방지)
+            recent_sells = self.sell_history[-5:]
+            
+            for record in reversed(recent_sells):  # 최신순
+                profit_loss = record['profit_loss']
+                profit_ratio = record['profit_ratio']
+                color = Fore.GREEN if profit_loss >= 0 else Fore.RED
+                emoji = "✅" if profit_loss >= 0 else "❌"
+                
+                lines.append(
+                    f"  {emoji} {record['time']} | {record['ticker']} | "
+                    f"{color}{profit_loss:+,.0f}원 ({profit_ratio:+.2f}%){Style.RESET_ALL} | "
+                    f"{record['strategy'][:8]}"
+                )
         
         return '\n'.join(lines)
     

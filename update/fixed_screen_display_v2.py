@@ -1,9 +1,9 @@
 """
-고정 화면 표시 시스템 v6.16-SELLHISTORY
+고정 화면 표시 시스템 v6.16-TRADE-HISTORY
 - 완전 고정 화면 (스크롤 제거)
 - 디버그 출력 억제
 - 손익 동기화 개선
-- ⭐ 매도 기록 영구 저장 (최대 10건)
+- ⭐ 매도 기록 영구 보관 (최대 10개)
 """
 import os
 import sys
@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from colorama import init, Fore, Back, Style
 import time
+from collections import deque
 
 # Windows 콘솔 ANSI 지원 활성화
 if os.name == 'nt':
@@ -23,11 +24,13 @@ init(autoreset=True, strip=False)
 
 
 class FixedScreenDisplay:
-    """고정 화면 표시 시스템 v6.16-SELLHISTORY"""
+    """고정 화면 표시 시스템 v6.16-TRADE-HISTORY"""
     
-    def __init__(self, max_positions: int = 7):
+    def __init__(self, max_positions: int = 7, max_trade_history: int = 10):
         """초기화"""
         self.max_positions = max_positions
+        self.max_trade_history = max_trade_history  # ⭐ 최대 매도 기록 수
+        
         self.positions = {}
         self.scan_status = "대기 중..."
         self.bot_status = "초기화 중..."
@@ -68,13 +71,8 @@ class FixedScreenDisplay:
         self.monitor_line2 = ""
         self.monitor_line3 = ""
         
-        # 매도 결과 (임시 표시용)
-        self.last_trade_result = None
-        self.last_trade_time = 0
-        
-        # ⭐ 매도 기록 영구 저장 (최대 10개)
-        self.sell_history = []  # [{ticker, profit_loss, profit_ratio, strategy, hold_time, time}]
-        self.max_sell_history = 10
+        # ⭐ 매도 기록 (영구 보관)
+        self.trade_history = deque(maxlen=max_trade_history)
         
         # ⭐ 화면 크기 설정
         try:
@@ -142,15 +140,11 @@ class FixedScreenDisplay:
             output_lines.append(margin + line)
         output_lines.append(margin + "━" * self.screen_width)
         
-        # 매도 결과
-        trade_result = self._render_trade_result()
-        if trade_result:
-            for line in trade_result.split('\n'):
+        # ⭐ 매도 기록 (영구 표시)
+        trade_history = self._render_trade_history()
+        if trade_history:
+            for line in trade_history.split('\n'):
                 output_lines.append(margin + line)
-            output_lines.append(margin + "━" * self.screen_width)
-        else:
-            output_lines.append(margin)
-            output_lines.append(margin)
             output_lines.append(margin + "━" * self.screen_width)
         
         # 스캔 상태
@@ -164,11 +158,6 @@ class FixedScreenDisplay:
         
         # 모니터링
         for line in self._render_monitoring().split('\n'):
-            output_lines.append(margin + line)
-        output_lines.append(margin + "━" * self.screen_width)
-        
-        # ⭐ 매도 기록
-        for line in self._render_sell_history().split('\n'):
             output_lines.append(margin + line)
         output_lines.append(margin + "━" * self.screen_width)
         output_lines.append(margin)
@@ -196,7 +185,7 @@ class FixedScreenDisplay:
     def _render_header(self) -> str:
         """헤더 렌더링"""
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        title = "Upbit AutoProfit Bot v6.16-SELLHISTORY"
+        title = "Upbit AutoProfit Bot v6.16-TRADE-HISTORY"
         
         ai_status = f"AI학습: {self.ai_learning_count}회 | 승률: {self.ai_win_rate:.1f}%"
         
@@ -248,24 +237,33 @@ class FixedScreenDisplay:
         
         return '\n'.join(lines)
     
-    def _render_trade_result(self) -> Optional[str]:
-        """매도 결과 렌더링"""
-        if not self.last_trade_result:
+    def _render_trade_history(self) -> Optional[str]:
+        """⭐ 매도 기록 렌더링 (영구 표시)"""
+        if not self.trade_history:
             return None
         
-        elapsed = time.time() - self.last_trade_time
-        if elapsed > 5:
-            self.last_trade_result = None
-            return None
+        lines = [f"[ 📜 매도 기록 ({len(self.trade_history)}/{self.max_trade_history}) ]", ""]
         
-        result = self.last_trade_result
-        profit_loss = result.get('profit_loss', 0.0)
-        color = Fore.GREEN if profit_loss >= 0 else Fore.RED
-        emoji = "✅" if profit_loss >= 0 else "❌"
+        # 최근 매도부터 표시 (역순)
+        for idx, trade in enumerate(reversed(list(self.trade_history)), start=1):
+            ticker = trade.get('ticker', 'UNKNOWN')
+            profit_loss = trade.get('profit_loss', 0.0)
+            profit_ratio = trade.get('profit_ratio', 0.0)
+            strategy = trade.get('strategy', 'unknown')
+            hold_time = trade.get('hold_time', '0분')
+            trade_time = trade.get('time', '')
+            
+            # 색상 및 이모지
+            color = Fore.GREEN if profit_loss >= 0 else Fore.RED
+            emoji = "✅" if profit_loss >= 0 else "❌"
+            
+            # 한 줄로 표시
+            lines.append(
+                f"{emoji} {ticker} | {color}{profit_loss:+,.0f}원 ({profit_ratio:+.2f}%){Style.RESET_ALL} "
+                f"| {strategy} | {hold_time} | {trade_time}"
+            )
         
-        return f"""[ {emoji} 매도 완료 ]
-티커: {result.get('ticker', 'UNKNOWN')} | {color}{profit_loss:+,.0f}원 ({result.get('profit_ratio', 0.0):+.2f}%){Style.RESET_ALL}
-전략: {result.get('strategy', 'unknown')} | 보유: {result.get('hold_time', '0분')}"""
+        return '\n'.join(lines)
     
     def _render_scan_status(self) -> str:
         """스캔 상태 렌더링"""
@@ -290,31 +288,7 @@ class FixedScreenDisplay:
         
         return '\n'.join(lines)
     
-    def _render_sell_history(self) -> str:
-        """매도 기록 렌더링 (최근 5개)"""
-        lines = [f"[ 📜 매도 기록 ({len(self.sell_history)}건) ]"]
-        
-        if not self.sell_history:
-            lines.append("  기록 없음")
-        else:
-            # 최근 5개만 표시 (스크롤 방지)
-            recent_sells = self.sell_history[-5:]
-            
-            for record in reversed(recent_sells):  # 최신순
-                profit_loss = record['profit_loss']
-                profit_ratio = record['profit_ratio']
-                color = Fore.GREEN if profit_loss >= 0 else Fore.RED
-                emoji = "✅" if profit_loss >= 0 else "❌"
-                
-                lines.append(
-                    f"  {emoji} {record['time']} | {record['ticker']} | "
-                    f"{color}{profit_loss:+,.0f}원 ({profit_ratio:+.2f}%){Style.RESET_ALL} | "
-                    f"{record['strategy'][:8]}"
-                )
-        
-        return '\n'.join(lines)
-    
-    # ⭐ 업데이트 메서드들 (기존 메서드 유지)
+    # ⭐ 업데이트 메서드들
     def update_capital_status(self, initial_capital: float, current_balance: float, 
                             total_profit: float = None, profit_ratio: float = None):
         """자본금 및 손익 상태 업데이트 (동기화 개선)"""
@@ -369,12 +343,12 @@ class FixedScreenDisplay:
     
     def remove_position(self, slot: int, exit_price: float, profit_loss: float, 
                        profit_ratio: float):
-        """포지션 제거 (매도)"""
+        """⭐ 포지션 제거 (매도) + 기록 저장"""
         if slot in self.positions:
             pos = self.positions[slot]
             
-            # ⭐ 매도 기록 영구 저장
-            sell_record = {
+            # ⭐ 매도 기록 저장 (영구 보관)
+            trade_record = {
                 'ticker': pos['ticker'],
                 'profit_loss': profit_loss,
                 'profit_ratio': profit_ratio,
@@ -383,19 +357,9 @@ class FixedScreenDisplay:
                 'time': datetime.now().strftime('%H:%M:%S')
             }
             
-            # 최대 개수 제한 (FIFO)
-            if len(self.sell_history) >= self.max_sell_history:
-                self.sell_history.pop(0)
+            self.trade_history.append(trade_record)
             
-            self.sell_history.append(sell_record)
-            
-            # 임시 표시용 (5초간)
-            self.last_trade_result = sell_record
-            self.last_trade_time = time.time()
-            
-            # 매도 횟수 증가
-            self.sell_count += 1
-            
+            # 포지션 제거
             del self.positions[slot]
     
     def update_scan_status(self, status: str):
@@ -414,7 +378,15 @@ class FixedScreenDisplay:
             self.monitor_line2 = line2
         if line3 is not None:
             self.monitor_line3 = line3
+    
+    def clear_trade_history(self):
+        """⭐ 매도 기록 초기화"""
+        self.trade_history.clear()
+    
+    def get_trade_history(self) -> List[Dict]:
+        """⭐ 매도 기록 조회"""
+        return list(self.trade_history)
 
 
 # 전역 인스턴스
-display = FixedScreenDisplay(max_positions=7)
+display = FixedScreenDisplay(max_positions=7, max_trade_history=10)
