@@ -1,78 +1,102 @@
 @echo off
-chcp 65001 >nul
+chcp 65001 >nul 2>&1
+cls
+
 echo ============================================================
-echo  Upbit AutoProfit Bot - 업데이트 v6.16-SELLHISTORY
+echo  Upbit AutoProfit Bot Update v6.16-SELLHISTORY
 echo ============================================================
 echo.
-echo 업데이트 내용:
-echo  ✅ 화면 스크롤 완전 제거
-echo  ✅ 손익 동기화 개선
-echo  ✅ 리스크 관리 강화 (10%% 손실 시 자동 중단)
-echo  ✅ 디버그 출력 억제
-echo  ⭐ 매도 기록 영구 저장 (최근 10건 유지)
+echo Update Contents:
+echo  [OK] Screen scroll completely removed
+echo  [OK] Profit/Loss sync improved
+echo  [OK] Risk management enhanced (auto-stop at -10%%)
+echo  [OK] Debug output suppressed
+echo  [NEW] Sell history permanent storage (keep 10 records)
 echo.
 
-REM 현재 위치 확인
-echo 현재 위치: %CD%
+REM Save current directory
+set SCRIPT_DIR=%~dp0
+set PROJECT_ROOT=%SCRIPT_DIR%..
+
+REM Change to project root
+cd /d "%PROJECT_ROOT%"
+
+echo Current directory: %CD%
 echo.
 
-REM 백업 디렉토리 생성
-if not exist backup mkdir backup
+REM Check if we are in the correct directory
+if not exist "src\utils" (
+    echo [ERROR] Project structure not found!
+    echo.
+    echo Please run this script from: Lj-main\update\UPDATE.bat
+    echo Current path: %CD%
+    echo.
+    pause
+    exit /b 1
+)
+
+REM Create backup directory
+if not exist "backup" mkdir "backup"
 set BACKUP_DIR=backup\backup_%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set BACKUP_DIR=%BACKUP_DIR: =0%
-mkdir "%BACKUP_DIR%"
+mkdir "%BACKUP_DIR%" 2>nul
 
-echo [1/4] 기존 파일 백업 중...
-if exist src\utils\fixed_screen_display.py (
-    copy src\utils\fixed_screen_display.py "%BACKUP_DIR%\fixed_screen_display.py.bak" >nul
-    echo ✓ fixed_screen_display.py 백업 완료
+echo [1/4] Backing up existing files...
+if exist "src\utils\fixed_screen_display.py" (
+    copy "src\utils\fixed_screen_display.py" "%BACKUP_DIR%\fixed_screen_display.py.bak" >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo  + fixed_screen_display.py backed up
+    )
 )
-if exist src\utils\risk_manager.py (
-    copy src\utils\risk_manager.py "%BACKUP_DIR%\risk_manager.py.bak" >nul
-    echo ✓ risk_manager.py 백업 완료
-)
-echo [OK] 백업 완료: %BACKUP_DIR%
+echo [OK] Backup completed: %BACKUP_DIR%
 echo.
 
-echo [2/4] 업데이트 파일 확인 중...
-if not exist update\fixed_screen_display.py (
-    echo [ERROR] update\fixed_screen_display.py 파일이 없습니다!
+echo [2/4] Checking update files...
+if not exist "update\fixed_screen_display.py" (
+    echo [ERROR] update\fixed_screen_display.py not found!
     echo.
-    echo update 폴더에 업데이트 파일이 있는지 확인해주세요.
+    echo Please ensure update folder contains the required files.
     pause
     exit /b 1
 )
-echo [OK] 업데이트 파일 확인
+echo [OK] Update files found
 echo.
 
-echo [3/4] 파일 업데이트 중...
-copy /Y update\fixed_screen_display.py src\utils\fixed_screen_display.py >nul
+echo [3/4] Updating files...
+copy /Y "update\fixed_screen_display.py" "src\utils\fixed_screen_display.py" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] 파일 복사 실패!
+    echo [ERROR] File copy failed!
+    echo.
+    echo Troubleshooting:
+    echo  1. Run Command Prompt as Administrator
+    echo  2. Close Python processes using the file
+    echo  3. Check file permissions
+    echo.
     pause
     exit /b 1
 )
-echo ✓ fixed_screen_display.py 업데이트
-echo [OK] 파일 업데이트 완료
+echo  + fixed_screen_display.py updated
+echo [OK] File update completed
 echo.
 
-echo [4/4] 업데이트 완료 확인...
+echo [4/4] Verifying update...
 echo.
 echo ============================================================
-echo  업데이트 완료!
+echo  Update Completed Successfully!
 echo ============================================================
 echo.
-echo 변경 사항:
-echo  • v6.16-SELLHISTORY 적용
-echo  • 화면 스크롤 제거 (완전 고정)
-echo  • 손익 자동 계산 (initial_capital 기준)
-echo  • 디버그 출력 최소화
-echo  • 리스크 관리 강화
-echo  ⭐ 매도 기록 영구 저장 (최근 10건 유지, 화면에 5건 표시)
-echo  ⭐ 매수 기록처럼 사라지지 않는 매도 기록
+echo What's New in v6.16-SELLHISTORY:
+echo  - Screen scroll removed (fully fixed display)
+echo  - Profit/Loss auto-calculated from initial_capital
+echo  - Debug output minimized for cleaner display
+echo  - Risk management: auto-stop at -10%% loss
+echo  [NEW] Sell history: keep up to 10 records
+echo  [NEW] Display last 5 sell records on screen
+echo  [NEW] Sell records persist like buy positions
 echo.
-echo 백업 위치: %BACKUP_DIR%
+echo Backup location: %BACKUP_DIR%
 echo.
-echo 이제 run.bat을 실행하여 봇을 시작할 수 있습니다.
+echo Next step: Run the bot
+echo   Windows: run.bat or run_live.bat or run_paper.bat
 echo.
 pause
