@@ -1643,10 +1643,13 @@ class AutoProfitBot:
             position_value = self.risk_manager.get_total_position_value()  # ⭐ 추가
             total_equity = self.risk_manager.get_total_equity()  # ⭐ 추가
             
+            # ⭐ 실시간 손익 계산 (총자산 - 초기자본)
+            real_time_profit = total_equity - Config.INITIAL_CAPITAL
+            
             self.display.update_capital_status(
                 initial=Config.INITIAL_CAPITAL,
                 current=risk_status['current_balance'],
-                profit=risk_status['cumulative_profit_loss'],
+                profit=real_time_profit,  # ⭐ 수정: 실시간 손익 사용
                 position_value=position_value,  # ⭐ 추가: 포지션 가치
                 total_equity=total_equity  # ⭐ 추가: 총 자산
             )

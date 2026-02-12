@@ -1,9 +1,9 @@
-v6.27-INDENTATION-FIX
+v6.28-PROFIT-SYNC-FIX
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 27
-Patch: INDENTATION-FIX
+Minor Version: 28
+Patch: PROFIT-SYNC-FIX
 
-Description: Fixed indentation error in market_condition_analyzer.py - moved AI adjustment methods inside class definition (enable_ai_adjustments, _load_adjustment_factors, record_condition_outcome)
+Description: Fixed profit/loss synchronization issue - real-time profit calculation from total_equity instead of cumulative_profit_loss
