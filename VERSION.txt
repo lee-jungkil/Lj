@@ -1,9 +1,9 @@
-v6.26-ALL-FIXES-COMPLETE
+v6.27-INDENTATION-FIX
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 26
-Patch: ALL-FIXES-COMPLETE
+Minor Version: 27
+Patch: INDENTATION-FIX
 
-Description: Issues 1-9 completed - critical fixes, scan optimization, total asset display, chart indicators in position check, entry condition relaxation (+10% buy probability), AI adjustment framework
+Description: Fixed indentation error in market_condition_analyzer.py - moved AI adjustment methods inside class definition (enable_ai_adjustments, _load_adjustment_factors, record_condition_outcome)

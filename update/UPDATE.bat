@@ -3,7 +3,7 @@ chcp 65001 >nul 2>&1
 cls
 
 echo ============================================================
-echo  Upbit AutoProfit Bot Update v6.26-ALL-FIXES-COMPLETE
+echo  Upbit AutoProfit Bot Update v6.27-INDENTATION-FIX
 echo ============================================================
 echo.
 echo Update Contents:

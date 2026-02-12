@@ -171,9 +171,6 @@ class MarketConditionAnalyzer:
         }
 
 
-# 전역 인스턴스
-market_condition_analyzer = MarketConditionAnalyzer()
-
     # ⭐ 9번: AI 자율 학습 - 시장 조건 자동 조정 (기초 프레임워크)
     def enable_ai_adjustments(self, learning_engine=None):
         """
@@ -241,3 +238,7 @@ market_condition_analyzer = MarketConditionAnalyzer()
         
         # TODO: 50거래 이상 시 adjustment_factors 자동 조정
         # TODO: adjustment_factors.json에 저장
+
+
+# 전역 인스턴스
+market_condition_analyzer = MarketConditionAnalyzer()
