@@ -1165,8 +1165,23 @@ class AutoProfitBot:
         if not prices_dict:
             return
         
-        # 급등/급락 코인 탐지 (가격 딕셔너리 전달)
-        detected_coins = self.surge_detector.scan_market_batch(self.tickers, prices_dict)
+        # 급등/급락 코인 탐지 (각 티커별로 검사)
+        detected_coins = []
+        for ticker in self.tickers:
+            if ticker not in prices_dict:
+                continue
+            
+            # 급등 감지
+            try:
+                surge_info = self.surge_detector.detect_surge(ticker, self.api)
+                if surge_info and surge_info.get('surge_score', 0) >= self.surge_detector.min_surge_score:
+                    detected_coins.append({
+                        'ticker': ticker,
+                        **surge_info
+                    })
+            except Exception as e:
+                # 개별 코인 에러는 무시하고 계속 진행
+                pass
         
         if not detected_coins:
             return

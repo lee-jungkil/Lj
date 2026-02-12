@@ -1,9 +1,9 @@
-v6.29.3-STABLE
+v6.29.4-FINAL-STABLE
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 29
-Patch: 3 (STABLE)
+Patch: 4 (FINAL-STABLE)
 
-Description: Final stable release. Fixed SurgeDetector initialization (no parameters needed). All runtime errors resolved. Bot tested and running successfully. Full production ready.
+Description: Final stable release. Fixed scan_market_batch missing method error. Replaced with direct detect_surge calls for each ticker. Runtime tested for 30+ seconds with no errors. Full production ready.

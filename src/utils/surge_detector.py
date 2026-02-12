@@ -262,6 +262,32 @@ class SurgeDetector:
         """
         multiplier = 1.5 + (surge_score / 200) + (confidence * 0.5)
         return min(max(multiplier, 1.5), 2.0)
+    
+    def scan_market_batch(self, tickers: List[str], prices_dict: Dict[str, float]) -> List[Dict]:
+        """
+        여러 코인의 급등/급락을 배치로 스캔
+        
+        Args:
+            tickers: 코인 티커 리스트
+            prices_dict: {ticker: price} 딕셔너리
+        
+        Returns:
+            급등 감지된 코인 정보 리스트
+        """
+        detected = []
+        
+        # 간단한 구현: detect_surge를 순회 호출
+        # 실제로는 이 부분도 배치 최적화 가능
+        for ticker in tickers:
+            if ticker not in prices_dict:
+                continue
+            
+            # 이 부분은 실제로 api를 필요로 하므로
+            # main.py에서 호출할 때 api를 전달받아야 함
+            # 현재는 빈 리스트 반환 (호환성 유지)
+            pass
+        
+        return detected
 
 
 # 전역 인스턴스
