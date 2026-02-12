@@ -1,9 +1,9 @@
-v6.23-FULL-SYNC-VERIFIED
+v6.24-POSITION-DISPLAY-FIX
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 23
-Patch: FULL-SYNC-VERIFIED
+Minor Version: 24
+Patch: POSITION-DISPLAY-FIX
 
-Description: 100% real-time synchronization verification complete - 36 display items fully synchronized with actual values, sell count fixed, logger-based trade stats
+Description: Critical fix - position display not showing details due to avg_buy_price vs entry_price attribute mismatch

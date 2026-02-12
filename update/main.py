@@ -1715,7 +1715,7 @@ class AutoProfitBot:
                         self.display.update_position(
                             slot=slot,
                             ticker=ticker,
-                            entry_price=position.entry_price,
+                            entry_price=position.avg_buy_price,  # ⭐ 수정: avg_buy_price 사용
                             current_price=current_price,  # ⭐ 실시간 가격
                             amount=position.amount,
                             strategy=position.strategy,
