@@ -475,9 +475,9 @@ class AutoProfitBot:
             self.logger.log_error("ANALYZE_ERROR", f"{ticker} 분석 실패", e)
     
     def execute_buy(self, ticker: str, strategy: str, reason: str, indicators: Dict,
-                    orderbook_signal: Dict = None, trade_signal: Dict = None):
+                    orderbook_signal: Dict = None, trade_signal: Dict = None, is_chase: bool = False, surge_info: Dict = None):
         """
-        매수 실행 (AI 학습 통합 + 호가창/체결 신호)
+        매수 실행 (v6.29: Advanced Order System 통합)
         
         Args:
             ticker: 코인 티커
@@ -486,6 +486,8 @@ class AutoProfitBot:
             indicators: 지표 데이터
             orderbook_signal: 호가창 신호 (선택)
             trade_signal: 체결 신호 (선택)
+            is_chase: 추격매수 여부 (v6.29)
+            surge_info: 급등 정보 (v6.29)
         """
         try:
             # 포지션 개설 가능 여부 확인
@@ -499,8 +501,18 @@ class AutoProfitBot:
             if not current_price:
                 return
             
-            # 투자 금액 계산
+            # 투자 금액 계산 (⭐ v6.29: 추격매수 시 배율 적용)
             investment = self.risk_manager.calculate_position_size(current_price)
+            
+            if is_chase and surge_info:
+                # 추격매수: 투자 배율 적용 (1.5~2.0x)
+                multiplier = surge_detector.get_chase_investment_multiplier(
+                    surge_info['surge_score'],
+                    surge_info['confidence']
+                )
+                investment = investment * multiplier
+                self.logger.log_info(f"⚡ 추격매수 배율: {multiplier:.1f}x, 투자금: {investment:,.0f}원")
+            
             if investment < 5000:
                 self.logger.log_warning(f"투자 금액 부족: {ticker} - {investment:,.0f}원")
                 return
@@ -508,13 +520,37 @@ class AutoProfitBot:
             # 수량 계산
             amount = investment / current_price
             
+            # ⭐ v6.29: SmartOrderExecutor 사용
+            market_condition = {
+                'volatility': indicators.get('volatility', 'medium'),
+                'trend': indicators.get('trend', 'neutral'),
+                'market_phase': indicators.get('market_phase', 'neutral')
+            }
+            
             # 실거래 모드에서만 실제 주문
             if self.mode == 'live' and self.api.upbit:
-                order = self.api.buy_market_order(ticker, investment)
+                order = self.order_executor.execute_buy(
+                    ticker=ticker,
+                    investment=investment,
+                    strategy=strategy,
+                    market_condition=market_condition,
+                    is_chase=is_chase
+                )
                 if not order:
                     return
+                # 주문 메타데이터 저장
+                order_metadata = {
+                    'method': order.get('order_method', 'market'),
+                    'reason': order.get('order_reason', reason),
+                    'spread_pct': order.get('spread_pct', 0.0),
+                    'is_chase': is_chase
+                }
+                if surge_info:
+                    order_metadata['surge_score'] = surge_info['surge_score']
+                    order_metadata['surge_confidence'] = surge_info['confidence']
             else:
                 self.logger.log_info(f"[모의거래] 매수: {ticker}, {investment:,.0f}원")
+                order_metadata = {'method': 'market', 'reason': reason, 'is_chase': is_chase}
             
             # 포지션 추가
             success = self.risk_manager.add_position(
