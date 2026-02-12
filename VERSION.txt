@@ -1,4 +1,4 @@
-v6.18-REALTIME-SYNC
+v6.19-SCROLL-FIX
 Release Date: 2026-02-12
 Commit: (pending)
 
