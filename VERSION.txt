@@ -1,9 +1,9 @@
-v6.28-PROFIT-SYNC-FIX
+v6.29-ADVANCED-ORDER-SYSTEM-PHASE1
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 28
-Patch: PROFIT-SYNC-FIX
+Minor Version: 29
+Patch: ADVANCED-ORDER-SYSTEM-PHASE1
 
-Description: Fixed profit/loss synchronization issue - real-time profit calculation from total_equity instead of cumulative_profit_loss
+Description: Phase 1 complete (3/9 tasks) - Upbit API extension (9 order types), SurgeDetector (chase buy system), OrderMethodSelector (auto order method selection)
