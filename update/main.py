@@ -233,7 +233,7 @@ class AutoProfitBot:
         self.holding_protector = HoldingProtector()
         
         # 급등/급락 감지기
-        self.surge_detector = SurgeDetector(self.api, self.logger)
+        self.surge_detector = SurgeDetector()
         
         # ⭐ 고정 화면 표시 시스템
         self.display = FixedScreenDisplay(max_positions=7)

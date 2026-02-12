@@ -1,9 +1,9 @@
-v6.29.2-HOTFIX-EXECUTOR-PARAMS
+v6.29.3-STABLE
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 29
-Patch: 2 (HOTFIX-EXECUTOR-PARAMS)
+Patch: 3 (STABLE)
 
-Description: Hotfix for SmartOrderExecutor initialization and method call signatures. Fixed parameter mismatches in execute_buy/sell calls. All Python files verified with py_compile. Full production ready.
+Description: Final stable release. Fixed SurgeDetector initialization (no parameters needed). All runtime errors resolved. Bot tested and running successfully. Full production ready.
