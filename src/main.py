@@ -157,24 +157,15 @@ class AutoProfitBot:
         # 분할 전략
         self.split_strategies = SplitStrategies()
         
-        # 스마트 주문 실행기 (v6.29: Advanced Order System)
-        self.order_executor = SmartOrderExecutor(
+        # ⭐ v6.29 스마트 주문 실행기 (Advanced Order System)
+        self.smart_order_executor = SmartOrderExecutor(
             api=self.api,
             order_selector=order_method_selector
         )
         self.logger.log_info("⚡ v6.29 스마트 주문 실행기 활성화 (9가지 주문 방식)")
         
-        # 기존 스마트 주문 실행기 (호환성 유지)
-        if self.orderbook_analyzer:
-            self.smart_executor = SmartOrderExecutor(
-                api_client=self.api,
-                order_book_analyzer=self.orderbook_analyzer,
-                split_strategies=self.split_strategies,
-                holding_time_optimizer=self.holding_optimizer if Config.ENABLE_ADVANCED_AI else None
-            )
-            self.logger.log_info("📊 기존 스마트 주문 실행기 유지 (호환성)")
-        else:
-            self.smart_executor = None
+        # 기존 호환성 지원 (필요 시)
+        self.order_executor = self.smart_order_executor  # Alias
         
         # 동적 청산 관리자
         if Config.ENABLE_DYNAMIC_EXIT:
@@ -528,29 +519,19 @@ class AutoProfitBot:
             }
             
             # 실거래 모드에서만 실제 주문
+            order_result = None
             if self.mode == 'live' and self.api.upbit:
-                order = self.order_executor.execute_buy(
+                order_result = self.smart_order_executor.execute_buy(
                     ticker=ticker,
                     investment=investment,
                     strategy=strategy,
                     market_condition=market_condition,
                     is_chase=is_chase
                 )
-                if not order:
+                if not order_result:
                     return
-                # 주문 메타데이터 저장
-                order_metadata = {
-                    'method': order.get('order_method', 'market'),
-                    'reason': order.get('order_reason', reason),
-                    'spread_pct': order.get('spread_pct', 0.0),
-                    'is_chase': is_chase
-                }
-                if surge_info:
-                    order_metadata['surge_score'] = surge_info['surge_score']
-                    order_metadata['surge_confidence'] = surge_info['confidence']
             else:
                 self.logger.log_info(f"[모의거래] 매수: {ticker}, {investment:,.0f}원")
-                order_metadata = {'method': 'market', 'reason': reason, 'is_chase': is_chase}
             
             # 포지션 추가
             success = self.risk_manager.add_position(
@@ -582,10 +563,10 @@ class AutoProfitBot:
                         entry_amount=amount,
                         market_condition=market_condition,
                         order_method=order_result.get('order_method') if order_result else None,
-                        surge_score=surge_data.get('surge_score') if surge_data else None,
-                        confidence=surge_data.get('confidence') if surge_data else None,
+                        surge_score=surge_info.get('surge_score') if surge_info else None,
+                        confidence=surge_info.get('confidence') if surge_info else None,
                         slippage_pct=order_result.get('slippage_pct') if order_result else None,
-                        spread_pct=spread_pct
+                        spread_pct=order_result.get('spread_pct') if order_result else None
                     )
                     
                     # 포지션에 entry_time_id 저장 (청산 시 사용)
@@ -737,9 +718,10 @@ class AutoProfitBot:
             if self.mode == 'live' and self.api.upbit:
                 order_result = self.smart_order_executor.execute_sell(
                     ticker=ticker,
-                    amount=sell_amount,
-                    method=order_method,
-                    reason=reason,
+                    volume=sell_amount,
+                    strategy=position.strategy,
+                    exit_reason_enum=exit_reason,
+                    profit_ratio=profit_ratio,
                     market_condition=market_condition
                 )
                 
