@@ -128,6 +128,24 @@ class FixedScreenDisplay:
         sys.stdout.write(f'\033[{row};{col}H')
         sys.stdout.flush()
     
+    def _format_hold_time(self, seconds: float) -> str:
+        """
+        초를 사람이 읽기 쉬운 형식으로 변환
+        
+        Args:
+            seconds: 초 단위 시간
+        
+        Returns:
+            "3분 24초" 형식의 문자열
+        """
+        minutes = int(seconds // 60)
+        secs = int(seconds % 60)
+        
+        if minutes > 0:
+            return f"{minutes}분 {secs}초"
+        else:
+            return f"{secs}초"
+    
     def update_position(self, slot: int, ticker: str, entry_price: float, 
                        current_price: float, amount: float, strategy: str,
                        entry_time: datetime):
@@ -146,18 +164,28 @@ class FixedScreenDisplay:
         if slot < 1 or slot > self.max_positions:
             return
         
+        # ⭐ 손익 계산
         profit_loss = (current_price - entry_price) * amount
         profit_ratio = ((current_price - entry_price) / entry_price) * 100
-        hold_time = (datetime.now() - entry_time).total_seconds()
+        
+        # ⭐ 보유 시간 계산 및 형식화
+        hold_seconds = (datetime.now() - entry_time).total_seconds()
+        hold_time = self._format_hold_time(hold_seconds)
+        
+        # ⭐ 투자금 및 현재 가치 계산
+        investment = entry_price * amount
+        current_value = current_price * amount
         
         self.positions[slot] = {
             'ticker': ticker,
             'entry_price': entry_price,
             'current_price': current_price,
             'amount': amount,
+            'investment': investment,  # ⭐ 추가
+            'current_value': current_value,  # ⭐ 추가
             'profit_loss': profit_loss,
             'profit_ratio': profit_ratio,
-            'hold_time': hold_time,
+            'hold_time': hold_time,  # ⭐ 형식화된 문자열
             'strategy': strategy
         }
     
