@@ -254,15 +254,17 @@ class FixedScreenDisplay:
         
         # 임시 표시용 (5초간)
         emoji = "💰" if profit_loss > 0 else "📉"
+        # hold_time은 문자열이므로 직접 사용
+        hold_display = position.get('hold_time', '0초')
         self.last_trade_result = (
             f"{emoji} {slot}️⃣ {position['ticker']} 매도 완료: "
             f"{profit_loss:+,.0f}원 ({profit_ratio:+.2f}%) | "
-            f"보유: {position['hold_time']:.0f}초"
+            f"보유: {hold_display}"
         )
         self.last_trade_time = time.time()
         
-        # 매도 횟수 증가
-        self.sell_count += 1
+        # 매도 횟수는 logger에서 관리 (update_trade_stats에서 동기화)
+        # self.sell_count는 _update_display()의 update_trade_stats()로 업데이트됨
         
         # 포지션 제거
         del self.positions[slot]
@@ -509,7 +511,7 @@ class FixedScreenDisplay:
         """헤더 렌더링 (실시간 시계)"""
         # ⭐ 실시간 시계
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        title = "Upbit AutoProfit Bot v6.18-REALTIME"
+        title = "Upbit AutoProfit Bot v6.22-SYNC-FIX"
         
         # AI 학습 상태 표시 (매도 결과 제외)
         ai_status = (
