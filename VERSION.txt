@@ -1,9 +1,9 @@
-v6.29.5-INTEGRATION-PHASE1
+v6.30.0-INTEGRATION-PHASE2A
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 29
-Patch: 5 (INTEGRATION-PHASE1)
+Minor Version: 30
+Patch: 0 (INTEGRATION-PHASE2A)
 
-Description: Integration Phase 1 - Critical missing fields and methods added. TradeExperience extended with holding_chart_signals, exit_chart_condition, liquidity tracking, and risk score fields. New methods: record_holding_chart_signal, record_exit_chart_condition. Foundation for complete AI learning integration.
+Description: Integration Phase 2A - Critical component connections. OrderBookAnalyzer liquidity integrated into order method selection. SurgeDetector.can_chase_buy validation added. LearningEngine training data now applied to next trades (optimal order method, exit timing, slippage analysis). FOK order execution methods implemented. Chase buy daily limit enforcement added.

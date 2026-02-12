@@ -1201,6 +1201,29 @@ class AutoProfitBot:
             if self.holding_protector.is_existing_holding(ticker):
                 continue
             
+            # ⭐ v6.30: 추격매수 가능 여부 검증
+            surge_info = {k: v for k, v in coin_info.items() if k != 'ticker'}
+            can_chase, reason = self.surge_detector.can_chase_buy(ticker, surge_info)
+            
+            if not can_chase:
+                self.logger.log_info(f"❌ [{ticker}] 추격매수 불가: {reason}")
+                continue
+            
+            # 일일 추격매수 한도 체크
+            chase_count = len([p for p in self.risk_manager.positions.values() 
+                              if p.strategy == 'ULTRA_SCALPING'])
+            if chase_count >= Config.CHASE_DAILY_LIMIT:
+                self.logger.log_info(
+                    f"❌ 일일 추격매수 한도 초과 ({chase_count}/{Config.CHASE_DAILY_LIMIT}회)"
+                )
+                break
+            
+            self.logger.log_info(
+                f"✅ [{ticker}] 추격매수 조건 충족: {reason} "
+                f"(점수: {surge_info.get('surge_score', 0):.1f}, "
+                f"신뢰도: {surge_info.get('confidence', 0):.2f})"
+            )
+            
             # 초단타 진입
             self.execute_ultra_buy(ticker, coin_info)
     

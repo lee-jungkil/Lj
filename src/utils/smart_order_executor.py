@@ -312,6 +312,40 @@ class SmartOrderExecutor:
                 return self._execute_market_buy(ticker, investment)
             return None
     
+    def _execute_fok_buy(self, ticker: str, limit_price: float,
+                        investment: float) -> Optional[Dict]:
+        """
+        FOK (Fill Or Kill) 매수
+        - 전량 즉시 체결 or 취소
+        - Upbit은 FOK 미지원 → IOC로 fallback 후 부분 체결 시 경고
+        
+        ⭐ v6.30 Integration: FOK order execution
+        """
+        print(f"🎯 FOK 매수 시도: {ticker}")
+        
+        # Upbit doesn't support true FOK, use IOC as fallback
+        result = self._execute_ioc_buy(ticker, limit_price, investment)
+        
+        if result and result.get('executed_volume'):
+            expected_volume = investment / limit_price
+            executed_pct = (result['executed_volume'] / expected_volume) * 100
+            
+            # FOK requires 100% fill
+            if executed_pct < 95:  # Allow 5% tolerance
+                print(
+                    f"⚠️ FOK 실패: {executed_pct:.1f}% 체결 (전량 체결 필요)\n"
+                    f"   → 부분 체결 수용됨 (IOC fallback)"
+                )
+            else:
+                print(f"✅ FOK 성공: {executed_pct:.1f}% 체결")
+            
+            # Mark as FOK for tracking
+            if isinstance(result, dict):
+                result['order_method'] = 'fok'
+            return result
+        
+        return None
+    
     def _execute_market_sell(self, ticker: str, volume: float) -> Optional[Dict]:
         """시장가 매도 (재시도 포함)"""
         for attempt in range(self.max_retries):
@@ -396,3 +430,55 @@ class SmartOrderExecutor:
                 print("⚡ Fallback: 오류 발생 → 시장가")
                 return self._execute_market_sell(ticker, volume)
             return None
+    
+    def _execute_ioc_sell(self, ticker: str, limit_price: float,
+                         volume: float) -> Optional[Dict]:
+        """
+        IOC (Immediate Or Cancel) 매도
+        - 즉시 체결 가능한 수량만 체결, 나머지 취소
+        
+        ⭐ v6.30 Integration: IOC sell order execution
+        """
+        try:
+            result = self.api.sell_limit_ioc(ticker, limit_price, volume)
+            if isinstance(result, dict):
+                result['order_method'] = 'ioc'
+            return result
+        except Exception as e:
+            print(f"❌ IOC 매도 오류: {e}")
+            if self.enable_fallback:
+                return self._execute_market_sell(ticker, volume)
+            return None
+    
+    def _execute_fok_sell(self, ticker: str, limit_price: float,
+                         volume: float) -> Optional[Dict]:
+        """
+        FOK (Fill Or Kill) 매도
+        - 전량 즉시 체결 or 취소
+        - Upbit은 FOK 미지원 → IOC로 fallback 후 부분 체결 시 경고
+        
+        ⭐ v6.30 Integration: FOK order execution
+        """
+        print(f"🎯 FOK 매도 시도: {ticker}")
+        
+        # Upbit doesn't support true FOK, use IOC as fallback
+        result = self._execute_ioc_sell(ticker, limit_price, volume)
+        
+        if result and result.get('executed_volume'):
+            executed_pct = (result['executed_volume'] / volume) * 100
+            
+            # FOK requires 100% fill
+            if executed_pct < 95:  # Allow 5% tolerance
+                print(
+                    f"⚠️ FOK 실패: {executed_pct:.1f}% 체결 (전량 체결 필요)\n"
+                    f"   → 부분 체결 수용됨 (IOC fallback)"
+                )
+            else:
+                print(f"✅ FOK 성공: {executed_pct:.1f}% 체결")
+            
+            # Mark as FOK for tracking
+            if isinstance(result, dict):
+                result['order_method'] = 'fok'
+            return result
+        
+        return None

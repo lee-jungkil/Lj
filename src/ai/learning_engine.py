@@ -859,3 +859,125 @@ class LearningEngine:
                 
                 exp.exit_chart_condition = chart_condition
                 break
+    
+    def get_optimal_order_method(self, ticker: str, strategy: str, 
+                                 market_condition: Dict) -> Optional[str]:
+        """
+        과거 학습 데이터 기반 최적 주문 방식 추천
+        
+        Args:
+            ticker: 코인 티커
+            strategy: 전략 이름
+            market_condition: 시장 조건
+        
+        Returns:
+            가장 성공률 높은 order_method (None if not enough data)
+        """
+        # Filter experiences for similar conditions
+        similar = [
+            exp for exp in self.experiences[-100:]  # Recent 100
+            if exp.ticker == ticker 
+            and exp.strategy == strategy
+            and exp.exit_price is not None  # Completed trades only
+            and hasattr(exp, 'order_method') and exp.order_method
+        ]
+        
+        if len(similar) < 3:
+            return None  # Not enough data
+        
+        # Calculate success rate by order_method
+        method_stats = {}
+        for exp in similar:
+            method = exp.order_method
+            if method not in method_stats:
+                method_stats[method] = {'wins': 0, 'total': 0, 'total_profit': 0.0}
+            
+            method_stats[method]['total'] += 1
+            if exp.profit_loss > 0:
+                method_stats[method]['wins'] += 1
+                method_stats[method]['total_profit'] += exp.profit_loss
+        
+        # Find best method
+        best_method = None
+        best_score = 0.0
+        for method, stats in method_stats.items():
+            if stats['total'] >= 2:  # Minimum sample
+                win_rate = stats['wins'] / stats['total']
+                avg_profit = stats['total_profit'] / stats['total']
+                # Weighted score: 70% win rate + 30% average profit
+                score = (win_rate * 0.7) + (min(avg_profit / 10000, 1.0) * 0.3)
+                
+                if score > best_score:
+                    best_score = score
+                    best_method = method
+        
+        return best_method
+
+    def get_optimal_exit_timing(self, ticker: str, strategy: str) -> Dict:
+        """
+        최적 청산 타이밍 분석
+        
+        Args:
+            ticker: 코인 티커
+            strategy: 전략 이름
+        
+        Returns:
+            {
+                'avg_hold_time': seconds,
+                'best_exit_reason': str,
+                'avg_profit': float,
+                'sample_size': int
+            }
+        """
+        # Filter similar completed trades
+        similar = [exp for exp in self.experiences[-100:] 
+                   if exp.ticker == ticker 
+                   and exp.strategy == strategy 
+                   and exp.holding_duration is not None
+                   and exp.exit_price is not None]
+        
+        if not similar:
+            return {}
+        
+        # Calculate averages for profitable trades
+        profitable = [exp for exp in similar if exp.profit_loss > 0]
+        
+        if profitable:
+            avg_hold_time = sum(exp.holding_duration for exp in profitable) / len(profitable)
+            avg_profit = sum(exp.profit_loss for exp in profitable) / len(profitable)
+            
+            # Most common successful exit reason
+            exit_reasons = [exp.exit_reason for exp in profitable if hasattr(exp, 'exit_reason') and exp.exit_reason]
+            best_exit = max(set(exit_reasons), key=exit_reasons.count) if exit_reasons else None
+            
+            return {
+                'avg_hold_time': avg_hold_time,
+                'best_exit_reason': best_exit,
+                'avg_profit': avg_profit,
+                'sample_size': len(profitable)
+            }
+        
+        return {}
+    
+    def get_average_slippage(self, ticker: str, order_method: str) -> float:
+        """
+        특정 티커 + 주문방식의 평균 슬리피지 조회
+        
+        Args:
+            ticker: 코인 티커
+            order_method: 주문 방식
+        
+        Returns:
+            평균 슬리피지 (%)
+        """
+        similar = [
+            exp for exp in self.experiences[-50:]
+            if exp.ticker == ticker
+            and hasattr(exp, 'order_method') and exp.order_method == order_method
+            and hasattr(exp, 'slippage_pct') and exp.slippage_pct is not None
+        ]
+        
+        if not similar:
+            return 0.3  # 기본값
+        
+        return sum(exp.slippage_pct for exp in similar) / len(similar)

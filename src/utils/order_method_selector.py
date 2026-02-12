@@ -1,9 +1,10 @@
 """
 주문 방법 자동 선택 시스템 (Order Method Selector)
 - 시장 조건, 전략, 청산 사유 기반 최적 주문 방식 자동 선택
+- ⭐ v6.30: 유동성 분석 통합
 """
 
-from typing import Dict, Optional, Literal
+from typing import Dict, Optional, Literal, Tuple
 from enum import Enum
 
 
@@ -38,11 +39,13 @@ class OrderMethodSelector:
         self.spread_threshold_high = 0.5  # 스프레드 높음 (%)
     
     def select_buy_method(self, ticker: str, strategy: str, market_condition: Dict,
-                         spread_pct: float, is_chase: bool = False) -> tuple[OrderMethod, str]:
+                         spread_pct: float, is_chase: bool = False, 
+                         orderbook_analyzer=None, liquidity_score: Optional[float] = None) -> tuple[OrderMethod, str]:
         """
-        매수 주문 방법 자동 선택
+        매수 주문 방법 자동 선택 (⭐ v6.30: 유동성 통합)
         
         Decision Tree:
+        0. 유동성 < 30 → IOC (안전 우선)
         1. 추격매수 → market (즉시 진입 필수)
         2. Ultra Scalping + 스프레드 < 0.1% → best (슬리피지 최소화)
         3. Aggressive + 고변동성 → market (빠른 진입)
@@ -57,10 +60,28 @@ class OrderMethodSelector:
             market_condition: 시장 조건 {'volatility', 'trend', 'market_phase'}
             spread_pct: 스프레드 비율 (%)
             is_chase: 추격매수 여부
+            orderbook_analyzer: 호가창 분석기 (optional)
+            liquidity_score: 직접 전달된 유동성 점수 (optional)
         
         Returns:
             (주문 방법, 사유)
         """
+        # ⭐ 0. 유동성 체크 (최우선)
+        if liquidity_score is None and orderbook_analyzer:
+            try:
+                analysis = orderbook_analyzer.analyze_order_book(ticker)
+                liquidity_score = analysis.get('liquidity_score', 50.0)
+            except:
+                liquidity_score = 50.0  # 기본값
+        
+        # 유동성 매우 낮음 → 안전한 방식 선택
+        if liquidity_score and liquidity_score < 30:
+            return OrderMethod.IOC, f"낮은 유동성({liquidity_score:.1f}점) → IOC (즉시 체결)"
+        
+        # 유동성 낮음 + 고스프레드 → 지정가 전환
+        if liquidity_score and liquidity_score < 50 and spread_pct > 0.3:
+            return OrderMethod.LIMIT, f"낮은 유동성({liquidity_score:.1f}점) + 높은 스프레드 → 지정가"
+        
         # 1. 추격매수 → 무조건 시장가
         if is_chase:
             return OrderMethod.MARKET, "추격매수 - 즉시 진입 필수"
@@ -106,11 +127,12 @@ class OrderMethodSelector:
     
     def select_sell_method(self, ticker: str, strategy: str, exit_reason: ExitReason,
                           spread_pct: float, profit_ratio: float, 
-                          market_condition: Dict) -> tuple[OrderMethod, str]:
+                          market_condition: Dict, liquidity_score: Optional[float] = None) -> tuple[OrderMethod, str]:
         """
-        매도 주문 방법 자동 선택
+        매도 주문 방법 자동 선택 (⭐ v6.30: 유동성 통합)
         
         Decision Tree:
+        0. 유동성 < 30 + 손실 → market (빠른 탈출)
         1. 손절 (STOP_LOSS) → market (즉시 청산)
         2. 긴급 (EMERGENCY) → market (급락 탈출)
         3. 익절 (TAKE_PROFIT) + 추격/초단타 → market (수익 확보 우선)
@@ -130,10 +152,14 @@ class OrderMethodSelector:
             spread_pct: 스프레드 비율 (%)
             profit_ratio: 수익률 (%)
             market_condition: 시장 조건
+            liquidity_score: 유동성 점수 (optional)
         
         Returns:
             (주문 방법, 사유)
         """
+        # ⭐ 0. 유동성 매우 낮음 + 손실 → 무조건 시장가 탈출
+        if liquidity_score and liquidity_score < 30 and profit_ratio < 0:
+            return OrderMethod.MARKET, f"낮은 유동성({liquidity_score:.1f}점) + 손실 → 즉시 청산"
         # 1. 손절 → 무조건 시장가
         if exit_reason == ExitReason.STOP_LOSS:
             return OrderMethod.MARKET, "손절 → 즉시 청산"
