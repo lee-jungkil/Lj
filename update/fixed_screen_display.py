@@ -310,6 +310,21 @@ class FixedScreenDisplay:
             profit=risk_status['cumulative_profit_loss']
         )
     
+    def sync_with_learning_engine(self, learning_engine):
+        """
+        AI 학습 엔진과 자동 동기화
+        
+        Args:
+            learning_engine: LearningEngine 인스턴스
+        """
+        # AI 학습 통계 동기화
+        stats = learning_engine.get_stats()
+        self.update_ai_learning(
+            stats['total_trades'],
+            stats['profit_trades'],
+            stats['loss_trades']
+        )
+    
     def update_capital_status(self, initial: int, current: int, profit: float):
         """
         자본금 및 손익 상태 업데이트
@@ -494,7 +509,7 @@ class FixedScreenDisplay:
         """헤더 렌더링 (실시간 시계)"""
         # ⭐ 실시간 시계
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        title = "Upbit AutoProfit Bot v6.14-FIXED"
+        title = "Upbit AutoProfit Bot v6.18-REALTIME"
         
         # AI 학습 상태 표시 (매도 결과 제외)
         ai_status = (
