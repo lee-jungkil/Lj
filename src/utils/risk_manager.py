@@ -440,3 +440,113 @@ class RiskManager:
             }
             for pos in self.positions.values()
         ]
+    
+    def evaluate_holding_risk(self, ticker: str, market_condition: Dict = None) -> Dict[str, any]:
+        """
+        보유 포지션의 리스크 평가
+        
+        Args:
+            ticker: 평가할 코인 티커
+            market_condition: 시장 상황 (volatility, trend 등)
+        
+        Returns:
+            리스크 평가 결과
+            {
+                'risk_level': 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+                'risk_score': 0-100,
+                'should_reduce': bool,
+                'recommended_action': str,
+                'reasons': List[str]
+            }
+        """
+        if ticker not in self.positions:
+            return {
+                'risk_level': 'NONE',
+                'risk_score': 0,
+                'should_reduce': False,
+                'recommended_action': 'NO_POSITION',
+                'reasons': []
+            }
+        
+        position = self.positions[ticker]
+        reasons = []
+        risk_score = 0
+        
+        # 1. 손익률 기반 리스크 (40점)
+        pl_ratio = position.profit_loss_ratio
+        if pl_ratio < -5.0:
+            risk_score += 40
+            reasons.append(f"큰 손실 중: {pl_ratio:.2f}%")
+        elif pl_ratio < -3.0:
+            risk_score += 30
+            reasons.append(f"손실 발생: {pl_ratio:.2f}%")
+        elif pl_ratio < -1.0:
+            risk_score += 15
+            reasons.append(f"약간 손실: {pl_ratio:.2f}%")
+        elif pl_ratio > 10.0:
+            risk_score += 20
+            reasons.append(f"과도한 미실현 이익: {pl_ratio:.2f}%")
+        elif pl_ratio > 5.0:
+            risk_score += 10
+            reasons.append(f"높은 미실현 이익: {pl_ratio:.2f}%")
+        
+        # 2. 보유 시간 기반 리스크 (20점)
+        hold_time_minutes = (datetime.now() - position.entry_time).total_seconds() / 60
+        if hold_time_minutes > 120:  # 2시간 이상
+            risk_score += 20
+            reasons.append(f"장기 보유 중: {hold_time_minutes:.0f}분")
+        elif hold_time_minutes > 60:  # 1시간 이상
+            risk_score += 10
+            reasons.append(f"보유 시간 경과: {hold_time_minutes:.0f}분")
+        
+        # 3. 시장 변동성 기반 리스크 (20점)
+        if market_condition and 'volatility' in market_condition:
+            volatility = market_condition['volatility']
+            if volatility == 'high':
+                risk_score += 20
+                reasons.append("높은 시장 변동성")
+            elif volatility == 'medium':
+                risk_score += 10
+                reasons.append("중간 시장 변동성")
+        
+        # 4. 포지션 크기 기반 리스크 (10점)
+        position_ratio = (position.total_value / self.get_total_equity()) if self.get_total_equity() > 0 else 0
+        if position_ratio > self.max_position_ratio:
+            risk_score += 10
+            reasons.append(f"포지션 비율 초과: {position_ratio*100:.1f}%")
+        
+        # 5. 일일 손실 현황 기반 리스크 (10점)
+        if self.daily_profit_loss < -self.max_daily_loss * 0.7:
+            risk_score += 10
+            reasons.append("일일 손실 한도 근접")
+        
+        # 리스크 레벨 결정
+        if risk_score >= 75:
+            risk_level = 'CRITICAL'
+            recommended_action = '즉시 청산 권장'
+            should_reduce = True
+        elif risk_score >= 50:
+            risk_level = 'HIGH'
+            recommended_action = '50% 이상 청산 권장'
+            should_reduce = True
+        elif risk_score >= 30:
+            risk_level = 'MEDIUM'
+            recommended_action = '일부 청산 고려'
+            should_reduce = False
+        else:
+            risk_level = 'LOW'
+            recommended_action = '정상 보유'
+            should_reduce = False
+        
+        return {
+            'risk_level': risk_level,
+            'risk_score': min(risk_score, 100),
+            'should_reduce': should_reduce,
+            'recommended_action': recommended_action,
+            'reasons': reasons,
+            'position_info': {
+                'profit_loss_ratio': pl_ratio,
+                'hold_time_minutes': hold_time_minutes,
+                'position_ratio': position_ratio * 100
+            }
+        }

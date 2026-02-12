@@ -898,15 +898,19 @@ class AutoProfitBot:
     
     def check_positions(self, ticker: str, strategy):
         """
-        포지션 손익 체크 및 자동 청산 (⭐ v6.29 확장: 6가지 청산 조건)
+        포지션 손익 체크 및 자동 청산 (⭐ v6.30.4 확장: 10가지 청산 조건)
         
-        6가지 청산 조건:
-        1. 손익률 기준 (익절/손절)
+        10가지 청산 조건:
+        0. 리스크 평가 (통합 위험도 분석) ⭐ NEW
+        1. 시간 초과 (전략별 max_hold_time)
         2. 트레일링 스탑 (Trailing Stop)
         3. 차트 신호 (RSI, MACD, 거래량)
-        4. 시간 초과 (전략별 max_hold_time)
-        5. 급락 감지 (1분 내 -1.5% 이상)
-        6. 거래량 급감 (평균 대비 0.5배 이하)
+        4. 급락 감지 (1분 내 -1.5% 이상)
+        5. 거래량 급감 (평균 대비 0.5배 이하)
+        6. 기본 손익률 (익절/손절)
+        7. 분할 매도 (Scaled Sell)
+        8. 조건부 매도 (Conditional Sell)
+        9. 동적 손절 (Dynamic Stop Loss)
         
         Args:
             ticker: 코인 티커
@@ -920,6 +924,59 @@ class AutoProfitBot:
         
         if not current_price:
             return
+        
+        # ⭐ 조건 0: 통합 리스크 평가 (새로 추가)
+        try:
+            # 시장 상황 분석
+            market_condition = {'volatility': 'medium', 'trend': 'neutral'}
+            
+            # 최근 가격 데이터로 변동성 추정
+            ohlcv = self.api.get_ohlcv(ticker, interval='minute1', count=10)
+            if ohlcv and len(ohlcv) >= 2:
+                recent_changes = []
+                for i in range(1, len(ohlcv)):
+                    pct_change = ((ohlcv[i]['close'] - ohlcv[i-1]['close']) / ohlcv[i-1]['close']) * 100
+                    recent_changes.append(abs(pct_change))
+                
+                avg_volatility = sum(recent_changes) / len(recent_changes) if recent_changes else 0
+                
+                if avg_volatility > 2.0:
+                    market_condition['volatility'] = 'high'
+                elif avg_volatility > 1.0:
+                    market_condition['volatility'] = 'medium'
+                else:
+                    market_condition['volatility'] = 'low'
+                
+                # 트렌드 판단
+                price_change_5min = ((current_price - ohlcv[0]['close']) / ohlcv[0]['close']) * 100
+                if price_change_5min > 1.0:
+                    market_condition['trend'] = 'bullish'
+                elif price_change_5min < -1.0:
+                    market_condition['trend'] = 'bearish'
+            
+            # 리스크 평가 실행
+            risk_eval = self.risk_manager.evaluate_holding_risk(ticker, market_condition)
+            
+            # 로그 출력
+            if risk_eval['risk_level'] in ['HIGH', 'CRITICAL']:
+                reasons_str = ', '.join(risk_eval['reasons'])
+                self.logger.log_warning(
+                    f"⚠️ {ticker} 리스크 평가: {risk_eval['risk_level']} "
+                    f"(점수: {risk_eval['risk_score']}/100) - {reasons_str}"
+                )
+            
+            # CRITICAL 리스크 시 즉시 청산
+            if risk_eval['risk_level'] == 'CRITICAL':
+                self.execute_sell(ticker, f"위험도 CRITICAL 청산 ({risk_eval['recommended_action']})")
+                return
+            
+            # HIGH 리스크 + 손실 중이면 청산
+            if risk_eval['risk_level'] == 'HIGH' and position.profit_loss_ratio < -2.0:
+                self.execute_sell(ticker, f"고위험 + 손실 청산 ({risk_eval['recommended_action']})")
+                return
+                
+        except Exception as e:
+            self.logger.log_warning(f"{ticker} 리스크 평가 실패: {e}")
         
         # 보유 시간 계산
         import time

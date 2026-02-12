@@ -1,9 +1,9 @@
-v6.30.3-PRODUCTION-VERIFIED
+v6.30.4-RISK-EVALUATION-COMPLETE
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 3 (PRODUCTION-VERIFIED)
+Patch: 4 (RISK-EVALUATION-COMPLETE)
 
-Description: Production verification COMPLETE. All imports fixed, Config.ENABLE_DYNAMIC_STOP_LOSS added, bot initialization successful. Integration test passed: Phase 2A (OrderBookAnalyzer, SurgeDetector, LearningEngine, FOK/IOC orders) + Phase 2B (DynamicStopLoss, ScaledSell, ConditionalSell) + Phase 2C (main.py integration) all verified working. System ready for live trading.
+Description: Risk evaluation integration COMPLETE. Added evaluate_holding_risk() method to RiskManager with comprehensive risk scoring (100 points): profit/loss ratio (40pt), holding time (20pt), market volatility (20pt), position size (10pt), daily loss status (10pt). Integrated into check_positions as Condition 0 with CRITICAL/HIGH risk auto-liquidation. Total exit conditions now 10 (0-9). Risk levels: LOW/MEDIUM/HIGH/CRITICAL with actionable recommendations.
