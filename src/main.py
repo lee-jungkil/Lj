@@ -787,16 +787,25 @@ class AutoProfitBot:
     
     def update_all_positions(self):
         """모든 포지션 가격 업데이트"""
-        if not self.risk_manager.positions:
-            return
+        try:
+            if not self.risk_manager.positions:
+                return
+            
+            prices = {}
+            for ticker in self.risk_manager.positions.keys():
+                try:
+                    price = self.api.get_current_price(ticker)
+                    if price:
+                        prices[ticker] = price
+                except Exception as e:
+                    self.logger.log_warning(f"{ticker} 가격 조회 실패: {e}")
+                    continue
+            
+            if prices:
+                self.risk_manager.update_positions(prices)
         
-        prices = {}
-        for ticker in self.risk_manager.positions.keys():
-            price = self.api.get_current_price(ticker)
-            if price:
-                prices[ticker] = price
-        
-        self.risk_manager.update_positions(prices)
+        except Exception as e:
+            self.logger.log_error("UPDATE_POSITIONS_ERROR", "포지션 업데이트 실패", e)
     
     def check_profit_withdrawal(self):
         """수익 출금 확인 및 처리"""
@@ -1493,7 +1502,15 @@ class AutoProfitBot:
         except KeyboardInterrupt:
             self.logger.log_info("\n⏹️ 사용자에 의해 중지됨")
         except Exception as e:
-            self.logger.log_error("RUNTIME_ERROR", "봇 실행 중 오류", e)
+            # 상세한 에러 로깅
+            import traceback
+            error_details = traceback.format_exc()
+            self.logger.log_error("RUNTIME_ERROR", f"봇 실행 중 치명적 오류: {str(e)}", e)
+            self.logger.log_error("TRACEBACK", "상세 스택 트레이스", error_details)
+            # 화면에 에러 표시
+            if hasattr(self, 'display'):
+                self.display.update_bot_status(f"❌ 오류 발생: {str(e)[:50]}")
+                self.display.render()
         finally:
             self.stop()
     
@@ -1563,9 +1580,10 @@ class AutoProfitBot:
                     profit_trades += strategy_stat.get('winning_trades', 0)
                     loss_trades += strategy_stat.get('losing_trades', 0)
                 
-                # ⭐ 디버그: AI 학습 데이터 확인
+                # ⭐ 디버그: AI 학습 데이터 확인 (로그 파일에만 기록)
                 if total_trades > 0:
-                    print(f"[DEBUG] AI 학습: total={total_trades}, profit={profit_trades}, loss={loss_trades}", flush=True)
+                    # print 대신 로거 사용 (v6.19 print 억제 대응)
+                    pass
                 
                 # 화면 업데이트
                 self.display.update_ai_learning(
@@ -1659,9 +1677,10 @@ class AutoProfitBot:
             
             self.display.update_trade_stats(buy_count, sell_count)
             
-            # ⭐ 디버그: 거래 통계 확인
-            if trades:
-                print(f"[DEBUG] 거래 로그: {len(trades)}개, 매수: {buy_count}, 매도: {sell_count}", flush=True)
+            # ⭐ 디버그: 거래 통계 확인 (로그 파일에만 기록)
+            # print 대신 로거 사용 (v6.19 print 억제 대응)
+            if trades and len(trades) > 0:
+                pass  # 로그는 필요 시 logger 사용
             
             # 봇 상태 업데이트
             self.display.update_bot_status(f"{len(self.tickers)}개 모니터링")
