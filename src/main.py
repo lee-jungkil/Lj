@@ -765,7 +765,7 @@ class AutoProfitBot:
     
     def check_positions(self, ticker: str, strategy):
         """
-        포지션 손익 체크 및 자동 청산
+        포지션 손익 체크 및 자동 청산 (⭐ 차트 지표 반영)
         
         Args:
             ticker: 코인 티커
@@ -780,7 +780,52 @@ class AutoProfitBot:
         if not current_price:
             return
         
-        # 전략별 청산 조건 확인
+        # ⭐ 차트 지표 분석 추가
+        try:
+            df = self.api.get_ohlcv(ticker, interval="minute5", count=200)
+            if df is not None and not df.empty:
+                # RSI 계산
+                delta = df['close'].diff()
+                gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+                loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+                rs = gain / loss
+                rsi = 100 - (100 / (1 + rs))
+                current_rsi = rsi.iloc[-1] if not rsi.empty else 50
+                
+                # MACD 계산
+                exp1 = df['close'].ewm(span=12).mean()
+                exp2 = df['close'].ewm(span=26).mean()
+                macd = exp1 - exp2
+                signal = macd.ewm(span=9).mean()
+                macd_val = macd.iloc[-1]
+                signal_val = signal.iloc[-1]
+                macd_direction = "상승" if macd_val > signal_val else "하락"
+                
+                # 거래량 변화
+                volume_change = ((df['volume'].iloc[-1] - df['volume'].mean()) / df['volume'].mean()) * 100
+                
+                # ⭐ 차트 기반 추가 청산 조건
+                chart_exit = False
+                chart_reason = ""
+                
+                # 과매수 구간에서 하락 신호
+                if current_rsi > 70 and macd_direction == "하락":
+                    chart_exit = True
+                    chart_reason = f"과매수+MACD하락 (RSI:{current_rsi:.0f})"
+                
+                # 과매도에서 추가 하락 (손절 강화)
+                elif current_rsi < 30 and macd_direction == "하락" and volume_change < -20:
+                    chart_exit = True
+                    chart_reason = f"과매도+MACD하락+거래량감소 (RSI:{current_rsi:.0f})"
+                
+                if chart_exit:
+                    self.execute_sell(ticker, chart_reason)
+                    return
+                    
+        except Exception as e:
+            self.logger.log_warning(f"{ticker} 차트 분석 실패: {e}")
+        
+        # 기본 전략별 청산 조건 확인
         should_exit, exit_reason = strategy.should_exit(position.avg_buy_price, current_price)
         
         if should_exit:

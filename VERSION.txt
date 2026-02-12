@@ -1,9 +1,9 @@
-v6.25-CRITICAL-FIXES
+v6.26-ALL-FIXES-COMPLETE
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 25
-Patch: CRITICAL-FIXES
+Minor Version: 26
+Patch: ALL-FIXES-COMPLETE
 
-Description: Critical fixes (1-4): sell record sync, trade count fix, scan interval optimization (60s→20s, 5s→10s), total asset display (cash+position)
+Description: Issues 1-9 completed - critical fixes, scan optimization, total asset display, chart indicators in position check, entry condition relaxation (+10% buy probability), AI adjustment framework
