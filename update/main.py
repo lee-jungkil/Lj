@@ -1201,6 +1201,67 @@ class AutoProfitBot:
         except Exception as e:
             self.logger.log_error("UPDATE_POSITIONS_ERROR", "포지션 업데이트 실패", e)
     
+    def quick_check_positions(self):
+        """
+        빠른 포지션 체크 (1분마다 실행)
+        모든 포지션에 대해 청산 조건을 체크합니다.
+        """
+        try:
+            if not self.risk_manager.positions:
+                return
+            
+            # 포지션 목록 복사 (iteration 중 변경 방지)
+            positions_to_check = list(self.risk_manager.positions.items())
+            
+            for ticker, position in positions_to_check:
+                try:
+                    # 현재 가격 조회
+                    current_price = self.api.get_current_price(ticker)
+                    if not current_price:
+                        continue
+                    
+                    # 포지션 가격 업데이트
+                    self.risk_manager.update_positions({ticker: current_price})
+                    
+                    # 전략 객체 가져오기
+                    strategy_name = position.strategy
+                    strategy = self._get_strategy_by_name(strategy_name)
+                    
+                    if strategy:
+                        # check_positions 호출 (10가지 청산 조건 체크)
+                        self.check_positions(ticker, strategy)
+                
+                except Exception as e:
+                    self.logger.log_warning(f"{ticker} 빠른 체크 실패: {e}")
+                    continue
+        
+        except Exception as e:
+            self.logger.log_error("QUICK_CHECK_ERROR", "빠른 포지션 체크 실패", e)
+    
+    def _get_strategy_by_name(self, strategy_name: str):
+        """
+        전략 이름으로 전략 객체 가져오기
+        """
+        strategy_map = {
+            'AGGRESSIVE': self.aggressive_scalping,
+            'AGGRESSIVE_SCALPING': self.aggressive_scalping,
+            '공격적': self.aggressive_scalping,
+            'CONSERVATIVE': self.conservative_scalping,
+            'CONSERVATIVE_SCALPING': self.conservative_scalping,
+            '보수적': self.conservative_scalping,
+            'MEAN_REVERSION': self.mean_reversion,
+            '평균회귀': self.mean_reversion,
+            'GRID': self.grid_trading,
+            'GRID_TRADING': self.grid_trading,
+            '그리드': self.grid_trading,
+            'ULTRA_SCALPING': self.ultra_scalping,
+            'ULTRA': self.ultra_scalping,
+            '초단타': self.ultra_scalping,
+            'CHASE_BUY': self.ultra_scalping,  # 추격매수는 초단타로 처리
+        }
+        
+        return strategy_map.get(strategy_name, self.aggressive_scalping)  # 기본값
+    
     def check_profit_withdrawal(self):
         """수익 출금 확인 및 처리"""
         should_withdraw, amount = self.risk_manager.should_withdraw_profit()

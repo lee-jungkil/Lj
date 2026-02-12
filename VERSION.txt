@@ -1,9 +1,9 @@
-v6.30.4-RISK-EVALUATION-COMPLETE
+v6.30.5-POSITION-CHECK-FIX
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 4 (RISK-EVALUATION-COMPLETE)
+Patch: 5 (POSITION-CHECK-FIX)
 
-Description: Risk evaluation integration COMPLETE. Added evaluate_holding_risk() method to RiskManager with comprehensive risk scoring (100 points): profit/loss ratio (40pt), holding time (20pt), market volatility (20pt), position size (10pt), daily loss status (10pt). Integrated into check_positions as Condition 0 with CRITICAL/HIGH risk auto-liquidation. Total exit conditions now 10 (0-9). Risk levels: LOW/MEDIUM/HIGH/CRITICAL with actionable recommendations.
+Description: CRITICAL BUG FIX - Position check not executing properly. Added quick_check_positions() method that was missing, causing positions to be held for hours without liquidation checks. Now properly checks all 10 exit conditions every minute for all positions. Also added _get_strategy_by_name() helper to map strategy names to strategy objects. Fixed 7-hour holding issue reported by user.
