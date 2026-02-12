@@ -3,7 +3,7 @@ chcp 65001 >nul 2>&1
 cls
 
 echo ============================================================
-echo  Upbit AutoProfit Bot Update v6.16-SELLHISTORY
+echo  Upbit AutoProfit Bot Update v6.18-REALTIME-SYNC
 echo ============================================================
 echo.
 echo Update Contents:
@@ -11,7 +11,10 @@ echo  [OK] Screen scroll completely removed
 echo  [OK] Profit/Loss sync improved
 echo  [OK] Risk management enhanced (auto-stop at -10%%)
 echo  [OK] Debug output suppressed
-echo  [NEW] Sell history permanent storage (keep 10 records)
+echo  [OK] Sell history permanent storage (keep 10 records)
+echo  [NEW] Real-time sync fixed - entry_time storage added
+echo  [NEW] Position price update optimization
+echo  [NEW] Risk manager auto-sync function added
 echo.
 
 REM Save current directory

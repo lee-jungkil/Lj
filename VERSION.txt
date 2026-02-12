@@ -1,9 +1,9 @@
-v6.17-SYNC-COMPLETE
+v6.18-REALTIME-SYNC
 Release Date: 2026-02-12
-Commit: cfdc7e4
+Commit: (pending)
 
 Major Version: 6
-Minor Version: 17
-Patch: SYNC-COMPLETE
+Minor Version: 18
+Patch: REALTIME-SYNC
 
-Description: Complete display synchronization with real-time data
+Description: Fixed real-time synchronization issues - entry_time storage, position price update optimization, risk manager auto-sync

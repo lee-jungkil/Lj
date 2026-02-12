@@ -181,13 +181,44 @@ class FixedScreenDisplay:
             'entry_price': entry_price,
             'current_price': current_price,
             'amount': amount,
-            'investment': investment,  # ⭐ 추가
-            'current_value': current_value,  # ⭐ 추가
+            'investment': investment,
+            'current_value': current_value,
             'profit_loss': profit_loss,
             'profit_ratio': profit_ratio,
-            'hold_time': hold_time,  # ⭐ 형식화된 문자열
+            'hold_time': hold_time,
+            'hold_seconds': hold_seconds,  # ⭐ 추가: 초 단위 저장
+            'entry_time': entry_time,  # ⭐ 추가: 원본 시간 저장
             'strategy': strategy
         }
+    
+    def update_position_price(self, slot: int, current_price: float):
+        """
+        포지션의 현재 가격만 업데이트 (실시간 동기화용)
+        
+        Args:
+            slot: 슬롯 번호
+            current_price: 새 현재 가격
+        """
+        if slot not in self.positions:
+            return
+        
+        pos = self.positions[slot]
+        
+        # 가격 업데이트
+        pos['current_price'] = current_price
+        
+        # 손익 재계산
+        pos['profit_loss'] = (current_price - pos['entry_price']) * pos['amount']
+        pos['profit_ratio'] = ((current_price - pos['entry_price']) / pos['entry_price']) * 100
+        
+        # 현재 가치 재계산
+        pos['current_value'] = current_price * pos['amount']
+        
+        # ⭐ 보유 시간 재계산 (entry_time 활용)
+        if 'entry_time' in pos:
+            hold_seconds = (datetime.now() - pos['entry_time']).total_seconds()
+            pos['hold_time'] = self._format_hold_time(hold_seconds)
+            pos['hold_seconds'] = hold_seconds
     
     def remove_position(self, slot: int, exit_price: float, profit_loss: float, 
                        profit_ratio: float):
@@ -263,6 +294,21 @@ class FixedScreenDisplay:
             self.ai_win_rate = (profit_trades / total_trades) * 100
         else:
             self.ai_win_rate = 0.0
+    
+    def sync_with_risk_manager(self, risk_manager):
+        """
+        RiskManager와 자동 동기화
+        
+        Args:
+            risk_manager: RiskManager 인스턴스
+        """
+        # 자본금 동기화
+        risk_status = risk_manager.get_risk_status()
+        self.update_capital_status(
+            initial=risk_manager.initial_capital,
+            current=risk_status['current_balance'],
+            profit=risk_status['cumulative_profit_loss']
+        )
     
     def update_capital_status(self, initial: int, current: int, profit: float):
         """
