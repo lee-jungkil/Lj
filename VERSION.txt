@@ -1,4 +1,4 @@
-v6.20-STABILITY
+v6.21-HOTFIX
 Release Date: 2026-02-12
 Commit: (pending)
 

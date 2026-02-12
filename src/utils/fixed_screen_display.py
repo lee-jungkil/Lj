@@ -575,8 +575,13 @@ class FixedScreenDisplay:
                         color = Fore.RED
                         emoji = "📉"
                     
-                    # 보유 시간
-                    hold_seconds = int(pos['hold_time'])
+                    # 보유 시간 (hold_seconds 사용, hold_time은 문자열)
+                    if 'hold_seconds' in pos and pos['hold_seconds'] is not None:
+                        hold_seconds = int(pos['hold_seconds'])
+                    else:
+                        # fallback: 0초
+                        hold_seconds = 0
+                    
                     hold_minutes = hold_seconds // 60
                     hold_secs = hold_seconds % 60
                     
