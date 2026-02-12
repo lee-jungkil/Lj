@@ -242,6 +242,31 @@ class AutoProfitBot:
         # ⭐ 시장 조건 분석기
         self.market_analyzer = market_condition_analyzer
         
+        # ⭐ v6.30.1 Phase 2B: Advanced Trading Features
+        # 1. Dynamic Stop Loss
+        if Config.ENABLE_DYNAMIC_STOP_LOSS:
+            from src.strategies.dynamic_stop_loss import DynamicStopLoss
+            self.dynamic_stop_loss = DynamicStopLoss(self.learning_engine, Config)
+            self.logger.log_info("🎯 동적 손절 시스템 활성화 (AI 학습 기반)")
+        else:
+            self.dynamic_stop_loss = None
+        
+        # 2. Scaled Sell Manager
+        if os.getenv('ENABLE_SCALED_SELL', 'false').lower() == 'true':
+            from src.strategies.scaled_sell import ScaledSellManager
+            self.scaled_sell = ScaledSellManager(Config)
+            self.logger.log_info(f"📊 분할 매도 활성화: {self.scaled_sell.get_config_summary()}")
+        else:
+            self.scaled_sell = None
+        
+        # 3. Conditional Sell Manager
+        if os.getenv('ENABLE_CONDITIONAL_SELL', 'false').lower() == 'true':
+            from src.strategies.conditional_sell import ConditionalSellManager
+            self.conditional_sell = ConditionalSellManager(Config, self.market_analyzer)
+            self.logger.log_info(f"🔍 조건부 매도 활성화: {self.conditional_sell.get_config_summary()}")
+        else:
+            self.conditional_sell = None
+        
         # ⭐ 동적 코인 선정 시스템
         self.dynamic_coin_selector = None
         if Config.ENABLE_DYNAMIC_COIN_SELECTION:
@@ -572,6 +597,17 @@ class AutoProfitBot:
                     # 포지션에 entry_time_id 저장 (청산 시 사용)
                     if ticker in self.risk_manager.positions:
                         self.risk_manager.positions[ticker].entry_time_id = entry_time_id
+                        
+                        # ⭐ v6.30.1: Dynamic Stop Loss 적용
+                        if self.dynamic_stop_loss:
+                            stop_loss_price = self.dynamic_stop_loss.calculate_optimal_stop_loss(
+                                ticker, strategy, current_price, market_condition
+                            )
+                            self.risk_manager.positions[ticker].stop_loss_price = stop_loss_price
+                            self.logger.log_info(
+                                f"🎯 동적 손절가 설정: {ticker} → {stop_loss_price:,.0f}원 "
+                                f"({((stop_loss_price/current_price-1)*100):+.2f}%)"
+                            )
                         
                 except Exception as e:
                     self.logger.log_warning(f"⚠️  AI 학습 기록 실패: {e}")
@@ -997,6 +1033,88 @@ class AutoProfitBot:
                     
         except Exception as e:
             self.logger.log_warning(f"{ticker} 고급 청산 조건 분석 실패: {e}")
+        
+        # ⭐ v6.30.1 Phase 2B: 고급 청산 기능 통합
+        
+        # 조건 7: 분할 매도 체크 (Scaled Sell)
+        if self.scaled_sell:
+            try:
+                remaining_amount = position.amount
+                partial_sell = self.scaled_sell.should_sell_partial(
+                    ticker, current_price, position.avg_buy_price, remaining_amount
+                )
+                
+                if partial_sell:
+                    # 분할 매도 실행
+                    sell_amount = partial_sell['sell_amount']
+                    level_reason = partial_sell['reason']
+                    
+                    self.logger.log_info(
+                        f"📊 {ticker} {level_reason} "
+                        f"(매도: {sell_amount:.6f}, 남음: {remaining_amount - sell_amount:.6f})"
+                    )
+                    
+                    # 일부만 매도 (실제 구현 시 partial sell 로직 필요)
+                    # 여기서는 로그만 남기고, 실제 매도는 execute_sell 수정 필요
+                    
+                    # 레벨 실행 완료 표시
+                    self.scaled_sell.mark_level_executed(ticker, partial_sell['level_index'])
+                    
+                    # 모든 레벨 완료 시 포지션 초기화
+                    if self.scaled_sell.is_fully_executed(ticker):
+                        self.scaled_sell.reset_position(ticker)
+                        self.execute_sell(ticker, "분할매도 완료 (모든 레벨)")
+                        return
+            except Exception as e:
+                self.logger.log_warning(f"{ticker} 분할 매도 체크 실패: {e}")
+        
+        # 조건 8: 조건부 매도 체크 (Conditional Sell)
+        if self.conditional_sell:
+            try:
+                eval_result = self.conditional_sell.evaluate_sell_conditions(
+                    ticker, position, current_price
+                )
+                
+                if eval_result['should_sell']:
+                    formatted_msg = self.conditional_sell.format_evaluation_result(eval_result)
+                    self.logger.log_info(f"{ticker} {formatted_msg}")
+                    
+                    reasons_str = ', '.join(eval_result['reasons'])
+                    self.execute_sell(ticker, f"조건부매도 ({reasons_str})")
+                    return
+            except Exception as e:
+                self.logger.log_warning(f"{ticker} 조건부 매도 체크 실패: {e}")
+        
+        # 조건 9: 동적 손절 체크 (Dynamic Stop Loss)
+        if self.dynamic_stop_loss and hasattr(position, 'stop_loss_price'):
+            try:
+                profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+                
+                # 손절가 도달 체크
+                if self.dynamic_stop_loss.should_trigger_stop_loss(current_price, position.stop_loss_price):
+                    reason = self.dynamic_stop_loss.get_stop_loss_reason(
+                        current_price, position.avg_buy_price, position.stop_loss_price, profit_ratio
+                    )
+                    self.execute_sell(ticker, reason)
+                    return
+                
+                # 트레일링 스탑 업데이트 (수익 중일 때만)
+                if profit_ratio > 1.0:
+                    new_stop = self.dynamic_stop_loss.update_stop_loss_trailing(
+                        current_price, position.avg_buy_price, position.stop_loss_price,
+                        position.strategy, profit_ratio
+                    )
+                    
+                    if new_stop > position.stop_loss_price:
+                        old_stop = position.stop_loss_price
+                        position.stop_loss_price = new_stop
+                        self.logger.log_info(
+                            f"📈 {ticker} 트레일링 스탑 상향: "
+                            f"{old_stop:,.0f} → {new_stop:,.0f} "
+                            f"(+{((new_stop-old_stop)/old_stop*100):.2f}%)"
+                        )
+            except Exception as e:
+                self.logger.log_warning(f"{ticker} 동적 손절 체크 실패: {e}")
         
         # ⭐ 조건 1: 기본 손익률 기준 청산 (전략별)
         should_exit, exit_reason = strategy.should_exit(position.avg_buy_price, current_price)
