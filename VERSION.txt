@@ -1,9 +1,9 @@
-v6.30.5-POSITION-CHECK-FIX
+v6.30.6-IMPORT-PATH-FIX
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 5 (POSITION-CHECK-FIX)
+Patch: 6 (IMPORT-PATH-FIX)
 
-Description: CRITICAL BUG FIX - Position check not executing properly. Added quick_check_positions() method that was missing, causing positions to be held for hours without liquidation checks. Now properly checks all 10 exit conditions every minute for all positions. Also added _get_strategy_by_name() helper to map strategy names to strategy objects. Fixed 7-hour holding issue reported by user.
+Description: Fixed all relative import paths to absolute paths (src.*) to enable proper module execution. Changed imports from 'from config import' to 'from src.config import', etc. This resolves ModuleNotFoundError when running python3 -m src.main. Bot now starts successfully and all Phase 2B components (DynamicStopLoss, ScaledSellManager, ConditionalSellManager) import correctly.

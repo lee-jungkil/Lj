@@ -46,45 +46,45 @@ from datetime import datetime
 from typing import Dict, List
 import random
 
-from config import Config
-from upbit_api import UpbitAPI
-from utils.logger import TradingLogger
-from utils.risk_manager import RiskManager
-from utils.sentiment_analyzer import SentimentAnalyzer
-from utils.strategy_optimizer import StrategyOptimizer, MarketCondition
-from utils.market_analyzer import analyze_market_condition, get_market_description
-from utils.holding_protector import HoldingProtector
-from utils.surge_detector import SurgeDetector
-from utils.dynamic_coin_selector import DynamicCoinSelector
-from utils.fixed_screen_display import FixedScreenDisplay
-from utils.market_condition_analyzer import market_condition_analyzer
+from src.config import Config
+from src.upbit_api import UpbitAPI
+from src.utils.logger import TradingLogger
+from src.utils.risk_manager import RiskManager
+from src.utils.sentiment_analyzer import SentimentAnalyzer
+from src.utils.strategy_optimizer import StrategyOptimizer, MarketCondition
+from src.utils.market_analyzer import analyze_market_condition, get_market_description
+from src.utils.holding_protector import HoldingProtector
+from src.utils.surge_detector import SurgeDetector
+from src.utils.dynamic_coin_selector import DynamicCoinSelector
+from src.utils.fixed_screen_display import FixedScreenDisplay
+from src.utils.market_condition_analyzer import market_condition_analyzer
 # Phase 1: 알림 시스템
-from utils.telegram_notifier import TelegramNotifier
-from utils.email_reporter import EmailReporter
-from utils.notification_scheduler import NotificationScheduler
+from src.utils.telegram_notifier import TelegramNotifier
+from src.utils.email_reporter import EmailReporter
+from src.utils.notification_scheduler import NotificationScheduler
 # Phase 2: 호가창 + 스마트 주문 + 동적 청산
-from utils.order_book_analyzer import OrderBookAnalyzer
-from utils.smart_order_executor import SmartOrderExecutor
-from utils.orderbook_monitor import OrderbookMonitor
-from utils.trade_monitor import TradeMonitor
+from src.utils.order_book_analyzer import OrderBookAnalyzer
+from src.utils.smart_order_executor import SmartOrderExecutor
+from src.utils.orderbook_monitor import OrderbookMonitor
+from src.utils.trade_monitor import TradeMonitor
 # Phase 3 (v6.29): Advanced Order System
-from utils.surge_detector import surge_detector
-from utils.order_method_selector import order_method_selector, ExitReason
-from utils.smart_order_executor import SmartOrderExecutor
+from src.utils.surge_detector import surge_detector
+from src.utils.order_method_selector import order_method_selector, ExitReason
+from src.utils.smart_order_executor import SmartOrderExecutor
 # Phase 2: AI 시스템
-from ai.learning_engine import LearningEngine
-from ai.scenario_identifier import ScenarioIdentifier
-from ai.strategy_selector import StrategySelector
-from ai.holding_time_optimizer import HoldingTimeOptimizer
-from ai.adaptive_learner import AdaptiveLearner
+from src.ai.learning_engine import LearningEngine
+from src.ai.scenario_identifier import ScenarioIdentifier
+from src.ai.strategy_selector import StrategySelector
+from src.ai.holding_time_optimizer import HoldingTimeOptimizer
+from src.ai.adaptive_learner import AdaptiveLearner
 # 전략
-from strategies.aggressive_scalping import AggressiveScalping
-from strategies.conservative_scalping import ConservativeScalping
-from strategies.mean_reversion import MeanReversion
-from strategies.grid_trading import GridTrading
-from strategies.ultra_scalping import UltraScalping
-from strategies.split_strategies import SplitStrategies
-from strategies.dynamic_exit_manager import DynamicExitManager
+from src.strategies.aggressive_scalping import AggressiveScalping
+from src.strategies.conservative_scalping import ConservativeScalping
+from src.strategies.mean_reversion import MeanReversion
+from src.strategies.grid_trading import GridTrading
+from src.strategies.ultra_scalping import UltraScalping
+from src.strategies.split_strategies import SplitStrategies
+from src.strategies.dynamic_exit_manager import DynamicExitManager
 
 
 class AutoProfitBot:
@@ -245,7 +245,7 @@ class AutoProfitBot:
         # ⭐ v6.30.1 Phase 2B: Advanced Trading Features
         # 1. Dynamic Stop Loss
         if Config.ENABLE_DYNAMIC_STOP_LOSS:
-            from strategies.dynamic_stop_loss import DynamicStopLoss
+            from src.strategies.dynamic_stop_loss import DynamicStopLoss
             self.dynamic_stop_loss = DynamicStopLoss(self.learning_engine, Config)
             self.logger.log_info("🎯 동적 손절 시스템 활성화 (AI 학습 기반)")
         else:
@@ -253,7 +253,7 @@ class AutoProfitBot:
         
         # 2. Scaled Sell Manager
         if os.getenv('ENABLE_SCALED_SELL', 'false').lower() == 'true':
-            from strategies.scaled_sell import ScaledSellManager
+            from src.strategies.scaled_sell import ScaledSellManager
             self.scaled_sell = ScaledSellManager(Config)
             self.logger.log_info(f"📊 분할 매도 활성화: {self.scaled_sell.get_config_summary()}")
         else:
@@ -261,7 +261,7 @@ class AutoProfitBot:
         
         # 3. Conditional Sell Manager
         if os.getenv('ENABLE_CONDITIONAL_SELL', 'false').lower() == 'true':
-            from strategies.conditional_sell import ConditionalSellManager
+            from src.strategies.conditional_sell import ConditionalSellManager
             self.conditional_sell = ConditionalSellManager(Config, self.market_analyzer)
             self.logger.log_info(f"🔍 조건부 매도 활성화: {self.conditional_sell.get_config_summary()}")
         else:
