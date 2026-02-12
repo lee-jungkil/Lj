@@ -245,7 +245,7 @@ class AutoProfitBot:
         # ⭐ v6.30.1 Phase 2B: Advanced Trading Features
         # 1. Dynamic Stop Loss
         if Config.ENABLE_DYNAMIC_STOP_LOSS:
-            from src.strategies.dynamic_stop_loss import DynamicStopLoss
+            from strategies.dynamic_stop_loss import DynamicStopLoss
             self.dynamic_stop_loss = DynamicStopLoss(self.learning_engine, Config)
             self.logger.log_info("🎯 동적 손절 시스템 활성화 (AI 학습 기반)")
         else:
@@ -253,7 +253,7 @@ class AutoProfitBot:
         
         # 2. Scaled Sell Manager
         if os.getenv('ENABLE_SCALED_SELL', 'false').lower() == 'true':
-            from src.strategies.scaled_sell import ScaledSellManager
+            from strategies.scaled_sell import ScaledSellManager
             self.scaled_sell = ScaledSellManager(Config)
             self.logger.log_info(f"📊 분할 매도 활성화: {self.scaled_sell.get_config_summary()}")
         else:
@@ -261,7 +261,7 @@ class AutoProfitBot:
         
         # 3. Conditional Sell Manager
         if os.getenv('ENABLE_CONDITIONAL_SELL', 'false').lower() == 'true':
-            from src.strategies.conditional_sell import ConditionalSellManager
+            from strategies.conditional_sell import ConditionalSellManager
             self.conditional_sell = ConditionalSellManager(Config, self.market_analyzer)
             self.logger.log_info(f"🔍 조건부 매도 활성화: {self.conditional_sell.get_config_summary()}")
         else:

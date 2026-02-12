@@ -102,6 +102,18 @@ class Config:
     CHASE_MAX_CONCURRENT = int(os.getenv('CHASE_MAX_CONCURRENT', 2))
     CHASE_DAILY_LIMIT = int(os.getenv('CHASE_DAILY_LIMIT', 10))
     
+    # ⭐ v6.30 Phase 2B: Advanced Trading Features
+    # Dynamic Stop Loss 설정
+    ENABLE_DYNAMIC_STOP_LOSS = os.getenv('ENABLE_DYNAMIC_STOP_LOSS', 'true').lower() == 'true'
+    
+    # Scaled Sell 설정 (환경변수로 관리)
+    ENABLE_SCALED_SELL = os.getenv('ENABLE_SCALED_SELL', 'false').lower() == 'true'
+    SCALED_SELL_LEVELS = os.getenv('SCALED_SELL_LEVELS', '2.0:30,4.0:40,6.0:30')
+    
+    # Conditional Sell 설정
+    ENABLE_CONDITIONAL_SELL = os.getenv('ENABLE_CONDITIONAL_SELL', 'false').lower() == 'true'
+    CONDITIONAL_SELL_MIN_CONDITIONS = int(os.getenv('CONDITIONAL_SELL_MIN_CONDITIONS', 2))
+    
     # 트레일링 스탑 설정
     ENABLE_TRAILING_STOP = os.getenv('ENABLE_TRAILING_STOP', 'true').lower() == 'true'
     TRAILING_STOP_OFFSET = float(os.getenv('TRAILING_STOP_OFFSET', 1.0))
