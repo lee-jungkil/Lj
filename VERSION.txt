@@ -1,9 +1,9 @@
-v6.29.4-FINAL-STABLE
+v6.29.5-INTEGRATION-PHASE1
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 29
-Patch: 4 (FINAL-STABLE)
+Patch: 5 (INTEGRATION-PHASE1)
 
-Description: Final stable release. Fixed scan_market_batch missing method error. Replaced with direct detect_surge calls for each ticker. Runtime tested for 30+ seconds with no errors. Full production ready.
+Description: Integration Phase 1 - Critical missing fields and methods added. TradeExperience extended with holding_chart_signals, exit_chart_condition, liquidity tracking, and risk score fields. New methods: record_holding_chart_signal, record_exit_chart_condition. Foundation for complete AI learning integration.

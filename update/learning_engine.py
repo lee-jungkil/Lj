@@ -8,7 +8,7 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from collections import defaultdict, deque
 
 
@@ -38,6 +38,13 @@ class TradeExperience:
     confidence: Optional[float] = None  # 신뢰도
     slippage_pct: Optional[float] = None  # 슬리피지 (%)
     spread_pct: Optional[float] = None  # 스프레드 (%)
+    
+    # ⭐ v6.29.5 추가: 보유 중 차트 신호 및 청산 조건
+    holding_chart_signals: List[Dict] = field(default_factory=list)  # 보유 중 차트 신호 이력
+    exit_chart_condition: Dict = field(default_factory=dict)  # 청산 시 차트 조건
+    liquidity_at_entry: Optional[str] = None  # 진입 시 유동성 (low/medium/high)
+    liquidity_at_exit: Optional[str] = None  # 청산 시 유동성
+    risk_score_at_check: Optional[float] = None  # 포지션 체크 시 리스크 점수
     
     # 시장 상황 (진입 시점)
     market_condition: Dict = None
@@ -803,3 +810,52 @@ class LearningEngine:
             'loss_trades': loss_trades,
             'win_rate': win_rate
         }
+    
+    def record_holding_chart_signal(self, ticker: str, strategy: str, 
+                                    chart_signal: Dict, market_snapshot: Dict):
+        """
+        보유 중 차트 신호 기록
+        
+        Args:
+            ticker: 코인 티커
+            strategy: 전략 이름
+            chart_signal: 차트 신호 (RSI, MACD 등)
+            market_snapshot: 시장 스냅샷
+        """
+        # 해당 진입 경험 찾기
+        for exp in reversed(self.experiences):
+            if (exp.ticker == ticker and 
+                exp.strategy == strategy and 
+                exp.exit_price is None):  # 아직 청산되지 않은 포지션
+                
+                # 차트 신호 추가
+                signal_record = {
+                    'timestamp': datetime.now().isoformat(),
+                    'rsi': chart_signal.get('rsi'),
+                    'macd_direction': chart_signal.get('macd_direction'),
+                    'volume_ratio': chart_signal.get('volume_ratio'),
+                    'price': market_snapshot.get('price'),
+                    'profit_ratio': market_snapshot.get('profit_ratio')
+                }
+                
+                exp.holding_chart_signals.append(signal_record)
+                break
+    
+    def record_exit_chart_condition(self, ticker: str, strategy: str, 
+                                    chart_condition: Dict):
+        """
+        청산 시 차트 조건 기록
+        
+        Args:
+            ticker: 코인 티커
+            strategy: 전략 이름
+            chart_condition: 청산 시 차트 조건
+        """
+        # 해당 진입 경험 찾기
+        for exp in reversed(self.experiences):
+            if (exp.ticker == ticker and 
+                exp.strategy == strategy and 
+                exp.exit_price is None):  # 아직 청산되지 않은 포지션
+                
+                exp.exit_chart_condition = chart_condition
+                break
