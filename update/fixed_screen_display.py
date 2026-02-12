@@ -546,17 +546,21 @@ class FixedScreenDisplay:
                     # 코인 이름 (짧게)
                     coin = pos['ticker'].replace('KRW-', '')
                     
+                    # ⭐ 실시간 재계산 (current_price 기준)
                     # 투자 금액 계산
                     investment = pos['entry_price'] * pos['amount']
                     
                     # 현재 가치 계산
                     current_value = pos['current_price'] * pos['amount']
                     
-                    # 손익 금액
-                    profit_loss = pos['profit_loss']
+                    # ⭐ 손익 금액 (실시간 재계산)
+                    profit_loss = (pos['current_price'] - pos['entry_price']) * pos['amount']
                     
-                    # 손익률
-                    profit_ratio = pos['profit_ratio']
+                    # ⭐ 손익률 (실시간 재계산)
+                    if pos['entry_price'] > 0:
+                        profit_ratio = ((pos['current_price'] - pos['entry_price']) / pos['entry_price']) * 100
+                    else:
+                        profit_ratio = 0.0
                     
                     # 손익률에 따른 색상
                     if profit_ratio >= 2.0:
@@ -578,6 +582,12 @@ class FixedScreenDisplay:
                     # 보유 시간 (hold_seconds 사용, hold_time은 문자열)
                     if 'hold_seconds' in pos and pos['hold_seconds'] is not None:
                         hold_seconds = int(pos['hold_seconds'])
+                    elif 'entry_time' in pos and pos['entry_time'] is not None:
+                        # fallback: entry_time으로 실시간 계산
+                        try:
+                            hold_seconds = int((datetime.now() - pos['entry_time']).total_seconds())
+                        except:
+                            hold_seconds = 0
                     else:
                         # fallback: 0초
                         hold_seconds = 0
