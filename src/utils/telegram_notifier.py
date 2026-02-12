@@ -195,8 +195,7 @@ class TelegramNotifier:
         
         # ⭐ 전략 추가
         if strategy:
-            message += f"
-전략: {strategy}"
+            message += f"\n전략: {strategy}"
         
         # ⭐ 주문 방식 추가
         if order_method:
@@ -207,8 +206,7 @@ class TelegramNotifier:
                 'ioc': 'IOC',
                 'post_only': 'Post Only'
             }.get(order_method, order_method.upper())
-            message += f"
-주문: {method_kr}"
+            message += f"\n주문: {method_kr}"
         
         # ⭐ 추격매수 정보 (매수시)
         if action == "BUY" and surge_score is not None:

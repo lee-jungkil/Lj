@@ -1,9 +1,9 @@
-v6.29-ADVANCED-ORDER-SYSTEM-FINAL
+v6.29-HOTFIX-TELEGRAM-STRING
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 29
-Patch: ADVANCED-ORDER-SYSTEM-FINAL
+Patch: HOTFIX-TELEGRAM-STRING
 
-Description: Phase 1-3 complete (100%) ✅ - All features operational. Upbit API (9 order types), SurgeDetector, OrderMethodSelector, SmartOrderExecutor, 6 liquidation conditions, LearningEngine metadata extension, enhanced Telegram notifications. Full production ready.
+Description: Hotfix for telegram_notifier.py string formatting error (line 198). Fixed f-string literal by replacing newline in f"..." with \n escape sequence. All systems operational.
