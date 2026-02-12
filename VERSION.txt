@@ -1,9 +1,9 @@
-v6.29-ADVANCED-ORDER-SYSTEM-PHASE1
+v6.29-ADVANCED-ORDER-SYSTEM-PHASE2
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 29
-Patch: ADVANCED-ORDER-SYSTEM-PHASE1
+Patch: ADVANCED-ORDER-SYSTEM-PHASE2
 
-Description: Phase 1 complete (3/9 tasks) - Upbit API extension (9 order types), SurgeDetector (chase buy system), OrderMethodSelector (auto order method selection)
+Description: Phase 1-2 complete (60%) - Upbit API (9 order types), SurgeDetector (chase buy), OrderMethodSelector (auto selection), SmartOrderExecutor (retry + fallback), Environment variables (32 settings)
