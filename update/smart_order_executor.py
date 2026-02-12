@@ -4,9 +4,11 @@
 - Fallback 지원 (지정가 → 시장가)
 - 호가 단위 자동 조정
 - 주문 상태 모니터링
+- ⭐ v6.30: 슬리피지 허용치 검증
 """
 
 import time
+import os
 from typing import Dict, Optional, Tuple
 from datetime import datetime
 
@@ -30,6 +32,10 @@ class SmartOrderExecutor:
         self.retry_delay = 1.0  # 재시도 대기 시간 (초)
         self.limit_order_timeout = 5  # 지정가 주문 타임아웃 (초)
         self.enable_fallback = True  # Fallback 활성화
+        
+        # ⭐ v6.30: 슬리피지 설정
+        self.slippage_tolerance = float(os.getenv('SLIPPAGE_TOLERANCE', '0.5'))
+        self.enable_slippage_check = True
     
     def execute_buy(self, ticker: str, investment: float, strategy: str,
                    market_condition: Dict, is_chase: bool = False) -> Optional[Dict]:
@@ -482,3 +488,119 @@ class SmartOrderExecutor:
             return result
         
         return None
+    
+    def _check_slippage(self, ticker: str, expected_price: float, 
+                       actual_price: float, is_buy: bool) -> Dict:
+        """
+        슬리피지 검증
+        
+        Args:
+            ticker: 코인 티커
+            expected_price: 예상 가격
+            actual_price: 실제 체결 가격
+            is_buy: 매수 여부
+        
+        Returns:
+            {
+                'slippage_pct': float,
+                'within_tolerance': bool,
+                'severity': 'low'|'medium'|'high',
+                'message': str
+            }
+        
+        ⭐ v6.30 Integration: Slippage tolerance enforcement
+        """
+        if not self.enable_slippage_check:
+            return {
+                'slippage_pct': 0.0,
+                'within_tolerance': True,
+                'severity': 'low',
+                'message': '슬리피지 체크 비활성화'
+            }
+        
+        # 슬리피지 계산
+        if is_buy:
+            # 매수: 실제 가격이 예상보다 높으면 불리
+            slippage_pct = ((actual_price - expected_price) / expected_price) * 100
+        else:
+            # 매도: 실제 가격이 예상보다 낮으면 불리
+            slippage_pct = ((expected_price - actual_price) / expected_price) * 100
+        
+        # 절대값으로 평가
+        abs_slippage = abs(slippage_pct)
+        
+        # 허용치 체크
+        within_tolerance = abs_slippage <= self.slippage_tolerance
+        
+        # 심각도 평가
+        if abs_slippage < self.slippage_tolerance * 0.5:
+            severity = 'low'
+        elif abs_slippage <= self.slippage_tolerance:
+            severity = 'medium'
+        else:
+            severity = 'high'
+        
+        # 메시지 생성
+        direction = '불리' if slippage_pct > 0 else '유리'
+        action = '매수' if is_buy else '매도'
+        
+        if within_tolerance:
+            if severity == 'low':
+                message = f"✅ 슬리피지 양호: {abs_slippage:.3f}% ({direction}) - 허용치 {self.slippage_tolerance}%"
+            else:
+                message = f"⚠️ 슬리피지 보통: {abs_slippage:.3f}% ({direction}) - 허용치 {self.slippage_tolerance}%"
+        else:
+            message = f"❌ 슬리피지 초과: {abs_slippage:.3f}% ({direction}) > 허용치 {self.slippage_tolerance}%"
+        
+        # 로그 출력
+        print(f"📊 슬리피지 분석 ({ticker} {action}):")
+        print(f"   예상 가격: {expected_price:,.2f}")
+        print(f"   실제 가격: {actual_price:,.2f}")
+        print(f"   {message}")
+        
+        # 경고 또는 에러 로그
+        if not within_tolerance:
+            if abs_slippage > self.slippage_tolerance * 2:
+                print(f"🚨 심각한 슬리피지 발생! 주문 방식 개선 필요")
+            else:
+                print(f"⚠️ 슬리피지 허용치 초과, 주문 방식 재검토 권장")
+        
+        return {
+            'slippage_pct': slippage_pct,
+            'abs_slippage': abs_slippage,
+            'within_tolerance': within_tolerance,
+            'severity': severity,
+            'message': message
+        }
+    
+    def _apply_slippage_to_result(self, order_result: Dict, ticker: str,
+                                  expected_price: float, is_buy: bool) -> Dict:
+        """
+        주문 결과에 슬리피지 정보 추가
+        
+        Args:
+            order_result: 주문 결과
+            ticker: 코인 티커
+            expected_price: 예상 가격
+            is_buy: 매수 여부
+        
+        Returns:
+            슬리피지 정보가 추가된 주문 결과
+        
+        ⭐ v6.30 Integration: Add slippage data to order results
+        """
+        if not order_result:
+            return order_result
+        
+        actual_price = order_result.get('price', expected_price)
+        
+        # 슬리피지 검증
+        slippage_check = self._check_slippage(ticker, expected_price, actual_price, is_buy)
+        
+        # 결과에 추가
+        order_result['slippage_pct'] = slippage_check['slippage_pct']
+        order_result['slippage_abs'] = slippage_check['abs_slippage']
+        order_result['slippage_within_tolerance'] = slippage_check['within_tolerance']
+        order_result['slippage_severity'] = slippage_check['severity']
+        
+        return order_result

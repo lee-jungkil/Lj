@@ -1,9 +1,9 @@
-v6.30.0-INTEGRATION-PHASE2A
+v6.30.1-INTEGRATION-PHASE2B
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 0 (INTEGRATION-PHASE2A)
+Patch: 1 (INTEGRATION-PHASE2B)
 
-Description: Integration Phase 2A - Critical component connections. OrderBookAnalyzer liquidity integrated into order method selection. SurgeDetector.can_chase_buy validation added. LearningEngine training data now applied to next trades (optimal order method, exit timing, slippage analysis). FOK order execution methods implemented. Chase buy daily limit enforcement added.
+Description: Integration Phase 2B - Advanced features implementation. DynamicStopLoss system with learned pattern-based optimization. ScaledSell manager for multi-level profit taking. ConditionalSell system with 6-criteria evaluation. SLIPPAGE_TOLERANCE enforcement in SmartOrderExecutor. All advanced trading features now operational.
