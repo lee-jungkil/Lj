@@ -580,7 +580,12 @@ class AutoProfitBot:
                         strategy=strategy,
                         entry_price=current_price,
                         entry_amount=amount,
-                        market_condition=market_condition
+                        market_condition=market_condition,
+                        order_method=order_result.get('order_method') if order_result else None,
+                        surge_score=surge_data.get('surge_score') if surge_data else None,
+                        confidence=surge_data.get('confidence') if surge_data else None,
+                        slippage_pct=order_result.get('slippage_pct') if order_result else None,
+                        spread_pct=spread_pct
                     )
                     
                     # 포지션에 entry_time_id 저장 (청산 시 사용)
@@ -635,7 +640,7 @@ class AutoProfitBot:
     
     def execute_sell(self, ticker: str, reason: str):
         """
-        매도 실행
+        매도 실행 (⭐ v6.29 확장: SmartOrderExecutor + ExitReason 연동)
         
         Args:
             ticker: 코인 티커
@@ -651,6 +656,58 @@ class AutoProfitBot:
             current_price = self.api.get_current_price(ticker)
             if not current_price:
                 return
+            
+            # 손익률 계산
+            profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+            
+            # ⭐ ExitReason 파싱 (매도 사유 분석)
+            from src.utils.order_method_selector import ExitReason
+            
+            exit_reason = ExitReason.TAKE_PROFIT  # 기본값
+            if "손절" in reason or "stop" in reason.lower():
+                exit_reason = ExitReason.STOP_LOSS
+            elif "트레일링" in reason or "trailing" in reason.lower():
+                exit_reason = ExitReason.TRAILING_STOP
+            elif "차트" in reason or "MACD" in reason or "RSI" in reason:
+                exit_reason = ExitReason.CHART_SIGNAL
+            elif "시간초과" in reason or "time" in reason.lower():
+                exit_reason = ExitReason.TIME_EXCEEDED
+            elif "급락" in reason or "drop" in reason.lower():
+                exit_reason = ExitReason.SUDDEN_DROP
+            elif "거래량" in reason or "volume" in reason.lower():
+                exit_reason = ExitReason.VOLUME_DROP
+            
+            # ⭐ 스프레드 분석
+            spread_pct = self.api.calculate_spread_percentage(ticker)
+            
+            # ⭐ 시장 조건 분석
+            market_condition = {}
+            try:
+                df = self.api.get_ohlcv(ticker, interval="minute5", count=50)
+                if df is not None and not df.empty:
+                    # 변동성
+                    returns = df['close'].pct_change().dropna()
+                    volatility = returns.std() * 100
+                    
+                    # 추세
+                    price_change = ((df['close'].iloc[-1] - df['close'].iloc[0]) / df['close'].iloc[0]) * 100
+                    
+                    market_condition = {
+                        'volatility': 'high' if volatility > 2.0 else 'medium' if volatility > 1.0 else 'low',
+                        'trend': 'bullish' if price_change > 1.0 else 'bearish' if price_change < -1.0 else 'neutral'
+                    }
+            except:
+                market_condition = {'volatility': 'medium', 'trend': 'neutral'}
+            
+            # ⭐ SmartOrderExecutor로 주문 방법 자동 선택
+            order_method, method_reason = self.order_method_selector.select_sell_method(
+                ticker=ticker,
+                strategy=position.strategy,
+                exit_reason=exit_reason,
+                market_condition=market_condition,
+                spread_pct=spread_pct,
+                profit_ratio=profit_ratio
+            )
             
             # 기존 보유 보호: 매도 가능 수량 확인 (v5.7: 투자금 + 이익분만)
             sellable_amount, sell_msg = self.holding_protector.calculate_sellable_amount(
@@ -675,10 +732,19 @@ class AutoProfitBot:
                     f"🛡️  {ticker} 부분 매도: {sell_amount:.8f} (기존 보유 보호)"
                 )
             
-            # 실거래 모드에서만 실제 주문
+            # ⭐ SmartOrderExecutor로 매도 주문 실행
+            order_result = None
             if self.mode == 'live' and self.api.upbit:
-                order = self.api.sell_market_order(ticker, sell_amount)
-                if not order:
+                order_result = self.smart_order_executor.execute_sell(
+                    ticker=ticker,
+                    amount=sell_amount,
+                    method=order_method,
+                    reason=reason,
+                    market_condition=market_condition
+                )
+                
+                if not order_result or not order_result.get('success'):
+                    self.logger.log_error("SELL_ORDER_FAILED", f"{ticker} 매도 주문 실패", None)
                     return
             else:
                 self.logger.log_info(f"[모의거래] 매도: {ticker}, {sell_amount:.8f}")
@@ -767,12 +833,14 @@ class AutoProfitBot:
                             # entry_time_id 가져오기
                             entry_time_id = getattr(position, 'entry_time_id', position.entry_time.isoformat())
                             
+                            # ⭐ v6.29: exit_reason 추가
                             self.learning_engine.record_trade_exit(
                                 ticker=ticker,
                                 strategy=position.strategy,
                                 exit_price=current_price,
                                 entry_time=entry_time_id,
-                                market_condition=market_snapshot_dict
+                                market_condition=market_snapshot_dict,
+                                exit_reason=exit_reason.value if hasattr(exit_reason, 'value') else str(exit_reason)
                             )
                             
                             # ⭐ 매도 직후 학습 통계 즉시 화면 업데이트
@@ -812,7 +880,15 @@ class AutoProfitBot:
     
     def check_positions(self, ticker: str, strategy):
         """
-        포지션 손익 체크 및 자동 청산 (⭐ 차트 지표 반영)
+        포지션 손익 체크 및 자동 청산 (⭐ v6.29 확장: 6가지 청산 조건)
+        
+        6가지 청산 조건:
+        1. 손익률 기준 (익절/손절)
+        2. 트레일링 스탑 (Trailing Stop)
+        3. 차트 신호 (RSI, MACD, 거래량)
+        4. 시간 초과 (전략별 max_hold_time)
+        5. 급락 감지 (1분 내 -1.5% 이상)
+        6. 거래량 급감 (평균 대비 0.5배 이하)
         
         Args:
             ticker: 코인 티커
@@ -827,9 +903,35 @@ class AutoProfitBot:
         if not current_price:
             return
         
-        # ⭐ 차트 지표 분석 추가
+        # 보유 시간 계산
+        import time
+        hold_time = time.time() - position.entry_time.timestamp()
+        
+        # 환경 변수 설정 (기본값)
+        from src.config import Config
+        max_hold_times = {
+            'CHASE_BUY': getattr(Config, 'MAX_HOLD_TIME_CHASE', 300),  # 5분
+            'ULTRA_SCALPING': getattr(Config, 'MAX_HOLD_TIME_ULTRA', 600),  # 10분
+            'AGGRESSIVE': getattr(Config, 'MAX_HOLD_TIME_AGGRESSIVE', 1800),  # 30분
+            'CONSERVATIVE': getattr(Config, 'MAX_HOLD_TIME_CONSERVATIVE', 3600),  # 1시간
+            'MEAN_REVERSION': getattr(Config, 'MAX_HOLD_TIME_MEAN_REVERSION', 7200),  # 2시간
+            'GRID': getattr(Config, 'MAX_HOLD_TIME_GRID', 86400)  # 24시간
+        }
+        
+        # 현재 전략의 최대 보유 시간
+        max_hold_time = max_hold_times.get(position.strategy, 3600)  # 기본 1시간
+        
+        # ⭐ 조건 1: 시간 초과 청산
+        if hold_time > max_hold_time:
+            profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+            self.execute_sell(ticker, f"시간초과청산 (보유:{hold_time/60:.0f}분, 손익:{profit_ratio:+.2f}%)")
+            return
+        
+        # ⭐ 조건 2-6: 차트 지표 및 급락/거래량 분석
         try:
             df = self.api.get_ohlcv(ticker, interval="minute5", count=200)
+            df_1m = self.api.get_ohlcv(ticker, interval="minute1", count=5)  # 급락 감지용
+            
             if df is not None and not df.empty:
                 # RSI 계산
                 delta = df['close'].diff()
@@ -848,31 +950,73 @@ class AutoProfitBot:
                 signal_val = signal.iloc[-1]
                 macd_direction = "상승" if macd_val > signal_val else "하락"
                 
-                # 거래량 변화
-                volume_change = ((df['volume'].iloc[-1] - df['volume'].mean()) / df['volume'].mean()) * 100
+                # 거래량 변화 분석
+                avg_volume = df['volume'].mean()
+                current_volume = df['volume'].iloc[-1]
+                volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
                 
-                # ⭐ 차트 기반 추가 청산 조건
+                # ⭐ 조건 5: 급락 감지 (1분 내 -1.5% 이상)
+                if df_1m is not None and not df_1m.empty and len(df_1m) >= 2:
+                    price_1m_ago = df_1m['close'].iloc[-2]
+                    price_change_1m = ((current_price - price_1m_ago) / price_1m_ago) * 100
+                    sudden_drop_threshold = getattr(Config, 'SUDDEN_DROP_THRESHOLD', -1.5)
+                    
+                    if price_change_1m <= sudden_drop_threshold:
+                        self.execute_sell(ticker, f"급락감지 (1분:{price_change_1m:.2f}%)")
+                        return
+                
+                # ⭐ 조건 6: 거래량 급감 (평균 대비 0.5배 이하)
+                volume_drop_threshold = getattr(Config, 'VOLUME_DROP_THRESHOLD', 0.5)
+                if volume_ratio < volume_drop_threshold:
+                    self.execute_sell(ticker, f"거래량급감 (평균 대비 {volume_ratio:.2f}배)")
+                    return
+                
+                # ⭐ 조건 3: 차트 신호 청산
                 chart_exit = False
                 chart_reason = ""
                 
-                # 과매수 구간에서 하락 신호
+                # 과매수 + MACD 하락
                 if current_rsi > 70 and macd_direction == "하락":
                     chart_exit = True
                     chart_reason = f"과매수+MACD하락 (RSI:{current_rsi:.0f})"
                 
-                # 과매도에서 추가 하락 (손절 강화)
-                elif current_rsi < 30 and macd_direction == "하락" and volume_change < -20:
+                # 과매도 + MACD 하락 + 거래량 감소
+                elif current_rsi < 30 and macd_direction == "하락" and volume_ratio < 0.8:
                     chart_exit = True
                     chart_reason = f"과매도+MACD하락+거래량감소 (RSI:{current_rsi:.0f})"
                 
                 if chart_exit:
                     self.execute_sell(ticker, chart_reason)
                     return
+                
+                # ⭐ 조건 2: 트레일링 스탑 (Trailing Stop)
+                enable_trailing = getattr(Config, 'ENABLE_TRAILING_STOP', True)
+                if enable_trailing:
+                    # 포지션에 최고가 기록 (없으면 현재가로 초기화)
+                    if not hasattr(position, 'highest_price'):
+                        position.highest_price = current_price
+                    else:
+                        position.highest_price = max(position.highest_price, current_price)
+                    
+                    # 최고가 대비 하락률 계산
+                    drop_from_peak = ((current_price - position.highest_price) / position.highest_price) * 100
+                    trailing_offset = getattr(Config, 'TRAILING_STOP_OFFSET', 1.0)  # 기본 1%
+                    trailing_min_profit = getattr(Config, 'TRAILING_STOP_MIN_PROFIT', 1.0)  # 최소 1% 수익
+                    
+                    current_profit = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+                    
+                    # 최소 수익 조건 만족 + 최고가 대비 하락 시 트레일링 스탑
+                    if current_profit >= trailing_min_profit and drop_from_peak <= -trailing_offset:
+                        self.execute_sell(
+                            ticker, 
+                            f"트레일링스탑 (최고가 대비 {drop_from_peak:.2f}%, 수익:{current_profit:+.2f}%)"
+                        )
+                        return
                     
         except Exception as e:
-            self.logger.log_warning(f"{ticker} 차트 분석 실패: {e}")
+            self.logger.log_warning(f"{ticker} 고급 청산 조건 분석 실패: {e}")
         
-        # 기본 전략별 청산 조건 확인
+        # ⭐ 조건 1: 기본 손익률 기준 청산 (전략별)
         should_exit, exit_reason = strategy.should_exit(position.avg_buy_price, current_price)
         
         if should_exit:

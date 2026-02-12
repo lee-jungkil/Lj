@@ -1,105 +1,95 @@
 @echo off
-chcp 65001 >nul 2>&1
-cls
-
-echo ============================================================
-echo  Upbit AutoProfit Bot Update v6.29-FINAL
-echo ============================================================
-echo.
-echo Update Contents:
-echo  [OK] Screen scroll completely removed
-echo  [OK] Profit/Loss sync improved
-echo  [OK] Risk management enhanced (auto-stop at -10%%)
-echo  [OK] Debug output suppressed
-echo  [OK] Sell history permanent storage (keep 10 records)
-echo  [NEW] Real-time sync fixed - entry_time storage added
-echo  [NEW] Position price update optimization
-echo  [NEW] Risk manager auto-sync function added
+chcp 65001 >nul
+echo ================================================
+echo   Upbit AutoProfit Bot v6.29 업데이트
+echo   Advanced Order System FINAL
+echo ================================================
 echo.
 
-REM Save current directory
-set SCRIPT_DIR=%~dp0
-set PROJECT_ROOT=%SCRIPT_DIR%..
-
-REM Change to project root
-cd /d "%PROJECT_ROOT%"
-
-echo Current directory: %CD%
-echo.
-
-REM Check if we are in the correct directory
-if not exist "src\utils" (
-    echo [ERROR] Project structure not found!
-    echo.
-    echo Please run this script from: Lj-main\update\UPDATE.bat
-    echo Current path: %CD%
-    echo.
+echo [1/8] 메인 로직 업데이트...
+copy /Y main.py ..\src\main.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ main.py 업데이트 실패
     pause
     exit /b 1
 )
+echo ✅ main.py 업데이트 완료
 
-REM Create backup directory
-if not exist "backup" mkdir "backup"
-set BACKUP_DIR=backup\backup_%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-set BACKUP_DIR=%BACKUP_DIR: =0%
-mkdir "%BACKUP_DIR%" 2>nul
-
-echo [1/4] Backing up existing files...
-if exist "src\utils\fixed_screen_display.py" (
-    copy "src\utils\fixed_screen_display.py" "%BACKUP_DIR%\fixed_screen_display.py.bak" >nul 2>&1
-    if %errorlevel% equ 0 (
-        echo  + fixed_screen_display.py backed up
-    )
-)
-echo [OK] Backup completed: %BACKUP_DIR%
-echo.
-
-echo [2/4] Checking update files...
-if not exist "update\fixed_screen_display.py" (
-    echo [ERROR] update\fixed_screen_display.py not found!
-    echo.
-    echo Please ensure update folder contains the required files.
+echo [2/8] 설정 파일 업데이트...
+copy /Y config.py ..\src\config.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ config.py 업데이트 실패
     pause
     exit /b 1
 )
-echo [OK] Update files found
-echo.
+echo ✅ config.py 업데이트 완료
 
-echo [3/4] Updating files...
-copy /Y "update\fixed_screen_display.py" "src\utils\fixed_screen_display.py" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] File copy failed!
-    echo.
-    echo Troubleshooting:
-    echo  1. Run Command Prompt as Administrator
-    echo  2. Close Python processes using the file
-    echo  3. Check file permissions
-    echo.
+echo [3/8] Upbit API 업데이트...
+copy /Y upbit_api.py ..\src\upbit_api.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ upbit_api.py 업데이트 실패
     pause
     exit /b 1
 )
-echo  + fixed_screen_display.py updated
-echo [OK] File update completed
-echo.
+echo ✅ upbit_api.py 업데이트 완료
 
-echo [4/4] Verifying update...
+echo [4/8] 급등 감지 시스템 업데이트...
+copy /Y surge_detector.py ..\src\utils\surge_detector.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ surge_detector.py 업데이트 실패
+    pause
+    exit /b 1
+)
+echo ✅ surge_detector.py 업데이트 완료
+
+echo [5/8] 주문 방법 선택기 업데이트...
+copy /Y order_method_selector.py ..\src\utils\order_method_selector.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ order_method_selector.py 업데이트 실패
+    pause
+    exit /b 1
+)
+echo ✅ order_method_selector.py 업데이트 완료
+
+echo [6/8] 스마트 주문 실행기 업데이트...
+copy /Y smart_order_executor.py ..\src\utils\smart_order_executor.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ smart_order_executor.py 업데이트 실패
+    pause
+    exit /b 1
+)
+echo ✅ smart_order_executor.py 업데이트 완료
+
+echo [7/8] AI 학습 엔진 업데이트...
+copy /Y learning_engine.py ..\src\ai\learning_engine.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ learning_engine.py 업데이트 실패
+    pause
+    exit /b 1
+)
+echo ✅ learning_engine.py 업데이트 완료
+
+echo [8/8] 텔레그램 알림 업데이트...
+copy /Y telegram_notifier.py ..\src\utils\telegram_notifier.py >nul 2>&1
+if errorlevel 1 (
+    echo ❌ telegram_notifier.py 업데이트 실패
+    pause
+    exit /b 1
+)
+echo ✅ telegram_notifier.py 업데이트 완료
+
 echo.
-echo ============================================================
-echo  Update Completed Successfully!
-echo ============================================================
+echo ================================================
+echo   ✅ v6.29 업데이트 완료!
+echo ================================================
 echo.
-echo What's New in v6.16-SELLHISTORY:
-echo  - Screen scroll removed (fully fixed display)
-echo  - Profit/Loss auto-calculated from initial_capital
-echo  - Debug output minimized for cleaner display
-echo  - Risk management: auto-stop at -10%% loss
-echo  [NEW] Sell history: keep up to 10 records
-echo  [NEW] Display last 5 sell records on screen
-echo  [NEW] Sell records persist like buy positions
+echo 🎉 새로운 기능:
+echo   - 9가지 주문 방식 (시장가, 지정가, 최유리, IOC 등)
+echo   - 추격매수 시스템 (급등 자동 감지)
+echo   - 6가지 청산 조건 (트레일링 스탑, 시간초과 등)
+echo   - AI 학습 메타데이터 확장
+echo   - 상세 텔레그램 알림
 echo.
-echo Backup location: %BACKUP_DIR%
-echo.
-echo Next step: Run the bot
-echo   Windows: run.bat or run_live.bat or run_paper.bat
+echo 📖 자세한 내용은 ADVANCED_ORDER_SYSTEM_FINAL_v6.29.md 참고
 echo.
 pause
