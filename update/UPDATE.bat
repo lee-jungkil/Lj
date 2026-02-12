@@ -3,7 +3,7 @@ chcp 65001 >nul 2>&1
 cls
 
 echo ============================================================
-echo  Upbit AutoProfit Bot Update v6.29-PHASE2
+echo  Upbit AutoProfit Bot Update v6.29-FINAL
 echo ============================================================
 echo.
 echo Update Contents:

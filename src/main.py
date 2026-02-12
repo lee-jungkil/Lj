@@ -67,6 +67,10 @@ from utils.order_book_analyzer import OrderBookAnalyzer
 from utils.smart_order_executor import SmartOrderExecutor
 from utils.orderbook_monitor import OrderbookMonitor
 from utils.trade_monitor import TradeMonitor
+# Phase 3 (v6.29): Advanced Order System
+from utils.surge_detector import surge_detector
+from utils.order_method_selector import order_method_selector, ExitReason
+from utils.smart_order_executor import SmartOrderExecutor
 # Phase 2: AI 시스템
 from ai.learning_engine import LearningEngine
 from ai.scenario_identifier import ScenarioIdentifier
@@ -153,7 +157,14 @@ class AutoProfitBot:
         # 분할 전략
         self.split_strategies = SplitStrategies()
         
-        # 스마트 주문 실행기
+        # 스마트 주문 실행기 (v6.29: Advanced Order System)
+        self.order_executor = SmartOrderExecutor(
+            api=self.api,
+            order_selector=order_method_selector
+        )
+        self.logger.log_info("⚡ v6.29 스마트 주문 실행기 활성화 (9가지 주문 방식)")
+        
+        # 기존 스마트 주문 실행기 (호환성 유지)
         if self.orderbook_analyzer:
             self.smart_executor = SmartOrderExecutor(
                 api_client=self.api,
@@ -161,7 +172,7 @@ class AutoProfitBot:
                 split_strategies=self.split_strategies,
                 holding_time_optimizer=self.holding_optimizer if Config.ENABLE_ADVANCED_AI else None
             )
-            self.logger.log_info("⚡ 스마트 주문 실행기 활성화")
+            self.logger.log_info("📊 기존 스마트 주문 실행기 유지 (호환성)")
         else:
             self.smart_executor = None
         
