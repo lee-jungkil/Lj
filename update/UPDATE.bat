@@ -3,7 +3,7 @@ chcp 65001 >nul 2>&1
 cls
 
 echo ============================================================
-echo  Upbit AutoProfit Bot Update v6.24-POSITION-DISPLAY-FIX
+echo  Upbit AutoProfit Bot Update v6.25-CRITICAL-FIXES
 echo ============================================================
 echo.
 echo Update Contents:

@@ -1,9 +1,9 @@
-v6.24-POSITION-DISPLAY-FIX
+v6.25-CRITICAL-FIXES
 Release Date: 2026-02-12
 Commit: (pending)
 
 Major Version: 6
-Minor Version: 24
-Patch: POSITION-DISPLAY-FIX
+Minor Version: 25
+Patch: CRITICAL-FIXES
 
-Description: Critical fix - position display not showing details due to avg_buy_price vs entry_price attribute mismatch
+Description: Critical fixes (1-4): sell record sync, trade count fix, scan interval optimization (60s→20s, 5s→10s), total asset display (cash+position)

@@ -281,9 +281,9 @@ class AutoProfitBot:
         # 타이밍 설정 (v5.5 업데이트)
         self.last_trade_time = {}
         self.min_trade_interval = 60
-        self.full_scan_interval = 60   # 1분 (전체 스캔 + 즉시 진입)
-        self.position_check_interval = 3  # 3초 (포지션 체크)
-        self.surge_scan_interval = 5   # 5초 (초단타 급등/급락 감지)
+        self.full_scan_interval = 20   # ⭐ 최적화: 60초 → 20초 (전체 스캔 + 즉시 진입, API 사용량 13% 이하, 진입 기회 +200%)
+        self.position_check_interval = 3  # 3초 (포지션 체크) - 유지
+        self.surge_scan_interval = 10   # ⭐ 최적화: 5초 → 10초 (초단타 급등/급락 감지)
         self.coin_update_interval = 180  # 3분 (동적 코인 갱신)
         self.last_full_scan_time = 0
         self.last_position_check_time = 0
@@ -647,7 +647,8 @@ class AutoProfitBot:
             # ⭐ 화면에서 포지션 제거
             slot = self.display.get_slot_by_ticker(ticker)
             if slot:
-                profit_ratio = (profit_loss / (position.entry_price * position.amount)) * 100
+                # ⭐ 수정: avg_buy_price 사용
+                profit_ratio = (profit_loss / (position.avg_buy_price * position.amount)) * 100 if position.amount > 0 else 0
                 self.display.remove_position(slot, current_price, profit_loss, profit_ratio)
                 
                 # 작업 상태에 로그 기록 완료 표시
@@ -1592,12 +1593,17 @@ class AutoProfitBot:
                     loss_trades=loss_trades
                 )
             
-            # 2. 자본금 및 손익 상태 업데이트 (실시간 동기화)
+            # 2. ⭐ 자본금, 포지션, 총 자산 상태 업데이트 (실시간 동기화)
             risk_status = self.risk_manager.get_risk_status()
+            position_value = self.risk_manager.get_total_position_value()  # ⭐ 추가
+            total_equity = self.risk_manager.get_total_equity()  # ⭐ 추가
+            
             self.display.update_capital_status(
                 initial=Config.INITIAL_CAPITAL,
                 current=risk_status['current_balance'],
-                profit=risk_status['cumulative_profit_loss']
+                profit=risk_status['cumulative_profit_loss'],
+                position_value=position_value,  # ⭐ 추가: 포지션 가치
+                total_equity=total_equity  # ⭐ 추가: 총 자산
             )
             
             # 3. ⭐ 시장 조건 분석 (BTC 기준 + 상세 지표)

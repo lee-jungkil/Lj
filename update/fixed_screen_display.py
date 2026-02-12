@@ -48,6 +48,8 @@ class FixedScreenDisplay:
         self.current_balance = 0
         self.total_profit = 0.0
         self.profit_ratio = 0.0
+        self.position_value = 0.0  # ⭐ 추가: 총 포지션 가치
+        self.total_equity = 0.0  # ⭐ 추가: 총 자산 (현금+포지션)
         
         # 진입 조건 상태
         self.market_phase = "분석 중"  # 강세장/약세장/횡보장
@@ -327,7 +329,8 @@ class FixedScreenDisplay:
             stats['loss_trades']
         )
     
-    def update_capital_status(self, initial: int, current: int, profit: float):
+    def update_capital_status(self, initial: int, current: int, profit: float, 
+                             position_value: float = 0, total_equity: float = 0):
         """
         자본금 및 손익 상태 업데이트
         
@@ -335,10 +338,14 @@ class FixedScreenDisplay:
             initial: 초기 자본금
             current: 현재 잔고
             profit: 누적 손익
+            position_value: 총 포지션 가치 (⭐ 추가)
+            total_equity: 총 자산 (현금+포지션) (⭐ 추가)
         """
         self.initial_capital = initial
         self.current_balance = current
         self.total_profit = profit
+        self.position_value = position_value  # ⭐ 추가
+        self.total_equity = total_equity  # ⭐ 추가
         
         if initial > 0:
             self.profit_ratio = (profit / initial) * 100
@@ -511,26 +518,36 @@ class FixedScreenDisplay:
         """헤더 렌더링 (실시간 시계)"""
         # ⭐ 실시간 시계
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        title = "Upbit AutoProfit Bot v6.22-SYNC-FIX"
+        title = "Upbit AutoProfit Bot v6.25-TOTAL-ASSET"
         
-        # AI 학습 상태 표시 (매도 결과 제외)
+        # AI 학습 상태 표시
         ai_status = (
             f"AI학습: {self.ai_learning_count}회 | "
             f"승률: {self.ai_win_rate:.1f}%"
         )
         
-        # 자본금 및 손익 상태
+        # ⭐ 총 자산 및 손익 상태 (현금 + 포지션 가치)
         profit_color = Fore.GREEN if self.total_profit >= 0 else Fore.RED
-        capital_status = (
-            f"자본: {self.current_balance:,.0f}원 | "
+        
+        # 라인 1: 현금 잔고 및 손익
+        capital_line = (
+            f"현금: {self.current_balance:,.0f}원 | "
             f"{profit_color}손익: {self.total_profit:+,.0f}원 ({self.profit_ratio:+.2f}%){Style.RESET_ALL}"
+        )
+        
+        # ⭐ 라인 2: 총 자산 (현금 + 포지션)
+        asset_color = Fore.GREEN if self.total_equity >= self.initial_capital else Fore.RED
+        total_asset_line = (
+            f"{asset_color}총자산: {self.total_equity:,.0f}원{Style.RESET_ALL} "
+            f"(포지션: {self.position_value:,.0f}원)"
         )
         
         return (
             f"{Fore.CYAN}{Style.BRIGHT}{title}{Style.RESET_ALL} | "
             f"{Fore.GREEN}⏰ {now}{Style.RESET_ALL}\n"  # ⭐ 시계 아이콘
             f"{Fore.YELLOW}📊 {ai_status}{Style.RESET_ALL} | "
-            f"{capital_status}"
+            f"{capital_line}\n"
+            f"{total_asset_line}"  # ⭐ 추가: 총 자산 라인
         )
     
     def _render_positions(self) -> str:
