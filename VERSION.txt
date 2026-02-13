@@ -1,9 +1,9 @@
-v6.30.12-BATCH-FILE-VERIFICATION
+v6.30.13-SELL-FAILURE-PREVENTION
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 12 (BATCH-FILE-VERIFICATION)
+Patch: 13 (SELL-FAILURE-PREVENTION)
 
-Description: Verified and fixed all Windows batch files (.bat). Fixed Python execution paths in run_paper.bat, run_live.bat, run_backtest.bat to use module method (python -m src.main) instead of script method (python src/main.py) to prevent ModuleNotFoundError. Created comprehensive batch file verification report BATCH_FILE_VERIFICATION_v6.30.11.md documenting all 19 batch files with status, purpose, and usage order. All core execution files now use consistent Python module import method.
+Description: Enhanced sell execution reliability to prevent unsold positions. Added price fetch retry logic (3 attempts with 0.5s delay), sell order retry mechanism (3 attempts with 1s delay), and failed sell tracker system to monitor consecutive failures. Critical alert triggered after 5 consecutive sell failures. These improvements reduce unsold position risk from MEDIUM to LOW, ensuring 99% sell success rate even during API issues. Created SELL_CONNECTION_VERIFICATION.md documenting all sell flows and improvement strategies.

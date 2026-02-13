@@ -1,0 +1,206 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║          Upbit AutoProfit Bot v6.30.12 다운로드 요약                   ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+📅 생성일: 2026-02-13
+🔗 GitHub: https://github.com/lee-jungkil/Lj
+📌 커밋: 74932bc
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 **1. 전체 봇 다운로드 (권장)**
+
+   전체 ZIP 다운로드:
+   https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+
+   사용 방법:
+   1. ZIP 다운로드 → 압축 해제
+   2. setup.bat 실행 (초기 설정)
+   3. run_paper.bat 실행 (모의투자)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📦 **2. 자동 다운로더 (빠른 업데이트)**
+
+   DOWNLOAD_ALL_FILES.bat 다운로드:
+   https://raw.githubusercontent.com/lee-jungkil/Lj/main/DOWNLOAD_ALL_FILES.bat
+
+   사용 방법:
+   1. DOWNLOAD_ALL_FILES.bat 다운로드
+   2. 프로젝트 폴더에서 실행
+   3. 자동으로 모든 파일 다운로드
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 **3. 개별 파일 다운로드**
+
+   핵심 파일 (src 폴더):
+   - main.py:
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/main.py
+
+   - config.py:
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/config.py
+
+   - risk_manager.py:
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/utils/risk_manager.py
+
+   백업 파일 (update 폴더):
+   - update/main.py:
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/update/main.py
+
+   - update/config.py:
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/update/config.py
+
+   - update/risk_manager.py:
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/update/risk_manager.py
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🛠️ **4. 배치 파일**
+
+   실행 파일:
+   - RUN.bat (메인 실행):
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/RUN.bat
+
+   - run_paper.bat (모의투자):
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/run_paper.bat
+
+   - run_live.bat (실거래):
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/run_live.bat
+
+   - run_backtest.bat (백테스트):
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/run_backtest.bat
+
+   설정 파일:
+   - setup.bat (초기 설정):
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/setup.bat
+
+   - QUICK_UPDATE.bat (빠른 업데이트):
+     https://raw.githubusercontent.com/lee-jungkil/Lj/main/QUICK_UPDATE.bat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 **5. 문서 파일**
+
+   상세 다운로드 가이드:
+   https://raw.githubusercontent.com/lee-jungkil/Lj/main/DOWNLOAD_LINKS.md
+
+   배치 파일 검증 보고서:
+   https://raw.githubusercontent.com/lee-jungkil/Lj/main/BATCH_FILE_VERIFICATION_v6.30.11.md
+
+   최종 검증 리포트:
+   https://raw.githubusercontent.com/lee-jungkil/Lj/main/BATCH_VERIFICATION_FINAL_REPORT.md
+
+   에러 검증 보고서:
+   https://raw.githubusercontent.com/lee-jungkil/Lj/main/ERROR_VERIFICATION_v6.30.10.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 **권장 사용 시나리오**
+
+   [신규 사용자]
+   1. 전체 ZIP 다운로드
+      https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+   2. 압축 해제
+   3. setup.bat 실행
+   4. run_paper.bat으로 모의투자 (1주일 권장)
+
+   [기존 사용자 - 빠른 업데이트]
+   1. QUICK_UPDATE.bat 실행
+      또는
+   2. git pull origin main
+
+   [수동 업데이트]
+   1. DOWNLOAD_ALL_FILES.bat 다운로드
+   2. 프로젝트 폴더에서 실행
+   3. 자동으로 최신 파일 다운로드
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 **폴더 구조**
+
+   C:\Users\admin\Downloads\Lj-main\
+   │
+   ├── src\
+   │   ├── main.py                    (메인 로직)
+   │   ├── config.py                  (설정)
+   │   └── utils\
+   │       └── risk_manager.py        (리스크 관리)
+   │
+   ├── update\                         (백업 폴더)
+   │   ├── main.py
+   │   ├── config.py
+   │   └── risk_manager.py
+   │
+   ├── RUN.bat                        (메인 실행)
+   ├── run_paper.bat                  (모의투자)
+   ├── run_live.bat                   (실거래)
+   ├── run_backtest.bat               (백테스트)
+   ├── setup.bat                      (초기 설정)
+   ├── QUICK_UPDATE.bat               (빠른 업데이트)
+   └── DOWNLOAD_ALL_FILES.bat         (자동 다운로더)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ **빠른 실행 명령어**
+
+   Windows CMD:
+   cd C:\Users\admin\Downloads\Lj-main
+   setup.bat                          (초기 설정)
+   run_paper.bat                      (모의투자)
+
+   Git Clone:
+   git clone https://github.com/lee-jungkil/Lj.git
+   cd Lj
+   setup.bat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 **자동 다운로드 스크립트 (Windows)**
+
+   방법 1: 배치 파일
+   curl -L -o DOWNLOAD_ALL_FILES.bat "https://raw.githubusercontent.com/lee-jungkil/Lj/main/DOWNLOAD_ALL_FILES.bat"
+   DOWNLOAD_ALL_FILES.bat
+
+   방법 2: 직접 다운로드
+   curl -L -o src\main.py "https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/main.py"
+   curl -L -o src\config.py "https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/config.py"
+   curl -L -o src\utils\risk_manager.py "https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/utils/risk_manager.py"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ **검증 완료 항목**
+
+   - ✅ Python 문법 체크 통과
+   - ✅ 모듈 임포트 16/16 성공
+   - ✅ 30초 모의투자 테스트 통과
+   - ✅ 배치 파일 3개 수정 완료
+   - ✅ API 사용률 77% (안전)
+   - ✅ 실행 주기 최적화 (60초/3초/5초)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 **관련 링크**
+
+   GitHub 저장소:
+   https://github.com/lee-jungkil/Lj
+
+   전체 ZIP 다운로드:
+   https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+
+   릴리스 페이지:
+   https://github.com/lee-jungkil/Lj/releases
+
+   이슈 트래커:
+   https://github.com/lee-jungkil/Lj/issues
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ v6.30.12 다운로드 링크 제공 완료!
+
+📌 버전: v6.30.12-BATCH-FILE-VERIFICATION
+🌐 GitHub: https://github.com/lee-jungkil/Lj
+🔗 커밋: 74932bc
+

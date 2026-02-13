@@ -337,6 +337,9 @@ class AutoProfitBot:
             self.notification_scheduler.start()
             self.logger.log_info("📢 알림 스케줄러 시작")
         
+        # ⭐ 매도 실패 추적 시스템 (v6.30.13)
+        self.failed_sell_tracker = {}  # {ticker: {'count': int, 'last_attempt': datetime}}
+        
         # 실행 플래그
         self.running = False
         
@@ -669,9 +672,17 @@ class AutoProfitBot:
             
             position = self.risk_manager.positions[ticker]
             
-            # 현재가 조회
-            current_price = self.api.get_current_price(ticker)
+            # 현재가 조회 (⭐ v6.30.13: 재시도 로직 추가)
+            current_price = None
+            for attempt in range(3):  # 최대 3회 재시도
+                current_price = self.api.get_current_price(ticker)
+                if current_price:
+                    break
+                if attempt < 2:
+                    time.sleep(0.5)  # 0.5초 대기 후 재시도
+            
             if not current_price:
+                self.logger.log_error("PRICE_FETCH_FAILED", f"{ticker} 가격 조회 3회 실패", None)
                 return
             
             # 손익률 계산
@@ -749,20 +760,50 @@ class AutoProfitBot:
                     f"🛡️  {ticker} 부분 매도: {sell_amount:.8f} (기존 보유 보호)"
                 )
             
-            # ⭐ SmartOrderExecutor로 매도 주문 실행
+            # ⭐ SmartOrderExecutor로 매도 주문 실행 (⭐ v6.30.13: 재시도 + 추적)
             order_result = None
             if self.mode == 'live' and self.api.upbit:
-                order_result = self.smart_order_executor.execute_sell(
-                    ticker=ticker,
-                    volume=sell_amount,
-                    strategy=position.strategy,
-                    exit_reason_enum=exit_reason,
-                    profit_ratio=profit_ratio,
-                    market_condition=market_condition
-                )
+                # 최대 3회 재시도
+                max_attempts = 3
+                for attempt in range(max_attempts):
+                    order_result = self.smart_order_executor.execute_sell(
+                        ticker=ticker,
+                        volume=sell_amount,
+                        strategy=position.strategy,
+                        exit_reason_enum=exit_reason,
+                        profit_ratio=profit_ratio,
+                        market_condition=market_condition
+                    )
+                    
+                    if order_result and order_result.get('success'):
+                        # 성공 시 실패 추적 리셋
+                        if ticker in self.failed_sell_tracker:
+                            del self.failed_sell_tracker[ticker]
+                        break
+                    
+                    self.logger.log_warning(f"{ticker} 매도 시도 {attempt+1}/{max_attempts} 실패")
+                    
+                    if attempt < max_attempts - 1:
+                        time.sleep(1)  # 1초 대기 후 재시도
                 
+                # 최종 실패 시 추적 및 알림
                 if not order_result or not order_result.get('success'):
-                    self.logger.log_error("SELL_ORDER_FAILED", f"{ticker} 매도 주문 실패", None)
+                    # 실패 횟수 기록
+                    if ticker not in self.failed_sell_tracker:
+                        self.failed_sell_tracker[ticker] = {'count': 0, 'last_attempt': datetime.now()}
+                    
+                    self.failed_sell_tracker[ticker]['count'] += 1
+                    self.failed_sell_tracker[ticker]['last_attempt'] = datetime.now()
+                    failure_count = self.failed_sell_tracker[ticker]['count']
+                    
+                    # 5회 연속 실패 시 긴급 알림
+                    if failure_count >= 5:
+                        self.logger.log_critical(
+                            f"🚨 {ticker} 긴급: {failure_count}회 연속 매도 실패! "
+                            f"현재 손익: {profit_ratio:+.2f}% - 수동 매도 필요!"
+                        )
+                    
+                    self.logger.log_error("SELL_ORDER_FAILED", f"{ticker} 매도 주문 {max_attempts}회 실패", None)
                     return
             else:
                 self.logger.log_info(f"[모의거래] 매도: {ticker}, {sell_amount:.8f}")
