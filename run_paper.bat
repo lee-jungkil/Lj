@@ -73,7 +73,7 @@ echo TIP: Press Ctrl+C to stop
 echo.
 
 REM Run the bot
-python src/main.py --mode paper
+python -m src.main --mode paper
 
 if errorlevel 1 (
     echo.

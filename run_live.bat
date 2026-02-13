@@ -71,7 +71,7 @@ echo   - AI learning data is saved in learning_data/
 echo.
 
 REM Run the bot
-python src/main.py --mode live
+python -m src.main --mode live
 
 if errorlevel 1 (
     echo.

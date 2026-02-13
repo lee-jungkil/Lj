@@ -46,7 +46,7 @@ echo ========================================
 echo.
 
 REM Run the bot
-python src/main.py --mode backtest
+python -m src.main --mode backtest
 
 if errorlevel 1 (
     echo.

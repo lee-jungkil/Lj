@@ -1,9 +1,9 @@
-v6.30.11-MODULE-PATH-FIX
+v6.30.12-BATCH-FILE-VERIFICATION
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 11 (MODULE-PATH-FIX)
+Patch: 12 (BATCH-FILE-VERIFICATION)
 
-Description: Fixed critical Windows execution error - ModuleNotFoundError: No module named 'src'. Root cause: RUN.bat had incorrect directory change command 'cd /d "%~dp0.."' which moved to parent directory instead of staying in project root. Changed to 'cd /d "%~dp0"' to stay in project directory where src module exists. This fixes the module import error on Windows systems. Also created comprehensive troubleshooting guide FIX_MODULE_NOT_FOUND.md with 3 solution methods and verification checklist.
+Description: Verified and fixed all Windows batch files (.bat). Fixed Python execution paths in run_paper.bat, run_live.bat, run_backtest.bat to use module method (python -m src.main) instead of script method (python src/main.py) to prevent ModuleNotFoundError. Created comprehensive batch file verification report BATCH_FILE_VERIFICATION_v6.30.11.md documenting all 19 batch files with status, purpose, and usage order. All core execution files now use consistent Python module import method.
