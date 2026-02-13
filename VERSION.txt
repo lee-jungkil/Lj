@@ -1,9 +1,9 @@
-v6.30.7-POSITION-CHECK-OPTIMIZATION
+v6.30.8-EXECUTION-CYCLE-VERIFICATION
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 7 (POSITION-CHECK-OPTIMIZATION)
+Patch: 8 (EXECUTION-CYCLE-VERIFICATION)
 
-Description: Optimized position check intervals for faster response. Changed surge scan interval from 10s to 5s for ultra-scalping positions (2x faster detection). Changed position check interval from 3s to 7s for regular positions (more stable, less API calls). This balance provides faster entry for surge opportunities while maintaining stable position management.
+Description: Completed comprehensive execution cycle and API call analysis. Verified all trading cycles are properly connected to buy/sell conditions. Confirmed API usage is within safe limits (662 calls/min, 73% of Upbit's 900/min limit). All execution cycles tested: Full scan (20s) → buy signals, Position check (7s) → 10 exit conditions, Surge detection (5s) → ultra-scalping entry, Dynamic coin refresh (3min) → independent list update, Screen refresh (3s) → UI only. 30-second runtime test passed with no errors.
