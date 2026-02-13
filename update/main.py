@@ -309,8 +309,8 @@ class AutoProfitBot:
         self.last_trade_time = {}
         self.min_trade_interval = 60
         self.full_scan_interval = 20   # ⭐ 최적화: 60초 → 20초 (전체 스캔 + 즉시 진입, API 사용량 13% 이하, 진입 기회 +200%)
-        self.position_check_interval = 3  # 3초 (포지션 체크) - 유지
-        self.surge_scan_interval = 10   # ⭐ 최적화: 5초 → 10초 (초단타 급등/급락 감지)
+        self.position_check_interval = 7  # ⭐ v6.30.7: 3초 → 7초 (일반 포지션 체크 - 사용자 요청)
+        self.surge_scan_interval = 5   # ⭐ v6.30.7: 10초 → 5초 (초단타 급등/급락 감지 - 사용자 요청)
         self.coin_update_interval = 180  # 3분 (동적 코인 갱신)
         self.last_full_scan_time = 0
         self.last_position_check_time = 0
@@ -1756,9 +1756,9 @@ class AutoProfitBot:
         """
         봇 실행 (하이브리드 + 초단타 - AI 학습 통합)
         
-        실행 주기:
-        - 1분: 전체 코인 스캔 + 신규 진입
-        - 3초: 포지션 체크
+        실행 주기 (v6.30.7 최적화):
+        - 20초: 전체 코인 스캔 + 신규 진입
+        - 7초: 일반 포지션 체크 (10가지 청산 조건)
         - 5초: 급등/급락 감지 + 초단타 진입
         - 3분: 동적 코인 갱신
         - 3초: 화면 자동 갱신

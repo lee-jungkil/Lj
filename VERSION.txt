@@ -1,9 +1,9 @@
-v6.30.6-IMPORT-PATH-FIX
-Release Date: 2026-02-12
+v6.30.7-POSITION-CHECK-OPTIMIZATION
+Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 6 (IMPORT-PATH-FIX)
+Patch: 7 (POSITION-CHECK-OPTIMIZATION)
 
-Description: Fixed all relative import paths to absolute paths (src.*) to enable proper module execution. Changed imports from 'from config import' to 'from src.config import', etc. This resolves ModuleNotFoundError when running python3 -m src.main. Bot now starts successfully and all Phase 2B components (DynamicStopLoss, ScaledSellManager, ConditionalSellManager) import correctly.
+Description: Optimized position check intervals for faster response. Changed surge scan interval from 10s to 5s for ultra-scalping positions (2x faster detection). Changed position check interval from 3s to 7s for regular positions (more stable, less API calls). This balance provides faster entry for surge opportunities while maintaining stable position management.
