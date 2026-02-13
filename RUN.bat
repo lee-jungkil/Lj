@@ -5,8 +5,8 @@ echo   Upbit AutoProfit Bot v6.30.6 실행
 echo ================================================
 echo.
 
-REM 프로젝트 루트 디렉토리로 이동
-cd /d "%~dp0.."
+REM 프로젝트 루트 디렉토리로 이동 (RUN.bat가 있는 위치)
+cd /d "%~dp0"
 
 REM 환경 변수 확인
 if not exist ".env" (

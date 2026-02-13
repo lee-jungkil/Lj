@@ -1,9 +1,9 @@
-v6.30.10-DYNAMIC-COIN-IMPROVEMENTS
+v6.30.11-MODULE-PATH-FIX
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 10 (DYNAMIC-COIN-IMPROVEMENTS)
+Patch: 11 (MODULE-PATH-FIX)
 
-Description: Applied recommended improvements for dynamic coin refresh stability. Improvement 1: Added snapshot mechanism - coin list is frozen during full scan and surge detection to prevent mid-scan list changes. Improvement 2: Preserve high-score surge tracking coins - coins with surge score 70+ are kept in the list during refresh to maintain tracking continuity and prevent entry opportunity loss. Maximum 40 coins allowed (35 new + up to 5 tracking). These changes eliminate potential issues: mid-scan coin changes, tracking interruption, data accumulation loss. 30-second runtime test passed with no errors.
+Description: Fixed critical Windows execution error - ModuleNotFoundError: No module named 'src'. Root cause: RUN.bat had incorrect directory change command 'cd /d "%~dp0.."' which moved to parent directory instead of staying in project root. Changed to 'cd /d "%~dp0"' to stay in project directory where src module exists. This fixes the module import error on Windows systems. Also created comprehensive troubleshooting guide FIX_MODULE_NOT_FOUND.md with 3 solution methods and verification checklist.
