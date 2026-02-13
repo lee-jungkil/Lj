@@ -1,9 +1,9 @@
-v6.30.9-INTERVAL-OPTIMIZATION
+v6.30.10-DYNAMIC-COIN-IMPROVEMENTS
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 9 (INTERVAL-OPTIMIZATION)
+Patch: 10 (DYNAMIC-COIN-IMPROVEMENTS)
 
-Description: Optimized execution intervals based on user request and dynamic coin impact analysis. Changed full scan from 20s to 60s to reduce collision with dynamic coin refresh (180s). Changed position check from 7s to 3s for faster liquidation response. Analyzed dynamic coin refresh impact: NOT independent - immediately affects all scan/surge detection cycles. Recommended improvements: snapshot on scan start, preserve high-score surge tracking coins, add OHLCV caching. 30-second runtime test passed with no errors.
+Description: Applied recommended improvements for dynamic coin refresh stability. Improvement 1: Added snapshot mechanism - coin list is frozen during full scan and surge detection to prevent mid-scan list changes. Improvement 2: Preserve high-score surge tracking coins - coins with surge score 70+ are kept in the list during refresh to maintain tracking continuity and prevent entry opportunity loss. Maximum 40 coins allowed (35 new + up to 5 tracking). These changes eliminate potential issues: mid-scan coin changes, tracking interruption, data accumulation loss. 30-second runtime test passed with no errors.

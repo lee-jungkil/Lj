@@ -1396,14 +1396,17 @@ class AutoProfitBot:
         
         self.logger.log_info(f"🔍 급등/급락 스캔 중... (초단타 {len(self.ultra_positions)}/{self.max_ultra_positions})")
         
+        # 🔥 개선 1: 스냅샷 사용 (중간 갱신 방지)
+        tickers_snapshot = self.tickers.copy()
+        
         # 🔥 배치 API: 한 번에 모든 티커 현재가 조회 (N회 → 1회)
-        prices_dict = self.api.get_current_prices(self.tickers)
+        prices_dict = self.api.get_current_prices(tickers_snapshot)
         if not prices_dict:
             return
         
         # 급등/급락 코인 탐지 (각 티커별로 검사)
         detected_coins = []
-        for ticker in self.tickers:
+        for ticker in tickers_snapshot:
             if ticker not in prices_dict:
                 continue
             
@@ -1817,9 +1820,30 @@ class AutoProfitBot:
                     self.display.update_scan_status("코인 목록 갱신 중...")
                     
                     old_count = len(self.tickers)
-                    self.tickers = self.dynamic_coin_selector.get_coins(method=Config.COIN_SELECTION_METHOD)
+                    new_tickers = self.dynamic_coin_selector.get_coins(method=Config.COIN_SELECTION_METHOD)
                     
-                    self.display.update_scan_status(f"코인 갱신 완료: {old_count}개 → {len(self.tickers)}개")
+                    # 🔥 개선 2: 급등 추적 중인 코인 보존 (점수 70+ 유지)
+                    tracking_tickers = []
+                    if hasattr(self, 'surge_detector') and self.surge_detector:
+                        try:
+                            for ticker in self.tickers:
+                                # 급등 점수가 70 이상인 코인은 목록에서 제외하지 않음
+                                surge_info = self.surge_detector.detect_surge(ticker, self.api)
+                                if surge_info and surge_info.get('surge_score', 0) >= 70:
+                                    tracking_tickers.append(ticker)
+                        except Exception as e:
+                            pass
+                    
+                    # 새 코인 목록 + 급등 추적 중인 코인 병합 (중복 제거, 최대 40개)
+                    self.tickers = list(set(new_tickers + tracking_tickers))[:40]
+                    
+                    if tracking_tickers:
+                        self.display.update_scan_status(
+                            f"코인 갱신 완료: {old_count}개 → {len(self.tickers)}개 "
+                            f"(급등 추적: {len(tracking_tickers)}개 보존)"
+                        )
+                    else:
+                        self.display.update_scan_status(f"코인 갱신 완료: {old_count}개 → {len(self.tickers)}개")
                 
                 # ⭐ PHASE 1: 전체 스캔 (60초)
                 if current_time - self.last_full_scan_time >= self.full_scan_interval:
@@ -1839,13 +1863,16 @@ class AutoProfitBot:
                     if self.orderbook_monitor and cycle % 5 == 0:  # 15분마다
                         self.orderbook_monitor.monitor_orderbook(self.tickers[:20])  # 상위 20개
                     
+                    # 🔥 개선 1: 스캔 시 스냅샷 사용 (중간 갱신 방지)
+                    tickers_snapshot = self.tickers.copy()  # 코인 목록 고정
+                    
                     # ⭐ 병렬 분석 (5개씩 배치 처리)
                     batch_size = 5
-                    total_tickers = len(self.tickers)
+                    total_tickers = len(tickers_snapshot)
                     
                     for batch_start in range(0, total_tickers, batch_size):
                         batch_end = min(batch_start + batch_size, total_tickers)
-                        batch_tickers = self.tickers[batch_start:batch_end]
+                        batch_tickers = tickers_snapshot[batch_start:batch_end]  # 스냅샷 사용
                         
                         # 배치 진행률 표시
                         batch_num = (batch_start // batch_size) + 1
