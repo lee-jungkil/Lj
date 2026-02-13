@@ -308,9 +308,9 @@ class AutoProfitBot:
         # 타이밍 설정 (v5.5 업데이트)
         self.last_trade_time = {}
         self.min_trade_interval = 60
-        self.full_scan_interval = 20   # ⭐ 최적화: 60초 → 20초 (전체 스캔 + 즉시 진입, API 사용량 13% 이하, 진입 기회 +200%)
-        self.position_check_interval = 7  # ⭐ v6.30.7: 3초 → 7초 (일반 포지션 체크 - 사용자 요청)
-        self.surge_scan_interval = 5   # ⭐ v6.30.7: 10초 → 5초 (초단타 급등/급락 감지 - 사용자 요청)
+        self.full_scan_interval = 60   # ⭐ v6.30.9: 20초 → 60초 (전체 스캔, 동적 갱신 충돌 방지)
+        self.position_check_interval = 3  # ⭐ v6.30.9: 7초 → 3초 (빠른 청산 속도)
+        self.surge_scan_interval = 5   # ⭐ 유지: 5초 (초단타 급등/급락 감지)
         self.coin_update_interval = 180  # 3분 (동적 코인 갱신)
         self.last_full_scan_time = 0
         self.last_position_check_time = 0
@@ -1756,9 +1756,9 @@ class AutoProfitBot:
         """
         봇 실행 (하이브리드 + 초단타 - AI 학습 통합)
         
-        실행 주기 (v6.30.7 최적화):
-        - 20초: 전체 코인 스캔 + 신규 진입
-        - 7초: 일반 포지션 체크 (10가지 청산 조건)
+        실행 주기 (v6.30.9 최적화):
+        - 60초: 전체 코인 스캔 + 신규 진입
+        - 3초: 일반 포지션 체크 (10가지 청산 조건)
         - 5초: 급등/급락 감지 + 초단타 진입
         - 3분: 동적 코인 갱신
         - 3초: 화면 자동 갱신
@@ -1821,7 +1821,7 @@ class AutoProfitBot:
                     
                     self.display.update_scan_status(f"코인 갱신 완료: {old_count}개 → {len(self.tickers)}개")
                 
-                # ⭐ PHASE 1: 전체 스캔 (3분)
+                # ⭐ PHASE 1: 전체 스캔 (60초)
                 if current_time - self.last_full_scan_time >= self.full_scan_interval:
                     cycle += 1
                     

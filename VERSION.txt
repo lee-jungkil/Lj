@@ -1,9 +1,9 @@
-v6.30.8-EXECUTION-CYCLE-VERIFICATION
+v6.30.9-INTERVAL-OPTIMIZATION
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 8 (EXECUTION-CYCLE-VERIFICATION)
+Patch: 9 (INTERVAL-OPTIMIZATION)
 
-Description: Completed comprehensive execution cycle and API call analysis. Verified all trading cycles are properly connected to buy/sell conditions. Confirmed API usage is within safe limits (662 calls/min, 73% of Upbit's 900/min limit). All execution cycles tested: Full scan (20s) → buy signals, Position check (7s) → 10 exit conditions, Surge detection (5s) → ultra-scalping entry, Dynamic coin refresh (3min) → independent list update, Screen refresh (3s) → UI only. 30-second runtime test passed with no errors.
+Description: Optimized execution intervals based on user request and dynamic coin impact analysis. Changed full scan from 20s to 60s to reduce collision with dynamic coin refresh (180s). Changed position check from 7s to 3s for faster liquidation response. Analyzed dynamic coin refresh impact: NOT independent - immediately affects all scan/surge detection cycles. Recommended improvements: snapshot on scan start, preserve high-score surge tracking coins, add OHLCV caching. 30-second runtime test passed with no errors.
