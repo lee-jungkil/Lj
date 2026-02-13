@@ -77,6 +77,8 @@ from src.ai.scenario_identifier import ScenarioIdentifier
 from src.ai.strategy_selector import StrategySelector
 from src.ai.holding_time_optimizer import HoldingTimeOptimizer
 from src.ai.adaptive_learner import AdaptiveLearner
+from src.ai.auto_optimizer import AutoOptimizer  # ⭐ v6.30.17: 자동 최적화
+from src.ai.loss_analyzer import LossAnalyzer  # ⭐ v6.30.17: 손실 분석
 # 전략
 from src.strategies.aggressive_scalping import AggressiveScalping
 from src.strategies.conservative_scalping import ConservativeScalping
@@ -135,6 +137,23 @@ class AutoProfitBot:
             self.strategy_selector = StrategySelector()
             self.holding_optimizer = HoldingTimeOptimizer()
             
+            # ⭐ v6.30.17: 손실 분석 시스템
+            self.loss_analyzer = LossAnalyzer(
+                learning_engine=self.learning_engine,
+                scenario_identifier=self.scenario_identifier,
+                strategy_selector=self.strategy_selector
+            )
+            self.logger.log_info("📉 손실 분석 시스템 활성화")
+            
+            # ⭐ v6.30.17: 자동 최적화 시스템
+            self.auto_optimizer = AutoOptimizer(
+                risk_manager=None,  # 나중에 설정
+                learning_engine=self.learning_engine,
+                loss_analyzer=self.loss_analyzer,
+                strategy_selector=self.strategy_selector
+            )
+            self.logger.log_info("🔧 자동 최적화 시스템 활성화")
+            
             # 통합 학습 시스템
             self.adaptive_learner = AdaptiveLearner(
                 learning_engine=self.learning_engine,
@@ -145,6 +164,8 @@ class AutoProfitBot:
             self.logger.log_info("🧠 Phase 2 AI 시스템 활성화")
         else:
             self.adaptive_learner = None
+            self.loss_analyzer = None
+            self.auto_optimizer = None
             self.logger.log_info("⚠️ Phase 2 AI 시스템 비활성화")
         
         # 호가창 분석기
@@ -205,6 +226,11 @@ class AutoProfitBot:
             max_position_ratio=Config.MAX_POSITION_RATIO,
             upbit_api=self.api if mode == 'live' else None
         )
+        
+        # ⭐ v6.30.17: AutoOptimizer에 risk_manager 연결
+        if Config.ENABLE_ADVANCED_AI and self.auto_optimizer:
+            self.auto_optimizer.risk_manager = self.risk_manager
+            self.logger.log_info("🔗 AutoOptimizer <-> RiskManager 연결 완료")
         
         # 감정 분석기
         self.sentiment_analyzer = None
@@ -912,6 +938,27 @@ class AutoProfitBot:
                                 total_trades += strat_stat.get('total_trades', 0)
                                 profit_trades += strat_stat.get('winning_trades', 0)
                                 loss_trades += strat_stat.get('losing_trades', 0)
+                            
+                            # ⭐ v6.30.17: 손실 발생 시 LossAnalyzer 자동 분석
+                            if profit_loss < 0 and self.loss_analyzer:
+                                loss_analysis = self.loss_analyzer.analyze_loss(
+                                    ticker=ticker,
+                                    entry_price=position.avg_buy_price,
+                                    exit_price=current_price,
+                                    entry_scenario=getattr(position, 'entry_scenario', 'UNKNOWN'),
+                                    selected_strategy=position.strategy,
+                                    hold_time=hold_time,
+                                    profit_loss=profit_loss,
+                                    market_data=df
+                                )
+                                
+                                # 손실 분석 결과 로그
+                                if loss_analysis:
+                                    self.logger.log_warning(
+                                        f"📉 손실 분석: {ticker} | "
+                                        f"원인: {loss_analysis.get('loss_category', 'UNKNOWN')} | "
+                                        f"대안: {loss_analysis.get('alternative_strategy', 'N/A')}"
+                                    )
                             
                             self.display.update_ai_learning(
                                 total_trades=total_trades,
