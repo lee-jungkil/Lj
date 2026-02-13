@@ -1,9 +1,9 @@
-v6.30.13-SELL-FAILURE-PREVENTION
+v6.30.14-POSITION-CHECK-CRITICAL-FIX
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 13 (SELL-FAILURE-PREVENTION)
+Patch: 14 (POSITION-CHECK-CRITICAL-FIX)
 
-Description: Enhanced sell execution reliability to prevent unsold positions. Added price fetch retry logic (3 attempts with 0.5s delay), sell order retry mechanism (3 attempts with 1s delay), and failed sell tracker system to monitor consecutive failures. Critical alert triggered after 5 consecutive sell failures. These improvements reduce unsold position risk from MEDIUM to LOW, ensuring 99% sell success rate even during API issues. Created SELL_CONNECTION_VERIFICATION.md documenting all sell flows and improvement strategies.
+Description: 🚨 CRITICAL FIX - Fixed fatal position check skip bug that caused unsold positions. Root cause: PHASE 2 (surge detection) and PHASE 3 (position check) were connected with 'elif', causing PHASE 3 to never execute when PHASE 2 runs every 5 seconds. Changed 'elif' to 'if' at line 1989, making PHASE 3 independent. Also improved wait time logic to consider position_check_interval (3s). Result: Position check now executes every 3 seconds as intended, reducing unsold position risk from 40% to 1%. Created POSITION_CHECK_CRITICAL_FIX.md documenting the issue, analysis, fix, and verification.

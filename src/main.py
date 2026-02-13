@@ -1962,7 +1962,7 @@ class AutoProfitBot:
                     quick_check_count = 0
                     surge_scan_count = 0
                 
-                # ⭐ PHASE 2: 급등/급락 감지 (30초) - 최우선!
+                # ⭐ PHASE 2: 급등/급락 감지 (5초)
                 if current_time - self.last_surge_scan_time >= self.surge_scan_interval:
                     surge_scan_count += 1
                     
@@ -1986,8 +1986,8 @@ class AutoProfitBot:
                     
                     self.last_surge_scan_time = current_time
                 
-                # ⭐ PHASE 3: 일반 포지션 체크 (1분)
-                elif self.risk_manager.positions:
+                # ⭐ PHASE 3: 일반 포지션 체크 (3초) - 독립 실행! (v6.30.14 수정: elif → if)
+                if self.risk_manager.positions:
                     quick_check_count += 1
                     
                     # ⭐ 스캔 시간 기록
@@ -2048,10 +2048,11 @@ class AutoProfitBot:
                         ""
                     )
                 
-                # 대기 시간 최적화
+                # 대기 시간 최적화 (v6.30.14 개선: 포지션 체크 주기 고려)
                 if self.ultra_positions or self.risk_manager.positions:
-                    wait_time = self.surge_scan_interval  # 5초 (포지션 있으면 자주 체크)
-                    next_action = "급등감지 OR 포지션체크"
+                    # 포지션 있으면 더 자주 체크 (3초와 5초 중 작은 값)
+                    wait_time = min(self.position_check_interval, self.surge_scan_interval)  # 3초
+                    next_action = "포지션체크 OR 급등감지"
                 else:
                     time_until_next_scan = self.full_scan_interval - (time.time() - self.last_full_scan_time)
                     wait_time = max(self.surge_scan_interval, min(self.position_check_interval, time_until_next_scan))
