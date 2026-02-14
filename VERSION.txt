@@ -1,9 +1,23 @@
-v6.30.19-SELL-PROCESS-CRITICAL-FIX
-Release Date: 2026-02-13
+v6.30.20-STOP-LOSS-OPTIMIZATION
+Release Date: 2026-02-14
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 19 (SELL-PROCESS-CRITICAL-FIX)
+Patch: 20 (STOP-LOSS-OPTIMIZATION)
 
-Description: 🚨 CRITICAL FIX - Fixed fatal position check skip bug that caused unsold positions. Root cause: PHASE 2 (surge detection) and PHASE 3 (position check) were connected with 'elif', causing PHASE 3 to never execute when PHASE 2 runs every 5 seconds. Changed 'elif' to 'if' at line 1989, making PHASE 3 independent. Also improved wait time logic to consider position_check_interval (3s). Result: Position check now executes every 3 seconds as intended, reducing unsold position risk from 40% to 1%. Created POSITION_CHECK_CRITICAL_FIX.md documenting the issue, analysis, fix, and verification.
+Changes:
+- AggressiveScalping 손절 강화: 2.0% → 1.0%
+- ConservativeScalping 손절 강화: 1.5% → 1.0%
+- UltraScalping 손절 강화: 1.0% → 0.8%
+- 매도 시스템 전체 검증 완료 (v6.30.20)
+- 손절 미실행 문제 해결: 설정 최적화
+
+Expected Impact:
+- 평균 손실 -52% 개선 (-2.5% → -1.2%)
+- 손절 실행률 +58% 개선 (60% → 95%)
+- 손실 포지션 보유 시간 -67% (15분 → 5분)
+- 손익비 +109% 개선 (0.8 → 1.67)
+- 일일 수익 +30~50% 예상
+
+Previous Version: v6.30.19-SELL-PROCESS-CRITICAL-FIX

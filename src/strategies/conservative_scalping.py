@@ -18,9 +18,9 @@ class ConservativeScalping(BaseStrategy):
         # AI 학습 엔진
         self.learning_engine = learning_engine
         
-        # 전략 파라미터 (기본값)
-        self.stop_loss = config.get('stop_loss', 0.015)  # 1.5%
-        self.take_profit = config.get('take_profit', 0.01)  # 1%
+        # 전략 파라미터 (기본값) - v6.30.20: 보수적 전략 손절 강화 (1.5% → 1%)
+        self.stop_loss = config.get('stop_loss', 0.01)  # 1% (강화)
+        self.take_profit = config.get('take_profit', 0.01)  # 1% (유지)
         self.rsi_min = config.get('rsi_min', 40)
         self.rsi_max = config.get('rsi_max', 60)
         self.bb_threshold = config.get('bb_threshold', 0.95)  # 볼린저 밴드 하단 95%

@@ -21,9 +21,9 @@ class UltraScalping(BaseStrategy):
     def __init__(self, config: Dict):
         super().__init__("UltraScalping", config)
         
-        # 초단타 전용 파라미터 (완화)
-        self.stop_loss = config.get('stop_loss', 0.01)  # 1% 손절 (완화)
-        self.take_profit = config.get('take_profit', 0.015)  # 1.5% 익절 (완화)
+        # 초단타 전용 파라미터 (v6.30.20: 손절 강화 1% → 0.8%)
+        self.stop_loss = config.get('stop_loss', 0.008)  # 0.8% 손절 (강화)
+        self.take_profit = config.get('take_profit', 0.015)  # 1.5% 익절 (유지)
         self.min_price_surge = config.get('min_price_surge', 0.015)  # 1.5% 이상 급등 (완화)
         self.volume_spike = config.get('volume_spike', 2.0)  # 거래량 2배 이상 (완화)
         self.max_hold_time = config.get('max_hold_time', 300)  # 최대 5분 보유

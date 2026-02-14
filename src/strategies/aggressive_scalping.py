@@ -18,8 +18,8 @@ class AggressiveScalping(BaseStrategy):
         # AI 학습 엔진
         self.learning_engine = learning_engine
         
-        # 전략 파라미터 (기본값)
-        self.stop_loss = config.get('stop_loss', 0.02)  # 2%
+        # 전략 파라미터 (기본값) - v6.30.20: 손절 기준 강화 (2% → 1%)
+        self.stop_loss = config.get('stop_loss', 0.01)  # 1% (단타에 적합)
         self.take_profit = config.get('take_profit', 0.015)  # 1.5%
         self.rsi_oversold = config.get('rsi_oversold', 30)
         self.rsi_overbought = config.get('rsi_overbought', 70)
