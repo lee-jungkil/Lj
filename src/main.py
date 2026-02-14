@@ -1982,6 +1982,9 @@ class AutoProfitBot:
                 current_time = time.time()
                 monitor_count += 1  # ⭐ 모니터링 카운터 증가
                 
+                # 🔍 DEBUG: 루프 시작 확인
+                print(f"\n[DEBUG-LOOP] 메인 루프 #{monitor_count} 시작 - 시간: {current_time:.2f}")
+                
                 # 화면 갱신 (3초마다)
                 if current_time - self.last_display_update_time >= self.display_update_interval:
                     self._update_display()
@@ -2195,8 +2198,14 @@ class AutoProfitBot:
                     wait_time = max(self.surge_scan_interval, min(self.position_check_interval, time_until_next_scan))
                     next_action = "전체 스캔"
                 
+                # 🔍 DEBUG: 대기 시간 확인
+                print(f"[DEBUG-SLEEP] {wait_time:.2f}초 대기 중... (다음: {next_action})")
+                print(f"[DEBUG-SLEEP] 포지션: {len(self.risk_manager.positions)}개, 초단타: {len(self.ultra_positions)}개")
+                
                 self.logger.log_info(f"⏳ {wait_time:.0f}초 대기 (다음: {next_action})")
                 time.sleep(wait_time)
+                
+                print(f"[DEBUG-SLEEP] 대기 완료! 루프 재시작...")
         
         except KeyboardInterrupt:
             self.logger.log_info("\n⏹️ 사용자에 의해 중지됨")
