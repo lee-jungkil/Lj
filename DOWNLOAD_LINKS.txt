@@ -1,0 +1,152 @@
+════════════════════════════════════════════════════════════════
+  Upbit AutoProfit Bot v6.30.55 - 다운로드 링크 모음
+════════════════════════════════════════════════════════════════
+
+📅 릴리스 날짜: 2026-02-14
+🔖 버전: v6.30.55-STRATEGY-TYPO-FIX
+🐛 주요 수정: 매도 안되는 문제 완전 해결
+
+════════════════════════════════════════════════════════════════
+  📦 전체 프로젝트 다운로드
+════════════════════════════════════════════════════════════════
+
+✨ ZIP 파일 다운로드 (추천):
+https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+
+📂 GitHub 저장소:
+https://github.com/lee-jungkil/Lj
+
+🔗 Pull Request:
+https://github.com/lee-jungkil/Lj/pull/1
+
+════════════════════════════════════════════════════════════════
+  📄 개별 파일 다운로드 (급할 때)
+════════════════════════════════════════════════════════════════
+
+📌 메인 파일 (src/main.py):
+https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/main.py
+
+📌 설정 파일 (src/config.py):
+https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/config.py
+
+📌 요구사항 (requirements.txt):
+https://raw.githubusercontent.com/lee-jungkil/Lj/main/requirements.txt
+
+📌 버전 정보 (VERSION.txt):
+https://raw.githubusercontent.com/lee-jungkil/Lj/main/VERSION.txt
+
+════════════════════════════════════════════════════════════════
+  📚 문서
+════════════════════════════════════════════════════════════════
+
+📖 README:
+https://github.com/lee-jungkil/Lj/blob/main/README.md
+
+📖 릴리스 노트 (v6.30.55):
+https://github.com/lee-jungkil/Lj/blob/main/RELEASE_NOTES_v6.30.55.md
+
+📖 빠른 설치 가이드:
+https://github.com/lee-jungkil/Lj/blob/main/QUICK_INSTALL_v6.30.55.md
+
+📖 완전 재설치 가이드:
+https://github.com/lee-jungkil/Lj/blob/main/COMPLETE_REINSTALL_GUIDE.md
+
+════════════════════════════════════════════════════════════════
+  🚀 빠른 설치 (Windows)
+════════════════════════════════════════════════════════════════
+
+방법 1: ZIP 다운로드 (가장 쉬움)
+  1. https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+  2. 압축 해제
+  3. COMPLETE_REINSTALL.bat 실행
+
+방법 2: curl 명령어
+  curl -L -o upbit-bot.zip https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+  tar -xf upbit-bot.zip
+  cd Lj-main
+  COMPLETE_REINSTALL.bat
+
+방법 3: Git Clone
+  git clone https://github.com/lee-jungkil/Lj.git
+  cd Lj
+  COMPLETE_REINSTALL.bat
+
+════════════════════════════════════════════════════════════════
+  🔄 기존 사용자 업데이트
+════════════════════════════════════════════════════════════════
+
+Git이 있는 경우:
+  git pull origin main
+  COMPLETE_REINSTALL.bat
+
+Git이 없는 경우:
+  QUICK_UPDATE.bat
+
+또는:
+  위의 "ZIP 다운로드" 방법으로 새로 설치
+
+════════════════════════════════════════════════════════════════
+  🆕 v6.30.55 주요 변경사항
+════════════════════════════════════════════════════════════════
+
+🐛 Critical Bug Fix: 매도 안되는 문제 완전 해결
+
+문제:
+  - AttributeError 발생
+  - 포지션 보유해도 매도 안됨
+  - 전략 이름 오타 (aggressive_scaling vs aggressive_scalping)
+
+해결:
+  ✅ 전략 이름 오타 처리 추가
+  ✅ 하위 호환성 유지
+  ✅ 모든 케이스 지원 (대소문자, 하이픈, 언더스코어)
+
+결과:
+  ✅ 기존 포지션 정상 작동
+  ✅ 자동 매도 정상 실행
+  ✅ AttributeError 완전 제거
+
+════════════════════════════════════════════════════════════════
+  ⚙️ 시스템 요구사항
+════════════════════════════════════════════════════════════════
+
+OS:       Windows 10/11
+Python:   3.8 이상 (3.11 권장)
+메모리:   2GB 이상
+디스크:   500MB 이상
+인터넷:   필수
+
+════════════════════════════════════════════════════════════════
+  📞 지원
+════════════════════════════════════════════════════════════════
+
+🐛 버그 제보:
+https://github.com/lee-jungkil/Lj/issues
+
+💬 질문/토론:
+https://github.com/lee-jungkil/Lj/discussions
+
+📧 Email:
+GitHub Issues를 통해 문의해주세요
+
+════════════════════════════════════════════════════════════════
+  ⚠️ 중요 공지
+════════════════════════════════════════════════════════════════
+
+✅ 모의투자(paper mode)로 먼저 테스트하세요!
+⚠️ API 키는 절대 공유하지 마세요!
+⚠️ 모든 투자 손실은 본인 책임입니다!
+⚠️ .env 파일은 Git에 업로드하지 마세요!
+
+════════════════════════════════════════════════════════════════
+  🎉 감사합니다!
+════════════════════════════════════════════════════════════════
+
+이 프로젝트가 도움이 되셨다면:
+⭐ GitHub에 Star를 눌러주세요!
+🐛 버그를 발견하면 Issues에 제보해주세요!
+💡 개선 아이디어가 있으면 공유해주세요!
+
+Happy Trading! 🚀📈
+
+════════════════════════════════════════════════════════════════
