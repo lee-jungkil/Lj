@@ -2139,30 +2139,34 @@ class AutoProfitBot:
                     
                     self.last_surge_scan_time = current_time
                 
-                # ⭐ PHASE 3: 일반 포지션 체크 (3초) - 독립 실행! (v6.30.14 수정: elif → if)
-                if self.risk_manager.positions:
-                    quick_check_count += 1
-                    
-                    # ⭐ 스캔 시간 기록
-                    position_time = datetime.now()
-                    self.display.update_scan_times(position_check_time=position_time)
-                    
-                    # ⭐ v6.30.26: 화면에도 매도 체크 상태 표시
-                    check_status = f"⚡ 청산 체크 #{quick_check_count}"
-                    self.display.update_monitoring(
-                        check_status,
-                        f"포지션 {len(self.risk_manager.positions)}개 체크 중",
-                        datetime.now().strftime('%H:%M:%S')
-                    )
-                    
-                    # ⭐ v6.30.19: UI 업데이트 제거, 바로 청산 조건 체크
-                    self.logger.log_info(f"\n--- ⚡ 포지션 청산 체크 #{quick_check_count} - {datetime.now().strftime('%H:%M:%S')} ---")
-                    
-                    # 실제 포지션 청산 조건 체크 (10가지 조건)
-                    if hasattr(self, 'quick_check_positions'):
-                        self.quick_check_positions()
-                    else:
-                        self.update_all_positions()
+                # ⭐ PHASE 3: 일반 포지션 체크 (3초) - v6.30.29: 시간 간격 체크 추가!
+                if current_time - self.last_position_check_time >= self.position_check_interval:
+                    if self.risk_manager.positions:
+                        quick_check_count += 1
+                        
+                        # ⭐ 스캔 시간 기록
+                        position_time = datetime.now()
+                        self.display.update_scan_times(position_check_time=position_time)
+                        
+                        # ⭐ v6.30.26: 화면에도 매도 체크 상태 표시
+                        check_status = f"⚡ 청산 체크 #{quick_check_count}"
+                        self.display.update_monitoring(
+                            check_status,
+                            f"포지션 {len(self.risk_manager.positions)}개 체크 중",
+                            datetime.now().strftime('%H:%M:%S')
+                        )
+                        
+                        # ⭐ v6.30.19: UI 업데이트 제거, 바로 청산 조건 체크
+                        self.logger.log_info(f"\n--- ⚡ 포지션 청산 체크 #{quick_check_count} - {datetime.now().strftime('%H:%M:%S')} ---")
+                        
+                        # 실제 포지션 청산 조건 체크 (10가지 조건)
+                        if hasattr(self, 'quick_check_positions'):
+                            self.quick_check_positions()
+                        else:
+                            self.update_all_positions()
+                        
+                        # ⭐ v6.30.29: 마지막 체크 시간 업데이트 (중요!)
+                        self.last_position_check_time = current_time
                 
                 # ⭐ 대기 중일 때 (간단하게)
                 else:

@@ -1,10 +1,10 @@
 @echo off
-title Upbit AutoProfit Bot v6.30.28 - Setup
+title Upbit AutoProfit Bot v6.30.29 - Setup
 color 0E
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.28
+echo  Upbit AutoProfit Bot v6.30.29
 echo  Initial Setup
 echo ========================================
 echo.
@@ -118,7 +118,7 @@ if exist ".env" (
     ) else (
         echo [INFO] Creating basic .env file...
         (
-            echo # Upbit AutoProfit Bot v6.30.28
+            echo # Upbit AutoProfit Bot v6.30.29
             echo.
             echo TRADING_MODE=paper
             echo INITIAL_CAPITAL=100000
