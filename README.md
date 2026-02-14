@@ -1,245 +1,252 @@
-# Upbit AutoProfit Bot v6.30.6
+# Upbit AutoProfit Bot v6.30.38
 
-**Release Date**: 2026-02-12  
-**Status**: Production Ready
+🤖 **AI 기반 Upbit 자동매매 봇 - 완전 재설치 시스템**
 
 ---
 
-## 🚀 빠른 시작
+## 🚀 빠른 시작 (1분)
 
-### 방법 1: 간편 업데이트 + 실행 (권장)
+### Windows 사용자
 
-```cmd
-# 1. 프로젝트 폴더로 이동
-cd C:\Users\admin\Downloads\Lj-main
+```batch
+# 1. 프로젝트 다운로드
+curl -L -o upbit-bot.zip https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+tar -xf upbit-bot.zip
+cd Lj-main
 
-# 2. 빠른 업데이트 (다운로드 + 적용)
-QUICK_UPDATE.bat
-
-# 3. 봇 실행
-RUN.bat
+# 2. 완전 재설치 (권장)
+COMPLETE_REINSTALL.bat
 ```
 
-### 방법 2: 단계별 업데이트
+**또는 Git 사용:**
 
-```cmd
-# 1. update 폴더로 이동
-cd C:\Users\admin\Downloads\Lj-main\update
-
-# 2. 다운로드
-download_update.bat
-
-# 3. 적용
-UPDATE.bat
-
-# 4. 상위 폴더로
-cd ..
-
-# 5. 실행
-RUN.bat
-```
-
-### 방법 3: Git Pull
-
-```cmd
-cd C:\Users\admin\Downloads\Lj-main
-git pull origin main
-python -m src.main
+```batch
+git clone https://github.com/lee-jungkil/Lj.git
+cd Lj
+COMPLETE_REINSTALL.bat
 ```
 
 ---
 
-## ⚠️ 중요: 실행 방법 변경됨!
+## 📦 주요 파일
 
-### ❌ 기존 방법 (더 이상 작동 안 함)
-```cmd
-python src\main.py
+### 실행 파일
+- **COMPLETE_REINSTALL.bat** - 완전 재설치 (문제 발생 시)
+- **setup.bat** - 초기 설정
+- **RUN_PAPER_CLEAN.bat** - 모의투자 시작
+- **RUN_LIVE_CLEAN.bat** - 실전투자 시작
+
+### 업데이트
+- **QUICK_UPDATE.bat** - 빠른 업데이트
+- **UPDATE.bat** - 전체 업데이트
+
+### 기타
+- **RUN.bat** - 기본 실행
+- **DOWNLOAD_ALL_FILES.bat** - 전체 파일 다운로드
+
+---
+
+## ⚙️ 시스템 요구사항
+
+- **OS:** Windows 10/11
+- **Python:** 3.8 이상
+- **메모리:** 2GB 이상
+- **디스크:** 500MB 이상
+- **인터넷:** 필수
+
+---
+
+## 📖 사용 방법
+
+### 1️⃣ 처음 설치
+
+```batch
+# 프로젝트 다운로드
+git clone https://github.com/lee-jungkil/Lj.git
+cd Lj
+
+# 완전 재설치 실행
+COMPLETE_REINSTALL.bat
 ```
 
-### ✅ 새로운 방법 (v6.30.6부터 필수)
-```cmd
-python -m src.main
-```
+### 2️⃣ 설정
 
-또는
-
-```cmd
-RUN.bat
-```
-
----
-
-## 📁 파일 설명
-
-| 파일 | 설명 |
-|------|------|
-| **QUICK_UPDATE.bat** | 다운로드 + 업데이트 한 번에 (가장 간편) |
-| **RUN.bat** | 봇 실행 (환경 검증 포함) |
-| **UPDATE.bat** | 업데이트만 (다운로드는 별도) |
-| **update/download_update.bat** | GitHub에서 다운로드만 |
-
----
-
-## 🔧 주요 기능
-
-### Phase 2 Advanced Trading System
-
-#### 1️⃣ 동적 손절 시스템 (Dynamic Stop Loss)
-- AI 학습 기반 손절가 조정
-- 시장 상황 반영 실시간 업데이트
-- 트레일링 스탑 자동 설정
-
-#### 2️⃣ 분할 매도 (Scaled Sell)
-- 수익률별 자동 분할 매도
-- 예: 2% 도달 시 30%, 4% 시 40%, 6% 시 30%
-- 리스크 분산 및 수익 극대화
-
-#### 3️⃣ 조건부 매도 (Conditional Sell)
-- 복합 지표 기반 매도 판단
-- RSI, MACD, 거래량 등 다각 분석
-- 최소 조건 개수 설정 가능
-
-#### 4️⃣ 리스크 평가 시스템 (v6.30.4)
-- 100점 척도 리스크 스코어
-- 손익률, 보유시간, 시장 변동성 등 종합 평가
-- 자동 청산 권고 (CRITICAL/HIGH/MEDIUM/LOW)
-
-#### 5️⃣ 포지션 청산 시스템 (v6.30.5)
-- **10가지 청산 조건** 통합
-- 매 분 자동 체크 (`quick_check_positions`)
-- 7시간 보유 버그 완전 해결
-
----
-
-## 🔍 버전 히스토리
-
-| 버전 | 날짜 | 주요 변경 |
-|------|------|----------|
-| v6.30.6 | 2026-02-12 | Import 경로 수정 + 업데이트 스크립트 개선 |
-| v6.30.5 | 2026-02-12 | 포지션 청산 버그 수정 (7시간 보유) |
-| v6.30.4 | 2026-02-12 | 리스크 평가 시스템 통합 |
-| v6.30.3 | 2026-02-12 | 프로덕션 검증 완료 |
-| v6.30.2 | 2026-02-12 | Phase 2C 통합 테스트 |
-| v6.30.1 | 2026-02-12 | Phase 2B 고급 기능 추가 |
-| v6.30.0 | 2026-02-12 | Phase 2A 호가창 분석 |
-| v6.29.5 | 2026-02-11 | Phase 1 알림 시스템 |
-
----
-
-## 📖 문서
-
-| 문서 | 설명 |
-|------|------|
-| [UPDATE_GUIDE_v6.30.6.md](UPDATE_GUIDE_v6.30.6.md) | 업데이트 가이드 (필수 읽기) |
-| [ERROR_VERIFICATION_v6.30.6.md](ERROR_VERIFICATION_v6.30.6.md) | 에러 검증 보고서 |
-| [CRITICAL_BUG_FIX_v6.30.5.md](CRITICAL_BUG_FIX_v6.30.5.md) | 포지션 청산 버그 수정 |
-| [FINAL_INTEGRATION_REPORT_v6.30.4.md](FINAL_INTEGRATION_REPORT_v6.30.4.md) | 최종 통합 보고서 |
-
----
-
-## ⚙️ 환경 설정
-
-### .env 파일 (필수)
+`.env` 파일 수정:
 
 ```env
-# Upbit API
-UPBIT_ACCESS_KEY=your_access_key_here
-UPBIT_SECRET_KEY=your_secret_key_here
+# 거래 모드
+TRADING_MODE=paper  # 모의투자 (paper) 또는 실전 (live)
 
-# Phase 2B Features
-ENABLE_DYNAMIC_STOP_LOSS=true
-ENABLE_SCALED_SELL=true
-SCALED_SELL_LEVELS=2.0:30,4.0:40,6.0:30
-ENABLE_CONDITIONAL_SELL=true
-CONDITIONAL_SELL_MIN_CONDITIONS=2
+# 초기 자본
+INITIAL_CAPITAL=5000000
 
-# Order Settings
-SLIPPAGE_TOLERANCE=0.5
-ENABLE_ORDERBOOK_ANALYSIS=true
-MIN_LIQUIDITY_SCORE=30.0
-MAX_SLIPPAGE_RISK=MEDIUM
+# 리스크 관리
+MAX_DAILY_LOSS=500000
+MAX_CUMULATIVE_LOSS=1000000
+MAX_POSITIONS=5
+MAX_POSITION_RATIO=0.3
 
-# Chase Buy Settings
-CHASE_MIN_SCORE=50
-CHASE_DAILY_LIMIT=10
-SURGE_THRESHOLD_1M=1.5
-SURGE_THRESHOLD_5M=3.0
-SURGE_THRESHOLD_15M=5.0
-VOLUME_SURGE_RATIO=2.0
+# Upbit API 키 (실전 거래 시 필수)
+UPBIT_ACCESS_KEY=
+UPBIT_SECRET_KEY=
+```
+
+### 3️⃣ 실행
+
+**모의투자:**
+```batch
+RUN_PAPER_CLEAN.bat
+```
+
+**실전투자:**
+```batch
+RUN_LIVE_CLEAN.bat
 ```
 
 ---
 
-## 🆘 문제 해결
+## 🔧 문제 해결
 
-### 에러 1: "내부 또는 외부 명령이 아닙니다"
-**원인**: 잘못된 위치에서 실행
+### ❌ DEBUG 로그가 안 나와요
 
-**해결**:
-```cmd
-# 프로젝트 루트로 이동
-cd C:\Users\admin\Downloads\Lj-main
-
-# QUICK_UPDATE.bat 실행
-QUICK_UPDATE.bat
+```batch
+COMPLETE_REINSTALL.bat
 ```
 
-### 에러 2: ModuleNotFoundError
-**원인**: 잘못된 실행 방법
+### ❌ ImportError: TradingBot 클래스 없음
 
-**해결**:
-```cmd
-# ❌ 기존 방법
-python src\main.py
-
-# ✅ 새로운 방법
-python -m src.main
-
-# ✅ 또는
-RUN.bat
+```batch
+COMPLETE_REINSTALL.bat
 ```
 
-### 에러 3: .env 파일 없음
-**원인**: 환경 변수 파일 미설정
+### ❌ 포지션 청산 체크가 안 돼요
 
-**해결**:
-```cmd
-# .env 파일 생성
-notepad .env
+```batch
+COMPLETE_REINSTALL.bat
+```
 
-# 위 "환경 설정" 섹션 내용 복사/붙여넣기
+### ❌ Python이 설치 안 됐어요
+
+1. https://www.python.org/ 방문
+2. Python 3.8+ 다운로드
+3. 설치 시 **"Add Python to PATH" 체크 필수**
+4. 재시작 후 `COMPLETE_REINSTALL.bat` 실행
+
+---
+
+## 📊 예상 로그
+
+### 정상 작동 시
+
+```
+[2026-02-14 21:00:00] 🤖 봇 가동 시작!
+
+[DEBUG-LOOP] 메인 루프 #1 시작 - 시간: 1771067600.12
+
+[DEBUG] Phase 3 체크 - 포지션: 0개
+[DEBUG] ⚠️ 포지션 없음, Phase 3 스킵
+
+[DEBUG-SLEEP] 5.00초 대기 중...
+```
+
+### 포지션 보유 시
+
+```
+--- ⚡ 포지션 청산 체크 #5 - 21:00:45 ---
+📊 KRW-BTC 손익률: +1.23% (보유 180초)
+   익절 목표: +1.5% | 손절 목표: -1.0%
+   📊 보유 유지
+```
+
+### 매도 실행 시
+
+```
+✅ 익절 트리거 발동! (+1.58% >= +1.5%)
+
+💰 매도 주문 체결 완료!
+   코인: KRW-BTC
+   매도가: 45,234,000 원
+   수익: +358,920 원 (+1.58%)
 ```
 
 ---
 
-## 📊 기대 성과
+## 📚 상세 문서
 
-| 지표 | Before | After | 개선율 |
-|------|--------|-------|--------|
-| 주문 성공률 | 85% | 96% | +13% |
-| 평균 슬리피지 | 0.30% | 0.15% | -50% |
-| 추격매수 승률 | 65% | 75% | +15% |
-| 손절 정확도 | 60% | 80% | +33% |
-| 평균 수익 | 2.5% | 3.8% | +52% |
-| 최대 손실 | -8% | -5% | -37% |
-| 월 수익률 | 15% | 35% | +133% |
+자세한 내용은 [COMPLETE_REINSTALL_GUIDE.md](COMPLETE_REINSTALL_GUIDE.md)를 참고하세요.
+
+---
+
+## 🌟 주요 기능
+
+### AI 기반 매매
+- ✅ 실시간 시장 분석
+- ✅ 기술적 지표 복합 분석 (RSI, MACD, 볼린저밴드 등)
+- ✅ AI 학습 기반 매매 전략
+- ✅ 동적 손절/익절 최적화
+
+### 리스크 관리
+- ✅ 일일 손실 한도
+- ✅ 누적 손실 한도
+- ✅ 최대 포지션 수 제한
+- ✅ 포지션별 비율 관리
+
+### 자동 청산
+- ✅ 3초마다 포지션 체크
+- ✅ 10가지 청산 조건
+- ✅ 즉시 매도 실행
+- ✅ 완전 자동화
+
+### 모니터링
+- ✅ 실시간 손익 표시
+- ✅ 상세 로그 기록
+- ✅ 고정 화면 UI
+- ✅ 거래 통계
+
+---
+
+## ⚠️ 주의사항
+
+1. **모의투자 먼저 테스트**
+   - 실전 거래 전 반드시 모의투자로 테스트하세요
+
+2. **API 키 보안**
+   - `.env` 파일을 절대 공유하지 마세요
+   - Git에 업로드하지 마세요
+
+3. **리스크 관리**
+   - 초기 자본은 손실 가능한 금액으로 설정하세요
+   - 손실 한도를 반드시 설정하세요
+
+4. **법적 책임**
+   - 모든 투자 손실은 사용자 책임입니다
+   - 프로그램 오류로 인한 손실도 책임지지 않습니다
+
+---
+
+## 🔗 링크
+
+- **GitHub:** https://github.com/lee-jungkil/Lj
+- **Issues:** https://github.com/lee-jungkil/Lj/issues
+- **Version:** v6.30.38-COMPLETE-REINSTALL-SYSTEM
 
 ---
 
 ## 📞 지원
 
-- **Repository**: https://github.com/lee-jungkil/Lj
-- **Issues**: https://github.com/lee-jungkil/Lj/issues
-- **Latest Release**: https://github.com/lee-jungkil/Lj/releases
+문제가 발생하면:
+1. [COMPLETE_REINSTALL_GUIDE.md](COMPLETE_REINSTALL_GUIDE.md) 확인
+2. GitHub Issues에 문의
+3. `COMPLETE_REINSTALL.bat` 실행
 
 ---
 
-## 📜 라이센스
+## 📜 라이선스
 
-MIT License - 자유롭게 사용 가능
+이 프로젝트는 개인 사용 목적으로 제공됩니다.  
+상업적 사용은 제한될 수 있습니다.
 
 ---
 
-**Last Updated**: 2026-02-12  
-**Version**: v6.30.6  
-**Status**: ✅ Production Ready
+**마지막 업데이트:** 2026-02-14  
+**현재 버전:** v6.30.38

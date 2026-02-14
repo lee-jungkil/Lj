@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,13 +20,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environment
 venv/
-env/
 ENV/
-
-# Environment variables
-.env
+env/
 
 # IDE
 .vscode/
@@ -39,21 +32,30 @@ ENV/
 *.swo
 *~
 
-# Trading logs (sensitive data)
-trading_logs/*.json
-trading_logs/*.log
+# Logs
+*.log
+trading_logs/
+logs/
 
-# Keep directory structure
-!trading_logs/.gitkeep
+# Environment
+.env
+.env.local
+.env.backup
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
+# Test files
+test_*.py
+*_test.py
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Temporary files
+*.tmp
+temp/
+tmp/
