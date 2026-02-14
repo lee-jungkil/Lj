@@ -603,6 +603,9 @@ class AutoProfitBot:
                 strategy=strategy
             )
             
+            _original_print(f"[DEBUG-BUY] {ticker} 포지션 추가 결과: {success}")
+            _original_print(f"[DEBUG-BUY] 현재 포지션 목록: {list(self.risk_manager.positions.keys())}")
+            
             if success:
                 # 기존 보유 보호 시스템에도 봇 포지션 추가
                 self.holding_protector.add_bot_position(
@@ -2153,6 +2156,7 @@ class AutoProfitBot:
                 # ⭐ PHASE 3: 일반 포지션 체크 (3초) - v6.30.29: 시간 간격 체크 추가!
                 # 🔍 DEBUG: 항상 로그 출력
                 _original_print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {len(self.risk_manager.positions)}개")
+                _original_print(f"[DEBUG] risk_manager.positions 내용: {list(self.risk_manager.positions.keys())}")
                 
                 if current_time - self.last_position_check_time >= self.position_check_interval:
                     _original_print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
