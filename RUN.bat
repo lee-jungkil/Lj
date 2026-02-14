@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ================================================
-echo   Upbit AutoProfit Bot v6.30.30 실행
+echo   Upbit AutoProfit Bot v6.30.31 실행
 echo ================================================
 echo.
 
@@ -56,7 +56,7 @@ if errorlevel 1 (
     echo   1. Python 3.8+ 설치 확인
     echo   2. 필요한 패키지 설치: pip install -r requirements.txt
     echo   3. .env 파일 설정 확인
-    echo   4. ERROR_VERIFICATION_v6.30.30.md 문서 참고
+    echo   4. ERROR_VERIFICATION_v6.30.31.md 문서 참고
     echo.
     pause
     exit /b 1

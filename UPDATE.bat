@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ================================================
-echo   Upbit AutoProfit Bot v6.30.30 업데이트
+echo   Upbit AutoProfit Bot v6.30.31 업데이트
 echo   Import Path Fix + Position Check Fix
 echo ================================================
 echo.
@@ -35,7 +35,7 @@ echo ✅ risk_manager.py 업데이트 완료
 
 echo.
 echo ================================================
-echo   ✅ v6.30.30 업데이트 완료!
+echo   ✅ v6.30.31 업데이트 완료!
 echo ================================================
 echo.
 echo 🎉 수정 사항:
@@ -50,6 +50,6 @@ echo 📖 실행 방법 변경:
 echo   기존: python src\main.py
 echo   신규: python -m src.main
 echo.
-echo 📖 자세한 내용은 ERROR_VERIFICATION_v6.30.30.md 참고
+echo 📖 자세한 내용은 ERROR_VERIFICATION_v6.30.31.md 참고
 echo.
 pause
