@@ -1480,10 +1480,17 @@ class AutoProfitBot:
                     strategy_name = position.strategy
                     _original_print(f"[DEBUG-QUICK] 포지션 전략 이름: '{strategy_name}' (타입: {type(strategy_name)})")
                     
-                    strategy = self._get_strategy_by_name(strategy_name)
-                    _original_print(f"[DEBUG-QUICK] 전략 객체 결과: {strategy} (타입: {type(strategy)})")
-                    _original_print(f"[DEBUG-QUICK] strategy is None? {strategy is None}")
-                    _original_print(f"[DEBUG-QUICK] bool(strategy)? {bool(strategy)}")
+                    try:
+                        strategy = self._get_strategy_by_name(strategy_name)
+                        _original_print(f"[DEBUG-QUICK] 전략 객체 결과: {strategy} (타입: {type(strategy)})")
+                        _original_print(f"[DEBUG-QUICK] strategy is None? {strategy is None}")
+                        _original_print(f"[DEBUG-QUICK] bool(strategy)? {bool(strategy)}")
+                    except Exception as e:
+                        _original_print(f"[DEBUG-QUICK] ❌ 전략 객체 가져오기 실패: {e}")
+                        _original_print(f"[DEBUG-QUICK] ❌ 예외 타입: {type(e)}")
+                        import traceback
+                        _original_print(f"[DEBUG-QUICK] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+                        strategy = None
                     
                     if strategy:
                         # check_positions 호출 (10가지 청산 조건 체크)
