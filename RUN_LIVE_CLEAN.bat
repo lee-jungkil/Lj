@@ -14,8 +14,10 @@ echo.
 set /p confirm="Do you really want to proceed with live trading? (yes to confirm): "
 if not "%confirm%"=="yes" (
     echo Cancelled.
-    pause
-    exit /b 0
+    echo.
+    echo Press any key to exit...
+    pause > nul
+    goto :END
 )
 
 echo.
@@ -33,8 +35,10 @@ echo [2/6] Checking Python installation...
 python --version > nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Python is not installed!
-    pause
-    exit /b 1
+    echo.
+    echo Press any key to exit...
+    pause > nul
+    goto :END
 )
 python --version
 echo.
@@ -52,8 +56,10 @@ echo [4/6] Checking .env file...
 if not exist ".env" (
     echo [ERROR] .env file not found!
     echo Please copy .env.example and configure your API keys
-    pause
-    exit /b 1
+    echo.
+    echo Press any key to exit...
+    pause > nul
+    goto :END
 )
 echo [OK] .env file exists
 echo.
@@ -63,8 +69,10 @@ findstr /C:"UPBIT_ACCESS_KEY=" .env | findstr /V /C:"UPBIT_ACCESS_KEY=$" | finds
 if errorlevel 1 (
     echo [ERROR] Upbit API keys are not configured!
     echo Please set UPBIT_ACCESS_KEY and UPBIT_SECRET_KEY in .env file
-    pause
-    exit /b 1
+    echo.
+    echo Press any key to exit...
+    pause > nul
+    goto :END
 )
 echo [OK] API keys configured
 echo.
@@ -98,3 +106,5 @@ if errorlevel 1 (
 
 echo.
 pause
+
+:END

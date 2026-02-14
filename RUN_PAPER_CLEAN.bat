@@ -18,8 +18,10 @@ python --version > nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Python is not installed!
     echo https://www.python.org/
-    pause
-    exit /b 1
+    echo.
+    echo Press any key to exit...
+    pause > nul
+    goto :END
 )
 python --version
 echo.
@@ -73,3 +75,6 @@ if errorlevel 1 (
 
 echo.
 pause
+
+:END
+
