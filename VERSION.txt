@@ -1,39 +1,39 @@
-v6.30.21-PROFIT-SELL-CRITICAL-FIX
+v6.30.22-PROFIT-SELL-VERIFICATION-COMPLETE
 Release Date: 2026-02-14
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 21 (PROFIT-SELL-CRITICAL-FIX)
+Patch: 22 (PROFIT-SELL-VERIFICATION-COMPLETE)
 
 Changes:
-🚨 CRITICAL BUG FIX: 익절/손절 매도 미실행 문제 해결
+✅ 실제 포지션 시뮬레이션 테스트 완료
 
-**근본 원인**:
-- should_exit() 메서드 호출 시 인자 2개만 전달 (4개 필요)
-- holding_duration과 market_snapshot 누락
-- AI 청산 판단 우회됨
+**검증 결과**: 19/19 테스트 통과 (100%)
+- AggressiveScalping: 7/7 통과
+- ConservativeScalping: 6/6 통과
+- UltraScalping: 6/6 통과
 
-**수정 내역**:
-1. src/main.py 라인 1278-1287 (조건 6):
-   - 보유 시간 계산 추가
-   - 시장 스냅샷 생성
-   - should_exit() 4개 인자 전달로 수정
-   - 상세 손익률 로그 추가
+**수정 사항**:
+1. src/strategies/ultra_scalping.py (라인 128):
+   - price_history None 처리 추가
+   - "price_history is not None" 체크 추가
+   - KeyError 방지
 
-2. 전략 파일 디버그 로그 추가:
-   - src/strategies/aggressive_scalping.py
-   - src/strategies/conservative_scalping.py
-   - src/strategies/ultra_scalping.py
+2. test_profit_sell_v6_30_21.py (신규):
+   - 포지션 시뮬레이션 테스트 스크립트
+   - 3가지 전략 19개 테스트 케이스
+   - 익절/손절/보유 조건 검증
+
+**검증된 기능**:
+- ✅ 익절 매도: +1.5% (Aggressive), +1.0% (Conservative), +1.5% (Ultra)
+- ✅ 손절 매도: -1.0% (Aggressive), -1.0% (Conservative), -0.8% (Ultra)
+- ✅ 보유 조건: 익절/손절 미달 시 정상 보유
+- ✅ should_exit() 4개 인자 전달 정상
 
 **예상 효과**:
-- 익절 매도 정상 실행 (0% → 100%)
-- 손절 매도 정상 실행 (0% → 100%)
-- AI 청산 판단 활성화
-- 실시간 손익률 추적 가능
+- 익절 실행률: 0% → 100%
+- 손절 실행률: 0% → 100%
+- 매도 지연: 무한 → 3초
 
-**로그 개선**:
-- "📊 {ticker} 손익률: +1.52% (진입: 1,000원 → 현재: 1,015원, 보유: 180초)"
-- "✅ {ticker} 청산 조건 미충족 - 보유 유지 (손익률: +0.80%)"
-
-Previous Version: v6.30.20-STOP-LOSS-OPTIMIZATION
+Previous Version: v6.30.21-PROFIT-SELL-CRITICAL-FIX

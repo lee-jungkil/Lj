@@ -111,7 +111,7 @@ class UltraScalping(BaseStrategy):
             entry_price: 진입 가격
             current_price: 현재 가격
             hold_time: 보유 시간 (초)
-            price_history: 최근 가격 이력 (스마트 판단용)
+            price_history: 최근 가격 이력 (스마트 판단용, 선택적)
         
         Returns:
             (청산 여부, 사유)
@@ -122,9 +122,10 @@ class UltraScalping(BaseStrategy):
         if profit_loss_ratio <= -self.stop_loss:
             return True, f"초단타 손절 ({profit_loss_ratio*100:.2f}%)"
         
-        # ⭐ 스마트 익절 로직
+        # ⭐ 스마트 익절 로직 (v6.30.21: price_history None 처리 추가)
         if profit_loss_ratio >= self.profit_recheck_threshold:  # 0.5% 이상 수익
-            if self.smart_exit and price_history and len(price_history) >= 3:
+            # price_history가 있을 때만 스마트 로직 실행
+            if self.smart_exit and price_history is not None and len(price_history) >= 3:
                 # 추세 분석
                 trend_decision = self._analyze_profit_trend(
                     entry_price, 
@@ -139,7 +140,7 @@ class UltraScalping(BaseStrategy):
                     # 추세 지속 중 - 홀딩 계속
                     return False, trend_decision['reason']
             
-            # 기본 익절 (1%)
+            # 기본 익절 (1.5%) 또는 price_history 없을 때
             elif profit_loss_ratio >= self.take_profit:
                 return True, f"초단타 익절 ({profit_loss_ratio*100:.2f}%)"
         
