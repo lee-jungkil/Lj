@@ -36,9 +36,17 @@ def _suppressed_print(*args, **kwargs):
     """print() 호출 시 아무것도 출력하지 않음"""
     pass
 
-# print 함수를 덮어씀
+# ⭐ DEBUG 모드 환경 변수 확인
+import os
+DEBUG_MODE = os.getenv('DEBUG_MODE', '0') == '1' or os.getenv('ENABLE_DEBUG_LOGS', '1') == '1'
+
+# print 함수를 덮어씀 (단, DEBUG 모드에서는 원본 print 사용)
 import builtins
-builtins.print = _suppressed_print
+if not DEBUG_MODE:
+    builtins.print = _suppressed_print
+else:
+    # DEBUG 모드에서는 print() 출력 허용
+    builtins.print = _original_print
 
 import time
 import argparse
@@ -1983,7 +1991,7 @@ class AutoProfitBot:
                 monitor_count += 1  # ⭐ 모니터링 카운터 증가
                 
                 # 🔍 DEBUG: 루프 시작 확인
-                print(f"\n[DEBUG-LOOP] 메인 루프 #{monitor_count} 시작 - 시간: {current_time:.2f}")
+                _original_print(f"\n[DEBUG-LOOP] 메인 루프 #{monitor_count} 시작 - 시간: {current_time:.2f}")
                 
                 # 화면 갱신 (3초마다)
                 if current_time - self.last_display_update_time >= self.display_update_interval:
@@ -2144,12 +2152,12 @@ class AutoProfitBot:
                 
                 # ⭐ PHASE 3: 일반 포지션 체크 (3초) - v6.30.29: 시간 간격 체크 추가!
                 # 🔍 DEBUG: 항상 로그 출력
-                print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {len(self.risk_manager.positions)}개")
+                _original_print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {len(self.risk_manager.positions)}개")
                 
                 if current_time - self.last_position_check_time >= self.position_check_interval:
-                    print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
+                    _original_print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
                     if self.risk_manager.positions:
-                        print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행!")
+                        _original_print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행!")
                         quick_check_count += 1
                         
                         # ⭐ 스캔 시간 기록
@@ -2175,9 +2183,9 @@ class AutoProfitBot:
                         
                         # ⭐ v6.30.29: 마지막 체크 시간 업데이트 (중요!)
                         self.last_position_check_time = current_time
-                        print(f"[DEBUG] ✅ Phase 3 완료! 마지막 체크 시간 업데이트: {current_time:.2f}")
+                        _original_print(f"[DEBUG] ✅ Phase 3 완료! 마지막 체크 시간 업데이트: {current_time:.2f}")
                     else:
-                        print(f"[DEBUG] ⚠️ 포지션 없음, Phase 3 스킵")
+                        _original_print(f"[DEBUG] ⚠️ 포지션 없음, Phase 3 스킵")
                 
                 # ⭐ 대기 중일 때 (간단하게)
                 else:
@@ -2199,13 +2207,13 @@ class AutoProfitBot:
                     next_action = "전체 스캔"
                 
                 # 🔍 DEBUG: 대기 시간 확인
-                print(f"[DEBUG-SLEEP] {wait_time:.2f}초 대기 중... (다음: {next_action})")
-                print(f"[DEBUG-SLEEP] 포지션: {len(self.risk_manager.positions)}개, 초단타: {len(self.ultra_positions)}개")
+                _original_print(f"[DEBUG-SLEEP] {wait_time:.2f}초 대기 중... (다음: {next_action})")
+                _original_print(f"[DEBUG-SLEEP] 포지션: {len(self.risk_manager.positions)}개, 초단타: {len(self.ultra_positions)}개")
                 
                 self.logger.log_info(f"⏳ {wait_time:.0f}초 대기 (다음: {next_action})")
                 time.sleep(wait_time)
                 
-                print(f"[DEBUG-SLEEP] 대기 완료! 루프 재시작...")
+                _original_print(f"[DEBUG-SLEEP] 대기 완료! 루프 재시작...")
         
         except KeyboardInterrupt:
             self.logger.log_info("\n⏹️ 사용자에 의해 중지됨")
