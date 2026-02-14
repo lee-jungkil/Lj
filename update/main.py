@@ -2070,46 +2070,10 @@ class AutoProfitBot:
                     position_time = datetime.now()
                     self.display.update_scan_times(position_check_time=position_time)
                     
-                    # ⭐ 포지션별 상세 처리 정보 표시
-                    for ticker, position in self.risk_manager.positions.items():
-                        try:
-                            # 현재 가격 조회
-                            current_price = self.api.get_current_price(ticker)
-                            if not current_price:
-                                continue
-                            
-                            # 손익률 계산
-                            profit_ratio = ((current_price - position.entry_price) / position.entry_price) * 100
-                            
-                            # 처리 내용 판단
-                            if profit_ratio >= position.take_profit * 100:
-                                action = "익절 대기 중"
-                                reason = f"목표 {position.take_profit*100:.1f}% 도달 ({profit_ratio:+.2f}%)"
-                            elif profit_ratio <= -position.stop_loss * 100:
-                                action = "손절 대기 중"
-                                reason = f"손절선 {-position.stop_loss*100:.1f}% 돌파 ({profit_ratio:+.2f}%)"
-                            elif profit_ratio > 0:
-                                action = "수익 보유 중"
-                                reason = f"현재 {profit_ratio:+.2f}% | 목표 {position.take_profit*100:.1f}%"
-                            else:
-                                action = "손실 관찰 중"
-                                reason = f"현재 {profit_ratio:+.2f}% | 손절선 {-position.stop_loss*100:.1f}%"
-                            
-                            # 보유 시간
-                            hold_seconds = (datetime.now() - position.entry_time).total_seconds()
-                            reason += f" | 보유 {int(hold_seconds)}초"
-                            
-                            # 화면 업데이트
-                            self.display.update_position_details(ticker, action, reason)
-                            self.display.render()
-                            
-                            time.sleep(0.5)  # 각 포지션당 0.5초 표시
-                        except Exception as e:
-                            continue
+                    # ⭐ v6.30.19: UI 업데이트 제거, 바로 청산 조건 체크
+                    self.logger.log_info(f"\n--- ⚡ 포지션 청산 체크 #{quick_check_count} - {datetime.now().strftime('%H:%M:%S')} ---")
                     
-                    self.logger.log_info(f"\n--- 빠른 체크 #{quick_check_count} - {datetime.now().strftime('%H:%M:%S')} ---")
-                    
-                    # 실제 포지션 업데이트
+                    # 실제 포지션 청산 조건 체크 (10가지 조건)
                     if hasattr(self, 'quick_check_positions'):
                         self.quick_check_positions()
                     else:
