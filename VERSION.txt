@@ -1,52 +1,50 @@
-v6.30.25-BATCH-ENCODING-FIX
+v6.30.26-AUTO-PACKAGE-INSTALL
 Release Date: 2026-02-14
-Commit: (pending)
+Commit: 4f12ccc
 
 Major Version: 6
 Minor Version: 30
-Patch: 25 (BATCH-ENCODING-FIX)
+Patch: 26 (AUTO-PACKAGE-INSTALL)
 
 Changes:
-✅ Batch file encoding critical fix
+✅ Automatic package installation and better error handling
 
-**Problem**:
-- setup.bat, RUN_PAPER_CLEAN.bat, RUN_LIVE_CLEAN.bat execution failed
-- Error: 'cho' is not recognized, 'nul' is not recognized, etc.
-- Korean characters broken in Windows CMD
-- Python: can't open file '...\\to': [Errno 2] No such file or directory
+**User Reported Issue**:
+- ModuleNotFoundError: No module named 'dotenv'
+- User had to manually run setup.bat
+- Confusing for first-time users
 
-**Root Cause**:
-- Batch files were saved in UTF-8 with Korean characters
-- Windows CMD uses CP949/EUC-KR encoding by default
-- UTF-8 Korean bytes caused command parsing errors
-- File paths were incorrectly parsed (e.g., \\to)
+**Solution Implemented**:
+1. RUN_PAPER_CLEAN.bat:
+   - Step 3: Auto-check for required packages
+   - If missing: Automatically call setup.bat
+   - Better error messages with specific causes
+   - Tested: Bot starts successfully
 
-**Solution**:
-1. setup.bat:
-   - Removed all Korean characters
-   - Converted to pure ASCII (us-ascii)
-   - English-only messages
-   - Version: v6.30.24 → v6.30.25
+2. RUN_LIVE_CLEAN.bat:
+   - Step 3: Auto-check for required packages
+   - If missing: Automatically call setup.bat
+   - Enhanced API key validation
+   - Better error messages with specific causes
 
-2. RUN_PAPER_CLEAN.bat:
-   - Removed all Korean characters
-   - Converted to pure ASCII
-   - English-only output
-   - Version: v6.30.23 → v6.30.25
+**Testing Performed**:
+- ✅ Python detection works
+- ✅ Package auto-detection works
+- ✅ Bot execution tested: Starts normally
+- ✅ Shows: "[COIN] 🎯 거래량 기준 코인 선정"
+- ✅ Window stays open on all errors
+- ✅ Clear error messages displayed
 
-3. RUN_LIVE_CLEAN.bat:
-   - Removed all Korean characters
-   - Converted to pure ASCII
-   - English-only warnings
-   - Version: v6.30.23 → v6.30.25
+**User Experience Improvements**:
+1. First-time users: Packages auto-install
+2. Missing packages: Auto-fixed
+3. Clear guidance: Tells exactly what's wrong
+4. Window management: Always visible
+5. Professional messages: User-friendly
 
-**Impact**:
-- ✅ Batch files now work on all Windows systems
-- ✅ No encoding errors
-- ✅ Command parsing fixed
-- ✅ File paths correctly handled
-- ✅ 100% compatibility with Windows CMD
+**Files Changed**:
+- RUN_PAPER_CLEAN.bat: Added step 3 (package check)
+- RUN_LIVE_CLEAN.bat: Added step 3 (package check)
+- VERSION.txt: Updated to v6.30.26
 
-**Note**: All user-facing messages are now in English to ensure compatibility.
-
-Previous Version: v6.30.24-SETUP-BAT-FIX
+Previous Version: v6.30.25-BATCH-ENCODING-FIX
