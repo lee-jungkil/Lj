@@ -2155,11 +2155,20 @@ class AutoProfitBot:
                 
                 # ⭐ PHASE 3: 일반 포지션 체크 (3초) - v6.30.29: 시간 간격 체크 추가!
                 # 🔍 DEBUG: 항상 로그 출력
-                _original_print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {len(self.risk_manager.positions)}개")
-                _original_print(f"[DEBUG] risk_manager.positions 내용: {list(self.risk_manager.positions.keys())}")
+                positions_count = len(self.risk_manager.positions)
+                positions_list = list(self.risk_manager.positions.keys())
+                positions_bool = bool(self.risk_manager.positions)
+                
+                _original_print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {positions_count}개")
+                _original_print(f"[DEBUG] risk_manager.positions 키 목록: {positions_list}")
+                _original_print(f"[DEBUG] risk_manager.positions 타입: {type(self.risk_manager.positions)}")
+                _original_print(f"[DEBUG] bool(risk_manager.positions): {positions_bool}")
                 
                 if current_time - self.last_position_check_time >= self.position_check_interval:
                     _original_print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
+                    
+                    _original_print(f"[DEBUG] 포지션 체크 전 - len(): {len(self.risk_manager.positions)}, bool(): {bool(self.risk_manager.positions)}")
+                    
                     if self.risk_manager.positions:
                         _original_print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행!")
                         quick_check_count += 1
