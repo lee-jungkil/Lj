@@ -1015,10 +1015,14 @@ class AutoProfitBot:
             ticker: 코인 티커
             strategy: 전략 객체
         """
+        # ⭐ v6.30.48: check_positions 진입 로그 (콘솔)
+        _original_print(f"\n[DEBUG-CHECK] ========== check_positions({ticker}) 시작 ==========")
+        
         # ⭐ v6.30.18: check_positions 진입 로그
         self.logger.log_info(f"✅ check_positions({ticker}) 진입 - 10가지 청산 조건 검사 시작")
         
         if ticker not in self.risk_manager.positions:
+            _original_print(f"[DEBUG-CHECK] ⚠️ {ticker} 포지션 없음!")
             self.logger.log_warning(f"⚠️ {ticker} 포지션 없음 (이미 청산됨?)")
             return
         
@@ -1109,11 +1113,21 @@ class AutoProfitBot:
         # 현재 전략의 최대 보유 시간
         max_hold_time = max_hold_times.get(position.strategy, 600)  # 기본 10분 (1시간 → 10분)
         
+        _original_print(f"[DEBUG-CHECK] 조건 1: 시간 초과 체크")
+        _original_print(f"[DEBUG-CHECK] - 전략: {position.strategy}")
+        _original_print(f"[DEBUG-CHECK] - 최대 보유 시간: {max_hold_time}초 ({max_hold_time//60}분)")
+        _original_print(f"[DEBUG-CHECK] - 현재 보유 시간: {hold_time:.0f}초 ({hold_time//60:.0f}분 {hold_time%60:.0f}초)")
+        _original_print(f"[DEBUG-CHECK] - 시간 초과? {hold_time} > {max_hold_time} = {hold_time > max_hold_time}")
+        
         # ⭐ 조건 1: 시간 초과 청산
         if hold_time > max_hold_time:
             profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+            _original_print(f"[DEBUG-CHECK] ⚠️ 시간 초과 청산 조건 충족!")
+            _original_print(f"[DEBUG-CHECK] - 보유: {hold_time/60:.0f}분, 손익: {profit_ratio:+.2f}%")
             self.execute_sell(ticker, f"시간초과청산 (보유:{hold_time/60:.0f}분, 손익:{profit_ratio:+.2f}%)")
             return
+        else:
+            _original_print(f"[DEBUG-CHECK] ✅ 시간 초과 조건 미충족 - 계속 보유")
         
         # ⭐ 조건 2-6: 차트 지표 및 급락/거래량 분석
         try:
@@ -1456,13 +1470,21 @@ class AutoProfitBot:
                     
                     # 전략 객체 가져오기
                     strategy_name = position.strategy
+                    _original_print(f"[DEBUG-QUICK] 포지션 전략 이름: '{strategy_name}' (타입: {type(strategy_name)})")
+                    
                     strategy = self._get_strategy_by_name(strategy_name)
+                    _original_print(f"[DEBUG-QUICK] 전략 객체 결과: {strategy} (타입: {type(strategy)})")
+                    _original_print(f"[DEBUG-QUICK] strategy is None? {strategy is None}")
+                    _original_print(f"[DEBUG-QUICK] bool(strategy)? {bool(strategy)}")
                     
                     if strategy:
                         # check_positions 호출 (10가지 청산 조건 체크)
+                        _original_print(f"[DEBUG-QUICK] ✅ check_positions() 호출 시작...")
                         self.logger.log_info(f"🎯 {ticker} → check_positions() 호출 (전략: {strategy_name})")
                         self.check_positions(ticker, strategy)
+                        _original_print(f"[DEBUG-QUICK] ✅ check_positions() 호출 완료")
                     else:
+                        _original_print(f"[DEBUG-QUICK] ⚠️ 전략 객체 없음: {strategy_name}")
                         self.logger.log_warning(f"⚠️ {ticker} 전략 객체 없음: {strategy_name}")
                 
                 except Exception as e:
@@ -1476,6 +1498,9 @@ class AutoProfitBot:
         """
         전략 이름으로 전략 객체 가져오기
         """
+        _original_print(f"[DEBUG-STRATEGY-MAP] _get_strategy_by_name 호출됨")
+        _original_print(f"[DEBUG-STRATEGY-MAP] 입력 strategy_name: '{strategy_name}' (타입: {type(strategy_name)})")
+        
         strategy_map = {
             'AGGRESSIVE': self.aggressive_scalping,
             'AGGRESSIVE_SCALPING': self.aggressive_scalping,
@@ -1494,7 +1519,13 @@ class AutoProfitBot:
             'CHASE_BUY': self.ultra_scalping,  # 추격매수는 초단타로 처리
         }
         
-        return strategy_map.get(strategy_name, self.aggressive_scalping)  # 기본값
+        _original_print(f"[DEBUG-STRATEGY-MAP] strategy_map 키 목록: {list(strategy_map.keys())}")
+        _original_print(f"[DEBUG-STRATEGY-MAP] '{strategy_name}' in strategy_map? {strategy_name in strategy_map}")
+        
+        result = strategy_map.get(strategy_name, self.aggressive_scalping)  # 기본값
+        _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {result} (타입: {type(result)})")
+        
+        return result
     
     def check_profit_withdrawal(self):
         """수익 출금 확인 및 처리"""
