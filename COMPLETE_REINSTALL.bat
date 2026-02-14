@@ -1,174 +1,345 @@
 @echo off
-REM ============================================================================
-REM COMPLETE REINSTALL - Download fresh copy from GitHub
-REM ============================================================================
+chcp 65001 > nul
+title Upbit AutoProfit Bot v6.30.38 - COMPLETE REINSTALL
+color 0E
 
-if "%1" neq "NESTED" (
-    cmd /k "%~f0" NESTED
-    exit
-)
-
-chcp 65001
-cls
 echo.
-echo ========================================================================
+echo ========================================
+echo  Upbit AutoProfit Bot v6.30.38
+echo  COMPLETE REINSTALL
+echo ========================================
 echo.
-echo    COMPLETE REINSTALL - Fresh Download from GitHub
+echo This script will:
+echo   1. Backup your .env file
+echo   2. Delete all Python cache files
+echo   3. Download fresh code from GitHub
+echo   4. Install all dependencies
+echo   5. Restore your .env file
+echo   6. Start the bot
 echo.
-echo ========================================================================
+echo WARNING: This will delete ALL local changes!
 echo.
-echo WARNING: This will:
-echo   1. Backup current folder to Lj-main-backup
-echo   2. Download completely fresh copy
-echo   3. Copy your .env file back
-echo   4. Install dependencies
-echo   5. Start the bot
-echo.
-echo This is the MOST RELIABLE fix!
-echo.
-echo ========================================================================
-echo.
-echo Press ENTER to continue or close this window to cancel...
-pause >nul
-echo.
-
-REM Step 1: Check current location
-echo [Step 1/8] Checking current location...
-cd
-echo.
-timeout /t 2 >nul
-
-REM Step 2: Stop Python
-echo [Step 2/8] Stopping all Python processes...
-taskkill /F /IM python.exe >nul 2>&1
-echo [OK] Python stopped
-echo.
-timeout /t 2 >nul
-
-REM Step 3: Go to Downloads
-echo [Step 3/8] Moving to Downloads folder...
-cd C:\Users\admin\Downloads
-if %errorlevel% neq 0 (
-    echo [ERROR] Cannot access Downloads folder
+set /p CONFIRM="Continue? (Y/N): "
+if /i not "%CONFIRM%"=="Y" (
+    echo.
+    echo Cancelled by user.
+    echo.
     pause
-    exit /b 1
+    exit /b 0
 )
-echo [OK] In Downloads folder
-echo.
-timeout /t 2 >nul
 
-REM Step 4: Backup .env file
-echo [Step 4/8] Backing up .env file...
-if exist Lj-main\Lj-main\.env (
-    copy Lj-main\Lj-main\.env env_backup.txt >nul
-    echo [OK] .env file backed up
-) else (
-    echo [WARNING] No .env file found
-)
 echo.
-timeout /t 2 >nul
+echo ========================================
+echo  STEP 1/8: Backup Configuration
+echo ========================================
+echo.
 
-REM Step 5: Backup old folder
-echo [Step 5/8] Backing up old folder...
-if exist Lj-main-backup (
-    echo Removing old backup...
-    rd /s /q Lj-main-backup
-)
-if exist Lj-main (
-    rename Lj-main Lj-main-backup
-    echo [OK] Old folder backed up as Lj-main-backup
-) else (
-    echo [WARNING] No existing Lj-main folder
-)
+REM Change to script directory
+cd /d "%~dp0"
+echo Current directory: %cd%
 echo.
-timeout /t 2 >nul
 
-REM Step 6: Clone fresh copy
-echo [Step 6/8] Downloading fresh copy from GitHub...
-echo This may take a minute...
-echo.
-git clone https://github.com/lee-jungkil/Lj.git Lj-main
-if %errorlevel% neq 0 (
-    echo [ERROR] Git clone failed!
-    echo.
-    echo Possible reasons:
-    echo   - No internet connection
-    echo   - Git not installed
-    echo   - GitHub repository not accessible
-    echo.
-    echo Restoring backup...
-    if exist Lj-main-backup (
-        rename Lj-main-backup Lj-main
+REM Backup .env file
+if exist ".env" (
+    echo Backing up .env file...
+    copy /Y .env .env.backup > nul
+    if errorlevel 1 (
+        echo [ERROR] Failed to backup .env file!
+        pause
+        exit /b 1
     )
+    echo [OK] .env backed up to .env.backup
+) else (
+    echo [WARN] No .env file found to backup
+)
+echo.
+
+echo ========================================
+echo  STEP 2/8: Stop Running Processes
+echo ========================================
+echo.
+
+echo Stopping all Python processes...
+taskkill /F /IM python.exe /T > nul 2>&1
+if errorlevel 1 (
+    echo [INFO] No Python processes running
+) else (
+    echo [OK] Python processes stopped
+    timeout /t 2 /nobreak > nul
+)
+echo.
+
+echo ========================================
+echo  STEP 3/8: Delete Python Cache
+echo ========================================
+echo.
+
+echo Deleting all .pyc files...
+del /s /q *.pyc > nul 2>&1
+echo [OK] .pyc files deleted
+echo.
+
+echo Deleting all __pycache__ folders...
+for /d /r . %%d in (__pycache__) do @if exist "%%d" rd /s /q "%%d" 2>nul
+echo [OK] __pycache__ folders deleted
+echo.
+
+echo Deleting specific cache directories...
+if exist "src\__pycache__" rd /s /q "src\__pycache__" 2>nul
+if exist "src\ai\__pycache__" rd /s /q "src\ai\__pycache__" 2>nul
+if exist "src\strategies\__pycache__" rd /s /q "src\strategies\__pycache__" 2>nul
+if exist "src\utils\__pycache__" rd /s /q "src\utils\__pycache__" 2>nul
+echo [OK] Specific cache directories deleted
+echo.
+
+echo ========================================
+echo  STEP 4/8: Check Python Installation
+echo ========================================
+echo.
+
+python --version > nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Python is not installed!
+    echo.
+    echo Please install Python 3.8+ from https://www.python.org/
+    echo Make sure to check "Add Python to PATH" during installation
+    echo.
     pause
     exit /b 1
 )
-echo [OK] Fresh copy downloaded
-echo.
-timeout /t 2 >nul
 
-REM Step 7: Restore .env file
-echo [Step 7/8] Restoring .env file...
-if exist env_backup.txt (
-    copy env_backup.txt Lj-main\Lj-main\.env >nul
-    del env_backup.txt >nul
-    echo [OK] .env file restored
+python --version
+echo [OK] Python installation confirmed
+echo.
+
+echo ========================================
+echo  STEP 5/8: Download Fresh Code
+echo ========================================
+echo.
+
+echo Checking Git installation...
+git --version > nul 2>&1
+if errorlevel 1 (
+    echo [WARN] Git not found. Using alternative download method...
+    echo.
+    
+    echo Downloading main.py using PowerShell...
+    powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/main.py' -OutFile 'src\main.py' -UseBasicParsing; Write-Host '[OK] main.py downloaded'; exit 0 } catch { Write-Host '[ERROR] Download failed'; exit 1 }"
+    
+    if errorlevel 1 (
+        echo.
+        echo [ERROR] Failed to download code!
+        echo.
+        echo Please try one of these methods:
+        echo   1. Install Git and run this script again
+        echo   2. Download manually from: https://github.com/lee-jungkil/Lj
+        echo   3. Use curl: curl -o src\main.py https://raw.githubusercontent.com/lee-jungkil/Lj/main/src/main.py
+        echo.
+        pause
+        exit /b 1
+    )
 ) else (
-    echo [WARNING] No .env backup found
-    echo You will need to configure .env manually
+    echo [OK] Git found: 
+    git --version
+    echo.
+    
+    echo Initializing Git repository...
+    if not exist ".git" (
+        git init
+    )
+    echo.
+    
+    echo Adding remote repository...
+    git remote remove origin > nul 2>&1
+    git remote add origin https://github.com/lee-jungkil/Lj.git
+    echo.
+    
+    echo Fetching latest code...
+    git fetch origin main
+    if errorlevel 1 (
+        echo [ERROR] Failed to fetch code from GitHub!
+        echo.
+        echo Please check your internet connection and try again.
+        echo.
+        pause
+        exit /b 1
+    )
+    echo.
+    
+    echo Resetting to latest version...
+    git reset --hard origin/main
+    if errorlevel 1 (
+        echo [WARN] Reset failed, trying clean checkout...
+        git checkout -f main
+    )
+    echo [OK] Code updated to latest version
 )
 echo.
-timeout /t 2 >nul
 
-REM Step 8: Move to new folder
-echo [Step 8/8] Moving to new folder...
-cd Lj-main\Lj-main
-echo [OK] Ready to start
-echo.
-timeout /t 2 >nul
-
-REM Check version
-echo ========================================================================
-echo Checking version...
-type VERSION.txt | findstr /B "v"
+echo ========================================
+echo  STEP 6/8: Verify Code Integrity
+echo ========================================
 echo.
 
-echo ========================================================================
-echo                    REINSTALL COMPLETE
-echo ========================================================================
-echo.
-echo Fresh installation ready!
-echo.
-echo Old folder backed up at: C:\Users\admin\Downloads\Lj-main-backup
-echo.
-echo ========================================================================
-echo.
-echo Do you want to:
-echo   1. Run setup.bat (first time install)
-echo   2. Run RUN_PAPER_CLEAN.bat (if already set up)
-echo   3. Exit (set up manually later)
-echo.
-set /p choice=Enter 1, 2, or 3: 
-
-if "%choice%"=="1" (
-    echo.
-    echo Running setup...
-    call setup.bat
-    echo.
-    echo Setup complete! Now run RUN_PAPER_CLEAN.bat
+echo Checking main.py...
+if not exist "src\main.py" (
+    echo [ERROR] src\main.py not found!
     pause
-) else if "%choice%"=="2" (
+    exit /b 1
+)
+
+findstr /C:"class TradingBot" src\main.py > nul
+if errorlevel 1 (
+    echo [ERROR] TradingBot class not found in main.py!
+    echo The downloaded file may be corrupted.
+    pause
+    exit /b 1
+)
+echo [OK] TradingBot class found
+echo.
+
+findstr /C:"DEBUG-LOOP" src\main.py > nul
+if errorlevel 1 (
+    echo [WARN] DEBUG-LOOP not found (old version?)
+) else (
+    echo [OK] DEBUG-LOOP code found (v6.30.37+)
+)
+echo.
+
+echo Checking file size...
+for %%A in ("src\main.py") do (
+    set size=%%~zA
+    echo File size: %%~zA bytes
+    if %%~zA LSS 50000 (
+        echo [WARN] File seems too small, may be incomplete
+    ) else (
+        echo [OK] File size looks good
+    )
+)
+echo.
+
+echo ========================================
+echo  STEP 7/8: Install Dependencies
+echo ========================================
+echo.
+
+echo Upgrading pip...
+python -m pip install --upgrade pip > nul 2>&1
+echo [OK] pip upgraded
+echo.
+
+echo Installing required packages...
+echo This may take a few minutes, please wait...
+echo.
+
+if exist "requirements.txt" (
+    echo Installing from requirements.txt...
+    python -m pip install -r requirements.txt
+    if errorlevel 1 (
+        echo.
+        echo [WARN] Some packages failed, trying essentials...
+        python -m pip install pyupbit pandas numpy requests python-dotenv colorlog ta
+    )
+) else (
+    echo Installing essential packages...
+    python -m pip install pyupbit pandas numpy requests python-dotenv colorlog ta
+)
+
+if errorlevel 1 (
     echo.
-    echo Starting bot...
-    call RUN_PAPER_CLEAN.bat
+    echo [ERROR] Package installation failed!
+    echo.
+    echo Please try installing manually:
+    echo   pip install pyupbit pandas numpy requests python-dotenv colorlog ta
+    echo.
+    pause
+    exit /b 1
+)
+echo.
+echo [OK] All packages installed successfully
+echo.
+
+echo ========================================
+echo  STEP 8/8: Restore Configuration
+echo ========================================
+echo.
+
+if exist ".env.backup" (
+    echo Restoring .env file...
+    copy /Y .env.backup .env > nul
+    echo [OK] .env file restored from backup
+) else if exist ".env" (
+    echo [OK] .env file already exists
+) else (
+    echo Creating new .env file...
+    (
+        echo # Upbit AutoProfit Bot v6.30.38
+        echo.
+        echo TRADING_MODE=paper
+        echo INITIAL_CAPITAL=5000000
+        echo MAX_DAILY_LOSS=500000
+        echo MAX_CUMULATIVE_LOSS=1000000
+        echo MAX_POSITIONS=5
+        echo MAX_POSITION_RATIO=0.3
+        echo.
+        echo # AI System
+        echo ENABLE_ADVANCED_AI=true
+        echo ENABLE_ORDERBOOK_ANALYSIS=true
+        echo ENABLE_SCENARIO_DETECTION=true
+        echo ENABLE_SMART_SPLIT=true
+        echo ENABLE_HOLDING_TIME_AI=true
+        echo ENABLE_DYNAMIC_EXIT=true
+        echo EXIT_MODE=aggressive
+        echo.
+        echo # Logging
+        echo LOG_LEVEL=INFO
+        echo ENABLE_TRADING_LOG=true
+        echo ENABLE_ERROR_LOG=true
+        echo.
+        echo # Upbit API Keys ^(for live trading^)
+        echo UPBIT_ACCESS_KEY=
+        echo UPBIT_SECRET_KEY=
+    ) > .env
+    echo [OK] Default .env file created
+)
+echo.
+
+echo ========================================
+echo  REINSTALL COMPLETE!
+echo ========================================
+echo.
+echo Current version: v6.30.38
+echo Repository: https://github.com/lee-jungkil/Lj
+echo.
+echo Next steps:
+echo   1. Review your .env file settings
+echo   2. For live trading: Add Upbit API keys to .env
+echo   3. Press any key to start the bot in paper mode
+echo.
+echo.
+set /p START="Start bot now? (Y/N): "
+if /i "%START%"=="Y" (
+    echo.
+    echo ========================================
+    echo  STARTING BOT...
+    echo ========================================
+    echo.
+    echo Starting with -u flag for unbuffered output...
+    echo You should see DEBUG logs every 3-5 seconds
+    echo.
+    timeout /t 2 /nobreak > nul
+    python -B -u -m src.main --mode paper
 ) else (
     echo.
-    echo OK - Set up manually when ready
+    echo To start the bot manually, run:
+    echo   python -B -u -m src.main --mode paper
     echo.
-    echo Next steps:
-    echo   1. Check .env file has correct settings
-    echo   2. Run setup.bat if first time
-    echo   3. Run RUN_PAPER_CLEAN.bat to start bot
+    echo Or use:
+    echo   RUN_PAPER_CLEAN.bat
     echo.
-    pause
 )
+
+echo.
+echo Press any key to exit...
+pause > nul
+exit /b 0
