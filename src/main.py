@@ -2167,10 +2167,14 @@ class AutoProfitBot:
                 if current_time - self.last_position_check_time >= self.position_check_interval:
                     _original_print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
                     
-                    _original_print(f"[DEBUG] 포지션 체크 전 - len(): {len(self.risk_manager.positions)}, bool(): {bool(self.risk_manager.positions)}")
+                    # ⭐ 포지션 체크 (positions를 변수에 고정)
+                    has_positions = bool(self.risk_manager.positions)
+                    positions_count = len(self.risk_manager.positions)
                     
-                    if self.risk_manager.positions:
-                        _original_print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행!")
+                    _original_print(f"[DEBUG] 포지션 체크 - has_positions: {has_positions}, count: {positions_count}")
+                    
+                    if has_positions:
+                        _original_print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행! (count={positions_count})")
                         quick_check_count += 1
                         
                         # ⭐ 스캔 시간 기록
@@ -2198,7 +2202,7 @@ class AutoProfitBot:
                         self.last_position_check_time = current_time
                         _original_print(f"[DEBUG] ✅ Phase 3 완료! 마지막 체크 시간 업데이트: {current_time:.2f}")
                     else:
-                        _original_print(f"[DEBUG] ⚠️ 포지션 없음, Phase 3 스킵")
+                        _original_print(f"[DEBUG] ⚠️ 포지션 없음! Phase 3 스킵 (has_positions={has_positions}, count={positions_count})")
                 
                 # ⭐ 대기 중일 때 (간단하게)
                 else:
