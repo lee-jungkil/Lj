@@ -1,0 +1,25 @@
+# Obsolete Batch Files (v5.x) - Safe to Delete
+
+## Old execution files (replaced by RUN_*_CLEAN.bat)
+run_paper.bat          # v5.2 - replaced by RUN_PAPER_CLEAN.bat
+run_live.bat           # v5.2 - replaced by RUN_LIVE_CLEAN.bat
+run_backtest.bat       # v5.2 - no replacement yet
+run_test.bat           # v5.2 - obsolete
+run_dynamic.bat        # v5.3 - obsolete
+run.bat                # old - replaced by RUN.bat
+
+## Utility files (check if needed)
+change_coin_count.bat  # v5.x - may be obsolete
+fix_logs.bat           # v5.x - may be obsolete
+test_install.bat       # v5.x - may be obsolete
+verify_setup.bat       # v5.x - may be obsolete
+
+## Keep these files (current/useful)
+setup.bat              # v6.30.25 - KEEP
+RUN_PAPER_CLEAN.bat    # v6.30.25 - KEEP
+RUN_LIVE_CLEAN.bat     # v6.30.25 - KEEP
+RUN.bat                # v6.30.x - KEEP (uppercase)
+UPDATE.bat             # v6.x - KEEP
+QUICK_UPDATE.bat       # v6.x - KEEP
+DOWNLOAD_ALL_FILES.bat # v6.x - KEEP
+download_update.bat    # v6.x - KEEP

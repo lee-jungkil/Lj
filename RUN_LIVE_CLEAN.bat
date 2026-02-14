@@ -1,5 +1,5 @@
 @echo off
-title Upbit AutoProfit Bot v6.30.24 - Live Trading (Clean Start)
+title Upbit AutoProfit Bot v6.30.25 - Live Trading (Clean Start)
 color 0C
 
 echo.
@@ -20,7 +20,7 @@ if not "%confirm%"=="yes" (
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.24
+echo  Upbit AutoProfit Bot v6.30.25
 echo  BATCH-FILE-ENCODING-FIX
 echo ========================================
 echo.
@@ -77,7 +77,7 @@ echo ========================================
 echo.
 echo Stop: Ctrl+C
 echo Logs folder: trading_logs\
-echo Version: v6.30.24
+echo Version: v6.30.25
 echo.
 echo Profit/Loss sell system enabled
 echo Position check: every 3 seconds

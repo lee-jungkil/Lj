@@ -1,10 +1,10 @@
 @echo off
-title Upbit AutoProfit Bot v6.30.24 - Paper Trading (Clean Start)
+title Upbit AutoProfit Bot v6.30.25 - Paper Trading (Clean Start)
 color 0A
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.24
+echo  Upbit AutoProfit Bot v6.30.25
 echo  BATCH-FILE-ENCODING-FIX
 echo ========================================
 echo.
@@ -50,7 +50,7 @@ echo ========================================
 echo.
 echo Stop: Ctrl+C
 echo Logs folder: trading_logs\
-echo Version: v6.30.24
+echo Version: v6.30.25
 echo.
 echo Check for these logs:
 echo     "Position liquidation check"

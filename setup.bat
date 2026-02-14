@@ -1,10 +1,10 @@
 @echo off
-title Upbit AutoProfit Bot v6.30.24 - Setup
+title Upbit AutoProfit Bot v6.30.25 - Setup
 color 0E
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.24
+echo  Upbit AutoProfit Bot v6.30.25
 echo  Initial Setup
 echo ========================================
 echo.
