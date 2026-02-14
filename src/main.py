@@ -1581,62 +1581,73 @@ class AutoProfitBot:
         """
         전략 이름으로 전략 객체 가져오기
         ⭐ v6.30.49: 대소문자 및 다양한 형식 지원 강화
+        ⭐ v6.30.54: self.strategies 딕셔너리 사용 (AttributeError 수정)
         """
         _original_print(f"[DEBUG-STRATEGY-MAP] _get_strategy_by_name 호출됨")
         _original_print(f"[DEBUG-STRATEGY-MAP] 입력 strategy_name: '{strategy_name}' (타입: {type(strategy_name)})")
         
-        # ⭐ v6.30.49: 대소문자 및 언더스코어/하이픈 무시하고 매칭
+        # ⭐ v6.30.54: self.strategies 딕셔너리에서 직접 가져오기
         strategy_map = {
             # Aggressive Scalping (공격적 단타)
-            'AGGRESSIVE': self.aggressive_scalping,
-            'aggressive': self.aggressive_scalping,
-            'AGGRESSIVE_SCALPING': self.aggressive_scalping,
-            'aggressive_scalping': self.aggressive_scalping,
-            'AGGRESSIVE-SCALPING': self.aggressive_scalping,
-            'aggressive-scalping': self.aggressive_scalping,
-            '공격적': self.aggressive_scalping,
+            'AGGRESSIVE': self.strategies.get('aggressive_scalping'),
+            'aggressive': self.strategies.get('aggressive_scalping'),
+            'AGGRESSIVE_SCALPING': self.strategies.get('aggressive_scalping'),
+            'aggressive_scalping': self.strategies.get('aggressive_scalping'),
+            'AGGRESSIVE-SCALPING': self.strategies.get('aggressive_scalping'),
+            'aggressive-scalping': self.strategies.get('aggressive_scalping'),
+            # ⭐ TYPO FIX: aggressive_scaling (without 'p') - 오타 처리
+            'AGGRESSIVE_SCALING': self.strategies.get('aggressive_scalping'),
+            'aggressive_scaling': self.strategies.get('aggressive_scalping'),
+            'AGGRESSIVE-SCALING': self.strategies.get('aggressive_scalping'),
+            'aggressive-scaling': self.strategies.get('aggressive_scalping'),
+            '공격적': self.strategies.get('aggressive_scalping'),
             
             # Conservative Scalping (보수적 단타)
-            'CONSERVATIVE': self.conservative_scalping,
-            'conservative': self.conservative_scalping,
-            'CONSERVATIVE_SCALPING': self.conservative_scalping,
-            'conservative_scalping': self.conservative_scalping,
-            'CONSERVATIVE-SCALPING': self.conservative_scalping,
-            'conservative-scalping': self.conservative_scalping,
-            '보수적': self.conservative_scalping,
+            'CONSERVATIVE': self.strategies.get('conservative_scalping'),
+            'conservative': self.strategies.get('conservative_scalping'),
+            'CONSERVATIVE_SCALPING': self.strategies.get('conservative_scalping'),
+            'conservative_scalping': self.strategies.get('conservative_scalping'),
+            'CONSERVATIVE-SCALPING': self.strategies.get('conservative_scalping'),
+            'conservative-scalping': self.strategies.get('conservative_scalping'),
+            # ⭐ TYPO FIX: conservative_scaling (without 'p') - 오타 처리
+            'CONSERVATIVE_SCALING': self.strategies.get('conservative_scalping'),
+            'conservative_scaling': self.strategies.get('conservative_scalping'),
+            'CONSERVATIVE-SCALING': self.strategies.get('conservative_scalping'),
+            'conservative-scaling': self.strategies.get('conservative_scalping'),
+            '보수적': self.strategies.get('conservative_scalping'),
             
             # Mean Reversion (평균 회귀)
-            'MEAN_REVERSION': self.mean_reversion,
-            'mean_reversion': self.mean_reversion,
-            'MEAN-REVERSION': self.mean_reversion,
-            'mean-reversion': self.mean_reversion,
-            '평균회귀': self.mean_reversion,
+            'MEAN_REVERSION': self.strategies.get('mean_reversion'),
+            'mean_reversion': self.strategies.get('mean_reversion'),
+            'MEAN-REVERSION': self.strategies.get('mean_reversion'),
+            'mean-reversion': self.strategies.get('mean_reversion'),
+            '평균회귀': self.strategies.get('mean_reversion'),
             
             # Grid Trading (그리드)
-            'GRID': self.grid_trading,
-            'grid': self.grid_trading,
-            'GRID_TRADING': self.grid_trading,
-            'grid_trading': self.grid_trading,
-            'GRID-TRADING': self.grid_trading,
-            'grid-trading': self.grid_trading,
-            '그리드': self.grid_trading,
+            'GRID': self.strategies.get('grid_trading'),
+            'grid': self.strategies.get('grid_trading'),
+            'GRID_TRADING': self.strategies.get('grid_trading'),
+            'grid_trading': self.strategies.get('grid_trading'),
+            'GRID-TRADING': self.strategies.get('grid_trading'),
+            'grid-trading': self.strategies.get('grid_trading'),
+            '그리드': self.strategies.get('grid_trading'),
             
             # Ultra Scalping (초단타)
-            'ULTRA_SCALPING': self.ultra_scalping,
-            'ultra_scalping': self.ultra_scalping,
-            'ULTRA-SCALPING': self.ultra_scalping,
-            'ultra-scalping': self.ultra_scalping,
-            'ULTRA': self.ultra_scalping,
-            'ultra': self.ultra_scalping,
-            '초단타': self.ultra_scalping,
-            'CHASE_BUY': self.ultra_scalping,
-            'chase_buy': self.ultra_scalping,
+            'ULTRA_SCALPING': self.strategies.get('ultra_scalping'),
+            'ultra_scalping': self.strategies.get('ultra_scalping'),
+            'ULTRA-SCALPING': self.strategies.get('ultra_scalping'),
+            'ultra-scalping': self.strategies.get('ultra_scalping'),
+            'ULTRA': self.strategies.get('ultra_scalping'),
+            'ultra': self.strategies.get('ultra_scalping'),
+            '초단타': self.strategies.get('ultra_scalping'),
+            'CHASE_BUY': self.strategies.get('ultra_scalping'),
+            'chase_buy': self.strategies.get('ultra_scalping'),
         }
         
         _original_print(f"[DEBUG-STRATEGY-MAP] '{strategy_name}' in strategy_map? {strategy_name in strategy_map}")
         
         # 먼저 정확히 매칭되는지 확인
-        if strategy_name in strategy_map:
+        if strategy_name in strategy_map and strategy_map[strategy_name]:
             result = strategy_map[strategy_name]
             _original_print(f"[DEBUG-STRATEGY-MAP] ✅ 정확히 매칭됨!")
             _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {result} (타입: {type(result)})")
@@ -1646,14 +1657,14 @@ class AutoProfitBot:
         _original_print(f"[DEBUG-STRATEGY-MAP] ⚠️ 정확히 매칭 실패, 대소문자 무시하고 재시도...")
         strategy_name_upper = strategy_name.upper()
         for key, value in strategy_map.items():
-            if key.upper() == strategy_name_upper:
+            if value and key.upper() == strategy_name_upper:
                 _original_print(f"[DEBUG-STRATEGY-MAP] ✅ 대소문자 무시 매칭 성공: '{key}'")
                 _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {value} (타입: {type(value)})")
                 return value
         
         # 그래도 실패 시 기본값 (aggressive_scalping)
         _original_print(f"[DEBUG-STRATEGY-MAP] ❌ 매칭 실패! 기본값(aggressive_scalping) 반환")
-        result = self.aggressive_scalping
+        result = self.strategies.get('aggressive_scalping')
         _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {result} (타입: {type(result)})")
         return result
     

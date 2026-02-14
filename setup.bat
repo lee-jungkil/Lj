@@ -1,11 +1,11 @@
 @echo off
 chcp 65001 > nul
-title Upbit AutoProfit Bot v6.30.38 - Setup
+title Upbit AutoProfit Bot v6.30.55 - Setup
 color 0E
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.38
+echo  Upbit AutoProfit Bot v6.30.55
 echo  Initial Setup
 echo ========================================
 echo.

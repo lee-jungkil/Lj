@@ -1,11 +1,11 @@
 @echo off
 chcp 65001 > nul
-title Upbit AutoProfit Bot v6.30.38 - Paper Trading (Clean Start)
+title Upbit AutoProfit Bot v6.30.55 - Paper Trading (Clean Start)
 color 0A
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.38
+echo  Upbit AutoProfit Bot v6.30.55
 echo  Paper Trading Mode (Clean Start)
 echo ========================================
 echo.
@@ -108,7 +108,7 @@ if not exist ".env" (
     ) else (
         echo Creating default .env file...
         (
-            echo # Upbit AutoProfit Bot v6.30.38
+            echo # Upbit AutoProfit Bot v6.30.55
             echo TRADING_MODE=paper
             echo INITIAL_CAPITAL=5000000
             echo MAX_DAILY_LOSS=500000
@@ -132,7 +132,7 @@ echo  Bot Starting...
 echo ========================================
 echo.
 echo Mode: Paper Trading (Simulation)
-echo Version: v6.30.38
+echo Version: v6.30.55
 echo Repository: https://github.com/lee-jungkil/Lj
 echo.
 echo Expected logs (every 3-5 seconds):

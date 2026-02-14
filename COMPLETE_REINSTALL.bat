@@ -1,11 +1,11 @@
 @echo off
 chcp 65001 > nul
-title Upbit AutoProfit Bot v6.30.38 - COMPLETE REINSTALL
+title Upbit AutoProfit Bot v6.30.55 - COMPLETE REINSTALL
 color 0E
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.38
+echo  Upbit AutoProfit Bot v6.30.55
 echo  COMPLETE REINSTALL
 echo ========================================
 echo.
@@ -273,7 +273,7 @@ if exist ".env.backup" (
 ) else (
     echo Creating new .env file...
     (
-        echo # Upbit AutoProfit Bot v6.30.38
+        echo # Upbit AutoProfit Bot v6.30.55
         echo.
         echo TRADING_MODE=paper
         echo INITIAL_CAPITAL=5000000
@@ -308,7 +308,7 @@ echo ========================================
 echo  REINSTALL COMPLETE!
 echo ========================================
 echo.
-echo Current version: v6.30.38
+echo Current version: v6.30.55 (Strategy Typo Fix)
 echo Repository: https://github.com/lee-jungkil/Lj
 echo.
 echo Next steps:
