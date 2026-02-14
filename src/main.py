@@ -1390,25 +1390,32 @@ class AutoProfitBot:
                 _original_print(f"[DEBUG-QUICK] ⚠️ 포지션 없음! 즉시 return")
                 return
             
-            # ⭐ v6.30.26: 화면 업데이트 추가
-            self.display.update_monitoring(
-                "🔍 매도 조건 체크",
-                f"{position_count}개 포지션 검사 중",
-                datetime.now().strftime('%H:%M:%S')
-            )
-            
-            # ⭐ v6.30.45: 청산 체크 헤더 출력 (사용자가 볼 수 있도록)
+            # ⭐ v6.30.46: 청산 체크 헤더를 먼저 출력 (display.update_monitoring 전에)
             from datetime import datetime
             check_time = datetime.now().strftime('%H:%M:%S')
             _original_print(f"\n--- ⚡ 포지션 청산 체크 #{getattr(self, 'quick_check_count', 0)} - {check_time} ---")
+            _original_print(f"[DEBUG-QUICK] 포지션 {position_count}개 청산 조건 검사 시작...")
+            
+            # ⭐ v6.30.26: 화면 업데이트 (예외 발생 시에도 계속 진행)
+            try:
+                self.display.update_monitoring(
+                    "🔍 매도 조건 체크",
+                    f"{position_count}개 포지션 검사 중",
+                    datetime.now().strftime('%H:%M:%S')
+                )
+            except Exception as e:
+                _original_print(f"[DEBUG-QUICK] ⚠️ display.update_monitoring 실패: {e}")
             
             # ⭐ v6.30.18: 디버그 로그 추가
             self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {position_count}개")
             
             # 포지션 목록 복사 (iteration 중 변경 방지)
             positions_to_check = list(self.risk_manager.positions.items())
+            _original_print(f"[DEBUG-QUICK] positions_to_check 생성 완료: {len(positions_to_check)}개")
+            _original_print(f"[DEBUG-QUICK] 티커 목록: {[ticker for ticker, _ in positions_to_check]}")
             
             for idx, (ticker, position) in enumerate(positions_to_check, 1):
+                _original_print(f"\n[DEBUG-QUICK] [{idx}/{position_count}] {ticker} 체크 시작...")
                 try:
                     # ⭐ v6.30.26: 진행 상황 표시
                     self.display.update_monitoring(
