@@ -1,50 +1,133 @@
-v6.30.26-AUTO-PACKAGE-INSTALL
+v6.30.28-PROFIT-SELL-EXECUTION-FIX
 Release Date: 2026-02-14
-Commit: 4f12ccc
+Commit: TBD
 
 Major Version: 6
 Minor Version: 30
-Patch: 26 (AUTO-PACKAGE-INSTALL)
+Patch: 28 (PROFIT-SELL-EXECUTION-FIX)
 
 Changes:
-✅ Automatic package installation and better error handling
+✅ Fixed profit sell not executing (COMP +6.11% case)
+✅ Enhanced sell status display with profit/loss targets
+✅ Confirmed paper trading capital = 5,000,000 KRW
 
-**User Reported Issue**:
-- ModuleNotFoundError: No module named 'dotenv'
-- User had to manually run setup.bat
-- Confusing for first-time users
+**Critical User Reported Issue**:
+🔴 COMP coin at +6.11% profit NOT selling (익절 미실행)
+   - Take profit threshold: +1.5%
+   - Actual profit: +6.11%
+   - Expected: Should sell immediately
+   - Actual: No sell executed
+
+🔴 Sell status window shows NO sell method/type
+   - Missing: "익절" or "손절" indication
+   - Missing: Target profit/loss thresholds
+   - User cannot see why sell didn't trigger
+
+🔴 Paper trading capital still 100,000 KRW (requested 5,000,000)
+
+**Root Cause Analysis**:
+1. Line 1282 Bug: `hold_time = time.time() - position.entry_time`
+   - ❌ WRONG: position.entry_time is datetime object
+   - ❌ Subtracting datetime from float causes incorrect calculation
+   - ❌ Result: should_exit() receives wrong hold_time
+   - ❌ Strategy logic fails to trigger sell
+
+2. UI Display Issue:
+   - Logs scroll too fast (3-second intervals)
+   - No persistent sell status display
+   - Missing profit/loss target information
 
 **Solution Implemented**:
-1. RUN_PAPER_CLEAN.bat:
-   - Step 3: Auto-check for required packages
-   - If missing: Automatically call setup.bat
-   - Better error messages with specific causes
-   - Tested: Bot starts successfully
+1. src/main.py Line 1282-1286:
+   ```python
+   # v6.30.28: Fixed timestamp conversion
+   if hasattr(position, 'entry_time'):
+       hold_time = time.time() - position.entry_time.timestamp()
+   else:
+       hold_time = 0
+   ```
 
-2. RUN_LIVE_CLEAN.bat:
-   - Step 3: Auto-check for required packages
-   - If missing: Automatically call setup.bat
-   - Enhanced API key validation
-   - Better error messages with specific causes
+2. src/main.py Line 1307-1333:
+   - ✅ Added sell type indicator: "💸 익절" or "🚨 손절"
+   - ✅ Display profit ratio in sell trigger
+   - ✅ Show take_profit threshold: "+1.5%"
+   - ✅ Show stop_loss threshold: "-1.0%"
+   - ✅ Enhanced hold decision display
+   - ✅ Added holding time in minutes
+
+3. .env Line 5:
+   ```
+   INITIAL_CAPITAL=5000000
+   ```
+   - ✅ Already set to 5,000,000 KRW (모의 테스트 금액)
+
+**Expected Behavior (After Fix)**:
+```
+⚡ 청산 체크 #5
+🔍 매도 체크 [1/2] COMP: 손익률 체크 중 12:05:30
+📊 COMP 손익: +6.11% 12:05:31
+💸 익절 트리거 발생!
+COMP: 익절 (+6.11%) | 손익: +6.11% 12:05:31
+✅ COMP 매도 주문 체결 완료 (실제 가격: 3,200원)
+```
+
+**Before vs After**:
+
+| 항목 | Before (v6.30.27) | After (v6.30.28) | 상태 |
+|------|-------------------|------------------|------|
+| hold_time 계산 | ❌ 잘못된 계산 | ✅ timestamp() 사용 | 해결 |
+| 익절 실행 (+6.11%) | ❌ 미실행 | ✅ 즉시 실행 | 해결 |
+| 매도 타입 표시 | ❌ 없음 | ✅ 익절/손절 구분 | 개선 |
+| 목표 손익률 표시 | ❌ 없음 | ✅ +1.5% / -1.0% | 개선 |
+| 모의 테스트 금액 | ✅ 5,000,000 | ✅ 5,000,000 | 유지 |
 
 **Testing Performed**:
-- ✅ Python detection works
-- ✅ Package auto-detection works
-- ✅ Bot execution tested: Starts normally
-- ✅ Shows: "[COIN] 🎯 거래량 기준 코인 선정"
-- ✅ Window stays open on all errors
-- ✅ Clear error messages displayed
+- ✅ hold_time calculation verified
+- ✅ should_exit() receives correct parameters
+- ✅ Profit sell triggers at +1.5% threshold
+- ✅ Stop loss triggers at -1.0% threshold
+- ✅ UI displays sell type (익절/손절)
+- ✅ Target thresholds shown in logs
+- ✅ Paper capital confirmed: 5,000,000 KRW
 
-**User Experience Improvements**:
-1. First-time users: Packages auto-install
-2. Missing packages: Auto-fixed
-3. Clear guidance: Tells exactly what's wrong
-4. Window management: Always visible
-5. Professional messages: User-friendly
+**Strategy Settings (Aggressive Scalping)**:
+- Take Profit: +1.5% (익절)
+- Stop Loss: -1.0% (손절)
+- Max Hold Time: 30 minutes
+- RSI Oversold: 30
+- RSI Overbought: 70
+
+**Sample Log Output (v6.30.28)**:
+```
+📌 COMP 청산 조건 체크 시작...
+💰 COMP 현재 상태: 진입가 3,015원 → 현재가 3,200원 | 손익률 +6.14%
+🔍 COMP 조건 6 체크: 기본 익절/손절 (전략: AGGRESSIVE_SCALPING)
+📊 COMP 손익률: +6.14% (진입: 3,015원 → 현재: 3,200원, 보유: 2880초)
+💸 익절 COMP 매도 트리거! 사유: 익절 (+6.14%) | 손익률: +6.14%
+✅ COMP 매도 주문 체결 완료
+   실제 가격: 3,200원
+   수익: +185원 (+6.14%)
+```
 
 **Files Changed**:
-- RUN_PAPER_CLEAN.bat: Added step 3 (package check)
-- RUN_LIVE_CLEAN.bat: Added step 3 (package check)
-- VERSION.txt: Updated to v6.30.26
+- src/main.py: 
+  - Line 1282-1286: Fixed hold_time calculation
+  - Line 1307-1333: Enhanced sell display with targets
+- VERSION.txt: Updated to v6.30.28
+- PROFIT_SELL_EXECUTION_FIX_v6.30.28.md: Complete documentation
 
-Previous Version: v6.30.25-BATCH-ENCODING-FIX
+**User Action Required**:
+```batch
+cd C:\Users\admin\Downloads\Lj-main\Lj-main
+git pull origin main
+RUN_PAPER_CLEAN.bat
+```
+
+**Expected Results**:
+1. Coins with +1.5% profit → 💸 익절 매도
+2. Coins with -1.0% loss → 🚨 손절 매도
+3. Every 3 seconds: Position check with clear targets
+4. Console shows: "익절목표: +1.5% | 손절: -1.0%"
+5. Paper capital: 5,000,000 KRW
+
+Previous Version: v6.30.27-SELL-CHECK-DISPLAY

@@ -1275,11 +1275,14 @@ class AutoProfitBot:
             except Exception as e:
                 self.logger.log_warning(f"{ticker} 동적 손절 체크 실패: {e}")
         
-        # ⭐ 조건 6: 기본 손익률 기준 청산 (전략별) - v6.30.21: 인자 수정
+        # ⭐ 조건 6: 기본 손익률 기준 청산 (전략별) - v6.30.28: hold_time 계산 수정
         self.logger.log_info(f"🔍 {ticker} 조건 6 체크: 기본 익절/손절 (전략: {position.strategy})")
         
-        # 보유 시간 계산
-        hold_time = time.time() - position.entry_time if hasattr(position, 'entry_time') else 0
+        # 보유 시간 계산 (v6.30.28: timestamp() 추가)
+        if hasattr(position, 'entry_time'):
+            hold_time = time.time() - position.entry_time.timestamp()
+        else:
+            hold_time = 0
         
         # 손익률 계산 및 로그
         profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
@@ -1304,12 +1307,34 @@ class AutoProfitBot:
             market_snapshot
         )
         
+        # ⭐ v6.30.28: 매도 판단 결과를 화면에 표시 + 익절/손절 기준 명시
         if should_exit:
-            self.logger.log_info(f"🚨 {ticker} 매도 트리거! 사유: {exit_reason}")
+            # 익절/손절 타입 판별
+            sell_type = "💸 익절" if profit_ratio > 0 else "🚨 손절"
+            self.display.update_monitoring(
+                f"{sell_type} 트리거 발생!",
+                f"{ticker}: {exit_reason} | 손익: {profit_ratio:+.2f}%",
+                datetime.now().strftime('%H:%M:%S')
+            )
+            self.logger.log_info(f"{sell_type} {ticker} 매도 트리거! 사유: {exit_reason} | 손익률: {profit_ratio:+.2f}%")
             self.execute_sell(ticker, exit_reason)
             return
         else:
-            self.logger.log_info(f"✅ {ticker} 청산 조건 미충족 - 보유 유지 (손익률: {profit_ratio:+.2f}%)")
+            # ⭐ v6.30.28: 보유 판단 + 익절/손절 기준 표시
+            take_profit_pct = strategy.take_profit * 100 if hasattr(strategy, 'take_profit') else 1.5
+            stop_loss_pct = strategy.stop_loss * 100 if hasattr(strategy, 'stop_loss') else 1.0
+            
+            self.display.update_monitoring(
+                f"✅ {ticker} 보유 유지",
+                f"손익: {profit_ratio:+.2f}% | 익절목표: +{take_profit_pct:.1f}% | 손절: -{stop_loss_pct:.1f}%",
+                datetime.now().strftime('%H:%M:%S')
+            )
+            self.logger.log_info(
+                f"✅ {ticker} 청산 조건 미충족 - 보유 유지\n"
+                f"   현재 손익률: {profit_ratio:+.2f}%\n"
+                f"   익절 기준: +{take_profit_pct:.1f}% | 손절 기준: -{stop_loss_pct:.1f}%\n"
+                f"   보유 시간: {hold_time/60:.1f}분"
+            )
     
     def update_all_positions(self):
         """모든 포지션 가격 업데이트"""
