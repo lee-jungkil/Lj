@@ -1,43 +1,43 @@
-v6.30.23-BATCH-FILE-FIX
+v6.30.24-SETUP-BAT-FIX
 Release Date: 2026-02-14
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 23 (BATCH-FILE-FIX)
+Patch: 24 (SETUP-BAT-FIX)
 
 Changes:
-✅ 배치 파일 창 닫힘 버그 수정
+✅ setup.bat 가상환경 오류 수정 및 업데이트
 
 **문제점**:
-- RUN_PAPER_CLEAN.bat 실행 시 창이 즉시 닫힘
-- RUN_LIVE_CLEAN.bat 실행 시 에러 확인 불가
-- pause 명령이 실행되지 않음
+- setup.bat이 구버전 v5.2였음
+- 가상환경 활성화 실패 시 즉시 종료
+- 사용자가 'venv\Scripts\activate.bat' is not recognized 에러 발생
 
 **원인**:
-- if errorlevel 1 블록 다음의 pause가 도달 불가능
-- Python 프로세스 정상 종료 시 exit /b로 인해 배치 파일 즉시 종료
+- 가상환경 생성 실패 또는 경로 문제 발생 시 복구 불가능
+- 시스템 Python으로 대체 실행하는 옵션이 없음
+- pause 로직이 실행되지 않아 에러 확인 불가
 
 **수정 사항**:
-1. RUN_PAPER_CLEAN.bat:
-   - 버전: v6.30.22 → v6.30.23
-   - pause 로직을 if-else 블록 밖으로 이동
-   - 정상/에러 종료 모두 메시지 표시
-   - exit /b 제거하여 항상 pause 실행
+1. setup.bat:
+   - 버전: v5.2 → v6.30.24
+   - 가상환경 실패 시 시스템 Python 사용 옵션 추가
+   - .env.test 파일도 자동 복사하도록 개선
+   - 항상 pause 실행하여 창 유지
+   - RUN_*_CLEAN.bat 파일 안내 추가
+   - v6.30.23 스타일로 개선된 메시지
 
-2. RUN_LIVE_CLEAN.bat:
-   - 버전: v6.30.22 → v6.30.23
-   - pause 로직 개선 (paper와 동일)
-
-3. BATCH_FILE_WINDOW_CLOSE_FIX_v6.30.23.md (신규):
-   - 문제 원인 분석
-   - 해결 방법 상세 설명
-   - 테스트 결과 및 트러블슈팅 가이드
+2. BATCH_FILE_USAGE_GUIDE_v6.30.23.md (신규):
+   - 사용해야 할 파일 vs 사용하지 말아야 할 파일
+   - 구버전(v5.x) vs 신버전(v6.30.x) 비교
+   - 마이그레이션 가이드
+   - FAQ 및 권장 사용 흐름
 
 **개선 효과**:
-- ✅ 정상 실행 시 창 유지됨
-- ✅ 에러 발생 시 메시지 확인 가능
-- ✅ Ctrl+C 종료 시 안내 메시지 표시
-- ✅ 사용자 경험 개선
+- ✅ 가상환경 실패해도 설치 계속 진행 가능
+- ✅ 시스템 Python으로 대체 실행
+- ✅ 에러 메시지 확인 가능 (창 유지)
+- ✅ 최신 배치 파일(CLEAN) 안내
 
-Previous Version: v6.30.22-PROFIT-SELL-VERIFICATION-COMPLETE
+Previous Version: v6.30.23-BATCH-FILE-FIX
