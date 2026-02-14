@@ -188,14 +188,14 @@ if not exist "src\main.py" (
     exit /b 1
 )
 
-findstr /C:"class TradingBot" src\main.py > nul
+findstr /C:"class AutoProfitBot" src\main.py > nul
 if errorlevel 1 (
-    echo [ERROR] TradingBot class not found in main.py!
+    echo [ERROR] AutoProfitBot class not found in main.py!
     echo The downloaded file may be corrupted.
     pause
     exit /b 1
 )
-echo [OK] TradingBot class found
+echo [OK] AutoProfitBot class found
 echo.
 
 findstr /C:"DEBUG-LOOP" src\main.py > nul

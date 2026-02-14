@@ -42,9 +42,9 @@ if not exist "src\main.py" (
     exit /b 1
 )
 
-findstr /C:"class TradingBot" src\main.py > nul
+findstr /C:"class AutoProfitBot" src\main.py > nul
 if errorlevel 1 (
-    echo [ERROR] TradingBot class not found in main.py!
+    echo [ERROR] AutoProfitBot class not found in main.py!
     echo.
     echo Your code may be corrupted or outdated.
     echo Please run COMPLETE_REINSTALL.bat to fix this issue
@@ -52,7 +52,7 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-echo [OK] TradingBot class verified
+echo [OK] AutoProfitBot class verified
 echo.
 
 echo [4/7] Checking required packages...
