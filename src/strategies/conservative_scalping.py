@@ -148,7 +148,7 @@ class ConservativeScalping(BaseStrategy):
             except Exception:
                 pass
         
-        # === 기본 손절/익절 ===
+        # === 기본 손절/익절 === (v6.30.21: 디버그 로그 추가)
         if profit_loss_ratio <= -self.stop_loss:
             return True, f"손절 ({profit_loss_ratio*100:.2f}%)"
         

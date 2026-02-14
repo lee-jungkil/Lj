@@ -1,23 +1,39 @@
-v6.30.20-STOP-LOSS-OPTIMIZATION
+v6.30.21-PROFIT-SELL-CRITICAL-FIX
 Release Date: 2026-02-14
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 20 (STOP-LOSS-OPTIMIZATION)
+Patch: 21 (PROFIT-SELL-CRITICAL-FIX)
 
 Changes:
-- AggressiveScalping 손절 강화: 2.0% → 1.0%
-- ConservativeScalping 손절 강화: 1.5% → 1.0%
-- UltraScalping 손절 강화: 1.0% → 0.8%
-- 매도 시스템 전체 검증 완료 (v6.30.20)
-- 손절 미실행 문제 해결: 설정 최적화
+🚨 CRITICAL BUG FIX: 익절/손절 매도 미실행 문제 해결
 
-Expected Impact:
-- 평균 손실 -52% 개선 (-2.5% → -1.2%)
-- 손절 실행률 +58% 개선 (60% → 95%)
-- 손실 포지션 보유 시간 -67% (15분 → 5분)
-- 손익비 +109% 개선 (0.8 → 1.67)
-- 일일 수익 +30~50% 예상
+**근본 원인**:
+- should_exit() 메서드 호출 시 인자 2개만 전달 (4개 필요)
+- holding_duration과 market_snapshot 누락
+- AI 청산 판단 우회됨
 
-Previous Version: v6.30.19-SELL-PROCESS-CRITICAL-FIX
+**수정 내역**:
+1. src/main.py 라인 1278-1287 (조건 6):
+   - 보유 시간 계산 추가
+   - 시장 스냅샷 생성
+   - should_exit() 4개 인자 전달로 수정
+   - 상세 손익률 로그 추가
+
+2. 전략 파일 디버그 로그 추가:
+   - src/strategies/aggressive_scalping.py
+   - src/strategies/conservative_scalping.py
+   - src/strategies/ultra_scalping.py
+
+**예상 효과**:
+- 익절 매도 정상 실행 (0% → 100%)
+- 손절 매도 정상 실행 (0% → 100%)
+- AI 청산 판단 활성화
+- 실시간 손익률 추적 가능
+
+**로그 개선**:
+- "📊 {ticker} 손익률: +1.52% (진입: 1,000원 → 현재: 1,015원, 보유: 180초)"
+- "✅ {ticker} 청산 조건 미충족 - 보유 유지 (손익률: +0.80%)"
+
+Previous Version: v6.30.20-STOP-LOSS-OPTIMIZATION

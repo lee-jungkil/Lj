@@ -1275,16 +1275,41 @@ class AutoProfitBot:
             except Exception as e:
                 self.logger.log_warning(f"{ticker} 동적 손절 체크 실패: {e}")
         
-        # ⭐ 조건 6: 기본 손익률 기준 청산 (전략별)
+        # ⭐ 조건 6: 기본 손익률 기준 청산 (전략별) - v6.30.21: 인자 수정
         self.logger.log_info(f"🔍 {ticker} 조건 6 체크: 기본 익절/손절 (전략: {position.strategy})")
-        should_exit, exit_reason = strategy.should_exit(position.avg_buy_price, current_price)
+        
+        # 보유 시간 계산
+        hold_time = time.time() - position.entry_time if hasattr(position, 'entry_time') else 0
+        
+        # 손익률 계산 및 로그
+        profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+        self.logger.log_info(
+            f"📊 {ticker} 손익률: {profit_ratio:+.2f}% "
+            f"(진입: {position.avg_buy_price:,.0f}원 → 현재: {current_price:,.0f}원, "
+            f"보유: {hold_time:.0f}초)"
+        )
+        
+        # 시장 스냅샷 (간단 버전)
+        market_snapshot = {
+            'current_price': current_price,
+            'entry_price': position.avg_buy_price,
+            'profit_ratio': profit_ratio
+        }
+        
+        # 전략별 청산 판단 (v6.30.21: 4개 인자 전달)
+        should_exit, exit_reason = strategy.should_exit(
+            position.avg_buy_price, 
+            current_price,
+            hold_time,
+            market_snapshot
+        )
         
         if should_exit:
             self.logger.log_info(f"🚨 {ticker} 매도 트리거! 사유: {exit_reason}")
             self.execute_sell(ticker, exit_reason)
             return
         else:
-            self.logger.log_info(f"✅ {ticker} 청산 조건 미충족 - 보유 유지")
+            self.logger.log_info(f"✅ {ticker} 청산 조건 미충족 - 보유 유지 (손익률: {profit_ratio:+.2f}%)")
     
     def update_all_positions(self):
         """모든 포지션 가격 업데이트"""

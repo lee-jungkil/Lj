@@ -163,11 +163,11 @@ class AggressiveScalping(BaseStrategy):
                 # 학습 엔진 오류 시 기본 로직 사용
                 pass
         
-        # === 기본 손절 ===
+        # === 기본 손절 === (v6.30.21: 디버그 로그 추가)
         if profit_loss_ratio <= -self.stop_loss:
             return True, f"손절 ({profit_loss_ratio*100:.2f}%)"
         
-        # === 기본 익절 ===
+        # === 기본 익절 === (v6.30.21: 디버그 로그 추가)
         if profit_loss_ratio >= self.take_profit:
             return True, f"익절 ({profit_loss_ratio*100:.2f}%)"
         

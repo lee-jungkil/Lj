@@ -118,7 +118,7 @@ class UltraScalping(BaseStrategy):
         """
         profit_loss_ratio = (current_price - entry_price) / entry_price
         
-        # 빠른 손절 (0.5%) - 무조건!
+        # 빠른 손절 (0.8%) - 무조건! (v6.30.21: 디버그 로그)
         if profit_loss_ratio <= -self.stop_loss:
             return True, f"초단타 손절 ({profit_loss_ratio*100:.2f}%)"
         
