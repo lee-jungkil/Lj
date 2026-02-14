@@ -1342,14 +1342,30 @@ class AutoProfitBot:
             if not self.risk_manager.positions:
                 return
             
+            position_count = len(self.risk_manager.positions)
+            
+            # ⭐ v6.30.26: 화면 업데이트 추가
+            self.display.update_monitoring(
+                "🔍 매도 조건 체크",
+                f"{position_count}개 포지션 검사 중",
+                datetime.now().strftime('%H:%M:%S')
+            )
+            
             # ⭐ v6.30.18: 디버그 로그 추가
-            self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {len(self.risk_manager.positions)}개")
+            self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {position_count}개")
             
             # 포지션 목록 복사 (iteration 중 변경 방지)
             positions_to_check = list(self.risk_manager.positions.items())
             
-            for ticker, position in positions_to_check:
+            for idx, (ticker, position) in enumerate(positions_to_check, 1):
                 try:
+                    # ⭐ v6.30.26: 진행 상황 표시
+                    self.display.update_monitoring(
+                        f"🔍 매도 체크 [{idx}/{position_count}]",
+                        f"{ticker}: 손익률 체크 중",
+                        datetime.now().strftime('%H:%M:%S')
+                    )
+                    
                     # ⭐ v6.30.18: 포지션별 체크 시작 로그
                     self.logger.log_info(f"📌 {ticker} 청산 조건 체크 시작...")
                     
@@ -1361,6 +1377,17 @@ class AutoProfitBot:
                     
                     # 포지션 가격 업데이트
                     self.risk_manager.update_positions({ticker: current_price})
+                    
+                    # 손익률 계산
+                    profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+                    
+                    # ⭐ v6.30.26: 손익률 화면 표시
+                    profit_str = f"+{profit_ratio:.2f}%" if profit_ratio > 0 else f"{profit_ratio:.2f}%"
+                    self.display.update_monitoring(
+                        f"📊 {ticker}",
+                        f"손익: {profit_str}",
+                        datetime.now().strftime('%H:%M:%S')
+                    )
                     
                     # 전략 객체 가져오기
                     strategy_name = position.strategy
@@ -2094,6 +2121,14 @@ class AutoProfitBot:
                     # ⭐ 스캔 시간 기록
                     position_time = datetime.now()
                     self.display.update_scan_times(position_check_time=position_time)
+                    
+                    # ⭐ v6.30.26: 화면에도 매도 체크 상태 표시
+                    check_status = f"⚡ 청산 체크 #{quick_check_count}"
+                    self.display.update_monitoring(
+                        check_status,
+                        f"포지션 {len(self.risk_manager.positions)}개 체크 중",
+                        datetime.now().strftime('%H:%M:%S')
+                    )
                     
                     # ⭐ v6.30.19: UI 업데이트 제거, 바로 청산 조건 체크
                     self.logger.log_info(f"\n--- ⚡ 포지션 청산 체크 #{quick_check_count} - {datetime.now().strftime('%H:%M:%S')} ---")
