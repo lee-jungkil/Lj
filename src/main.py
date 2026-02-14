@@ -995,9 +995,9 @@ class AutoProfitBot:
         except Exception as e:
             self.logger.log_error("SELL_ERROR", f"{ticker} 매도 실패", e)
     
-    def check_positions(self, ticker: str, strategy):
+    def check_positions(self, ticker: str, strategy, position=None):
         """
-        포지션 손익 체크 및 자동 청산 (⭐ v6.30.4 확장: 10가지 청산 조건)
+        포지션 손익 체크 및 자동 청산 (⭐ v6.30.50: 동시성 문제 해결)
         
         10가지 청산 조건:
         0. 리스크 평가 (통합 위험도 분석) ⭐ NEW
@@ -1014,6 +1014,7 @@ class AutoProfitBot:
         Args:
             ticker: 코인 티커
             strategy: 전략 객체
+            position: 포지션 객체 (optional, 동시성 문제 방지용)
         """
         # ⭐ v6.30.48: check_positions 진입 로그 (콘솔)
         _original_print(f"\n[DEBUG-CHECK] ========== check_positions({ticker}) 시작 ==========")
@@ -1021,12 +1022,19 @@ class AutoProfitBot:
         # ⭐ v6.30.18: check_positions 진입 로그
         self.logger.log_info(f"✅ check_positions({ticker}) 진입 - 10가지 청산 조건 검사 시작")
         
-        if ticker not in self.risk_manager.positions:
-            _original_print(f"[DEBUG-CHECK] ⚠️ {ticker} 포지션 없음!")
-            self.logger.log_warning(f"⚠️ {ticker} 포지션 없음 (이미 청산됨?)")
-            return
-        
-        position = self.risk_manager.positions[ticker]
+        # ⭐ v6.30.50: 포지션이 전달되지 않은 경우에만 조회
+        if position is None:
+            if ticker not in self.risk_manager.positions:
+                _original_print(f"[DEBUG-CHECK] ⚠️ {ticker} 포지션 없음!")
+                self.logger.log_warning(f"⚠️ {ticker} 포지션 없음 (이미 청산됨?)")
+                return
+            position = self.risk_manager.positions[ticker]
+        else:
+            _original_print(f"[DEBUG-CHECK] ✅ 포지션 객체 직접 전달됨 (동시성 보호)")
+            # 포지션이 여전히 존재하는지 재확인
+            if ticker not in self.risk_manager.positions:
+                _original_print(f"[DEBUG-CHECK] ⚠️ {ticker} 포지션이 이미 삭제됨! (다른 스레드에서 청산됨)")
+                return
         current_price = self.api.get_current_price(ticker)
         
         if not current_price:
@@ -1479,9 +1487,10 @@ class AutoProfitBot:
                     
                     if strategy:
                         # check_positions 호출 (10가지 청산 조건 체크)
+                        # ⭐ v6.30.50: 포지션 객체를 직접 전달 (동시성 문제 방지)
                         _original_print(f"[DEBUG-QUICK] ✅ check_positions() 호출 시작...")
                         self.logger.log_info(f"🎯 {ticker} → check_positions() 호출 (전략: {strategy_name})")
-                        self.check_positions(ticker, strategy)
+                        self.check_positions(ticker, strategy, position=position)  # ← 포지션 직접 전달!
                         _original_print(f"[DEBUG-QUICK] ✅ check_positions() 호출 완료")
                     else:
                         _original_print(f"[DEBUG-QUICK] ⚠️ 전략 객체 없음: {strategy_name}")
