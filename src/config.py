@@ -123,13 +123,13 @@ class Config:
     SPREAD_THRESHOLD_LOW = float(os.getenv('SPREAD_THRESHOLD_LOW', 0.1))
     SPREAD_THRESHOLD_HIGH = float(os.getenv('SPREAD_THRESHOLD_HIGH', 0.5))
     
-    # 전략별 최대 보유 시간 (초)
-    MAX_HOLD_TIME_CHASE = int(os.getenv('MAX_HOLD_TIME_CHASE', 300))
-    MAX_HOLD_TIME_ULTRA = int(os.getenv('MAX_HOLD_TIME_ULTRA', 600))
-    MAX_HOLD_TIME_AGGRESSIVE = int(os.getenv('MAX_HOLD_TIME_AGGRESSIVE', 1800))
-    MAX_HOLD_TIME_CONSERVATIVE = int(os.getenv('MAX_HOLD_TIME_CONSERVATIVE', 3600))
-    MAX_HOLD_TIME_MEAN_REVERSION = int(os.getenv('MAX_HOLD_TIME_MEAN_REVERSION', 7200))
-    MAX_HOLD_TIME_GRID = int(os.getenv('MAX_HOLD_TIME_GRID', 86400))
+    # 전략별 최대 보유 시간 (초) - ⭐ v6.30.47: 단축형 설정
+    MAX_HOLD_TIME_CHASE = int(os.getenv('MAX_HOLD_TIME_CHASE', 300))           # 5분 (유지)
+    MAX_HOLD_TIME_ULTRA = int(os.getenv('MAX_HOLD_TIME_ULTRA', 600))           # 10분 (유지)
+    MAX_HOLD_TIME_AGGRESSIVE = int(os.getenv('MAX_HOLD_TIME_AGGRESSIVE', 300))  # 5분 (30분 → 5분)
+    MAX_HOLD_TIME_CONSERVATIVE = int(os.getenv('MAX_HOLD_TIME_CONSERVATIVE', 600))  # 10분 (1시간 → 10분)
+    MAX_HOLD_TIME_MEAN_REVERSION = int(os.getenv('MAX_HOLD_TIME_MEAN_REVERSION', 1800))  # 30분 (2시간 → 30분)
+    MAX_HOLD_TIME_GRID = int(os.getenv('MAX_HOLD_TIME_GRID', 3600))            # 1시간 (24시간 → 1시간)
     
     # 급락 및 거래량 급감 감지
     SUDDEN_DROP_THRESHOLD = float(os.getenv('SUDDEN_DROP_THRESHOLD', -1.5))

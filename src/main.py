@@ -1095,19 +1095,19 @@ class AutoProfitBot:
         import time
         hold_time = time.time() - position.entry_time.timestamp()
         
-        # 환경 변수 설정 (기본값)
+        # 환경 변수 설정 (기본값) - ⭐ v6.30.47: 단축형 설정
         from src.config import Config
         max_hold_times = {
             'CHASE_BUY': getattr(Config, 'MAX_HOLD_TIME_CHASE', 300),  # 5분
             'ULTRA_SCALPING': getattr(Config, 'MAX_HOLD_TIME_ULTRA', 600),  # 10분
-            'AGGRESSIVE': getattr(Config, 'MAX_HOLD_TIME_AGGRESSIVE', 1800),  # 30분
-            'CONSERVATIVE': getattr(Config, 'MAX_HOLD_TIME_CONSERVATIVE', 3600),  # 1시간
-            'MEAN_REVERSION': getattr(Config, 'MAX_HOLD_TIME_MEAN_REVERSION', 7200),  # 2시간
-            'GRID': getattr(Config, 'MAX_HOLD_TIME_GRID', 86400)  # 24시간
+            'AGGRESSIVE': getattr(Config, 'MAX_HOLD_TIME_AGGRESSIVE', 300),  # 5분 (30분 → 5분)
+            'CONSERVATIVE': getattr(Config, 'MAX_HOLD_TIME_CONSERVATIVE', 600),  # 10분 (1시간 → 10분)
+            'MEAN_REVERSION': getattr(Config, 'MAX_HOLD_TIME_MEAN_REVERSION', 1800),  # 30분 (2시간 → 30분)
+            'GRID': getattr(Config, 'MAX_HOLD_TIME_GRID', 3600)  # 1시간 (24시간 → 1시간)
         }
         
         # 현재 전략의 최대 보유 시간
-        max_hold_time = max_hold_times.get(position.strategy, 3600)  # 기본 1시간
+        max_hold_time = max_hold_times.get(position.strategy, 600)  # 기본 10분 (1시간 → 10분)
         
         # ⭐ 조건 1: 시간 초과 청산
         if hold_time > max_hold_time:
