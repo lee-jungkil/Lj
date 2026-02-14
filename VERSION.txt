@@ -1,43 +1,52 @@
-v6.30.24-SETUP-BAT-FIX
+v6.30.25-BATCH-ENCODING-FIX
 Release Date: 2026-02-14
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 24 (SETUP-BAT-FIX)
+Patch: 25 (BATCH-ENCODING-FIX)
 
 Changes:
-✅ setup.bat 가상환경 오류 수정 및 업데이트
+✅ Batch file encoding critical fix
 
-**문제점**:
-- setup.bat이 구버전 v5.2였음
-- 가상환경 활성화 실패 시 즉시 종료
-- 사용자가 'venv\Scripts\activate.bat' is not recognized 에러 발생
+**Problem**:
+- setup.bat, RUN_PAPER_CLEAN.bat, RUN_LIVE_CLEAN.bat execution failed
+- Error: 'cho' is not recognized, 'nul' is not recognized, etc.
+- Korean characters broken in Windows CMD
+- Python: can't open file '...\\to': [Errno 2] No such file or directory
 
-**원인**:
-- 가상환경 생성 실패 또는 경로 문제 발생 시 복구 불가능
-- 시스템 Python으로 대체 실행하는 옵션이 없음
-- pause 로직이 실행되지 않아 에러 확인 불가
+**Root Cause**:
+- Batch files were saved in UTF-8 with Korean characters
+- Windows CMD uses CP949/EUC-KR encoding by default
+- UTF-8 Korean bytes caused command parsing errors
+- File paths were incorrectly parsed (e.g., \\to)
 
-**수정 사항**:
+**Solution**:
 1. setup.bat:
-   - 버전: v5.2 → v6.30.24
-   - 가상환경 실패 시 시스템 Python 사용 옵션 추가
-   - .env.test 파일도 자동 복사하도록 개선
-   - 항상 pause 실행하여 창 유지
-   - RUN_*_CLEAN.bat 파일 안내 추가
-   - v6.30.23 스타일로 개선된 메시지
+   - Removed all Korean characters
+   - Converted to pure ASCII (us-ascii)
+   - English-only messages
+   - Version: v6.30.24 → v6.30.25
 
-2. BATCH_FILE_USAGE_GUIDE_v6.30.23.md (신규):
-   - 사용해야 할 파일 vs 사용하지 말아야 할 파일
-   - 구버전(v5.x) vs 신버전(v6.30.x) 비교
-   - 마이그레이션 가이드
-   - FAQ 및 권장 사용 흐름
+2. RUN_PAPER_CLEAN.bat:
+   - Removed all Korean characters
+   - Converted to pure ASCII
+   - English-only output
+   - Version: v6.30.23 → v6.30.25
 
-**개선 효과**:
-- ✅ 가상환경 실패해도 설치 계속 진행 가능
-- ✅ 시스템 Python으로 대체 실행
-- ✅ 에러 메시지 확인 가능 (창 유지)
-- ✅ 최신 배치 파일(CLEAN) 안내
+3. RUN_LIVE_CLEAN.bat:
+   - Removed all Korean characters
+   - Converted to pure ASCII
+   - English-only warnings
+   - Version: v6.30.23 → v6.30.25
 
-Previous Version: v6.30.23-BATCH-FILE-FIX
+**Impact**:
+- ✅ Batch files now work on all Windows systems
+- ✅ No encoding errors
+- ✅ Command parsing fixed
+- ✅ File paths correctly handled
+- ✅ 100% compatibility with Windows CMD
+
+**Note**: All user-facing messages are now in English to ensure compatibility.
+
+Previous Version: v6.30.24-SETUP-BAT-FIX

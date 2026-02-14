@@ -1,18 +1,17 @@
 @echo off
-chcp 65001 > nul
-title Upbit AutoProfit Bot v6.30.23 - Setup
+title Upbit AutoProfit Bot v6.30.24 - Setup
 color 0E
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.23
+echo  Upbit AutoProfit Bot v6.30.24
 echo  Initial Setup
 echo ========================================
 echo.
 
 REM Change to script directory
 cd /d "%~dp0"
-echo [1/7] 현재 디렉토리: %cd%
+echo [1/7] Current directory: %cd%
 echo.
 
 echo [2/7] Checking Python installation...
@@ -127,7 +126,7 @@ if exist ".env" (
     ) else (
         echo [WARN] .env.example and .env.test not found, creating basic .env
         (
-            echo # Upbit AutoProfit Bot v6.30.23 환경 설정
+            echo # Upbit AutoProfit Bot v6.30.24
             echo.
             echo TRADING_MODE=paper
             echo INITIAL_CAPITAL=100000
@@ -136,7 +135,7 @@ if exist ".env" (
             echo MAX_POSITIONS=5
             echo MAX_POSITION_RATIO=0.2
             echo.
-            echo # AI 시스템 활성화
+            echo # AI System
             echo ENABLE_ADVANCED_AI=true
             echo ENABLE_ORDERBOOK_ANALYSIS=true
             echo ENABLE_SCENARIO_DETECTION=true
@@ -145,19 +144,19 @@ if exist ".env" (
             echo ENABLE_DYNAMIC_EXIT=true
             echo EXIT_MODE=aggressive
             echo.
-            echo # 로깅
+            echo # Logging
             echo LOG_LEVEL=INFO
             echo ENABLE_TRADING_LOG=true
             echo ENABLE_ERROR_LOG=true
             echo.
-            echo # 감정 분석 비활성화
+            echo # Sentiment Analysis
             echo ENABLE_SENTIMENT=false
             echo.
-            echo # Upbit API 키 (실거래 시 입력)
+            echo # Upbit API Keys (for live trading)
             echo UPBIT_ACCESS_KEY=
             echo UPBIT_SECRET_KEY=
             echo.
-            echo # 알림 설정 (선택사항)
+            echo # Notifications (optional)
             echo TELEGRAM_BOT_TOKEN=
             echo TELEGRAM_CHAT_ID=
             echo GMAIL_SENDER=
@@ -168,7 +167,7 @@ if exist ".env" (
         echo [OK] Basic .env file created
     )
     echo.
-    echo 📝 Next steps:
+    echo Next steps:
     echo   1. Open .env file with text editor
     echo   2. Check TRADING_MODE (default: paper)
     echo   3. For live trading: Enter UPBIT_ACCESS_KEY and UPBIT_SECRET_KEY
@@ -177,20 +176,20 @@ if exist ".env" (
 echo.
 
 echo ========================================
-echo  ✅ Setup Complete!
+echo  Setup Complete!
 echo ========================================
 echo.
 echo You can now run:
 echo.
 echo   RUN_PAPER_CLEAN.bat  - Paper trading (recommended)
-echo   RUN_LIVE_CLEAN.bat   - Live trading (실거래)
+echo   RUN_LIVE_CLEAN.bat   - Live trading (real money)
 echo.
-echo ⚠️  Important Notes:
+echo Important Notes:
 echo   - Always use RUN_*_CLEAN.bat files (not old run_*.bat)
 echo   - Paper trading mode is safe and recommended for testing
 echo   - For live trading, configure Upbit API keys in .env file
 echo.
-echo 📚 Documentation:
+echo Documentation:
 echo   - VERSION.txt - Current version info
 echo   - BATCH_FILE_FIX_USER_GUIDE_v6.30.23.md - User guide
 echo.
