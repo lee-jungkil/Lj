@@ -2140,8 +2140,13 @@ class AutoProfitBot:
                     self.last_surge_scan_time = current_time
                 
                 # ⭐ PHASE 3: 일반 포지션 체크 (3초) - v6.30.29: 시간 간격 체크 추가!
+                # 🔍 DEBUG: 항상 로그 출력
+                print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {len(self.risk_manager.positions)}개")
+                
                 if current_time - self.last_position_check_time >= self.position_check_interval:
+                    print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
                     if self.risk_manager.positions:
+                        print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행!")
                         quick_check_count += 1
                         
                         # ⭐ 스캔 시간 기록
@@ -2167,6 +2172,9 @@ class AutoProfitBot:
                         
                         # ⭐ v6.30.29: 마지막 체크 시간 업데이트 (중요!)
                         self.last_position_check_time = current_time
+                        print(f"[DEBUG] ✅ Phase 3 완료! 마지막 체크 시간 업데이트: {current_time:.2f}")
+                    else:
+                        print(f"[DEBUG] ⚠️ 포지션 없음, Phase 3 스킵")
                 
                 # ⭐ 대기 중일 때 (간단하게)
                 else:
