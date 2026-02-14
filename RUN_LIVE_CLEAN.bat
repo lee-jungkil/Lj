@@ -13,7 +13,8 @@ echo ======================================================================
 echo.
 set /p confirm="Do you really want to proceed with live trading? (yes to confirm): "
 if not "%confirm%"=="yes" (
-    echo Cancelled.
+    echo.
+    echo Cancelled by user.
     echo.
     echo Press any key to exit...
     pause > nul
@@ -23,18 +24,22 @@ if not "%confirm%"=="yes" (
 echo.
 echo ========================================
 echo  Upbit AutoProfit Bot v6.30.25
-echo  BATCH-FILE-ENCODING-FIX
+echo  Live Trading Mode
 echo ========================================
 echo.
-echo [1/6] Checking current directory...
+
+REM Change to script directory
 cd /d "%~dp0"
+
+echo [1/7] Checking current directory...
 echo [OK] %cd%
 echo.
 
-echo [2/6] Checking Python installation...
+echo [2/7] Checking Python installation...
 python --version > nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Python is not installed!
+    echo Visit: https://www.python.org/
     echo.
     echo Press any key to exit...
     pause > nul
@@ -43,19 +48,36 @@ if errorlevel 1 (
 python --version
 echo.
 
-echo [3/6] Cleaning Python cache (Important!)
-if exist "src\__pycache__" rmdir /s /q src\__pycache__
-if exist "src\strategies\__pycache__" rmdir /s /q src\strategies\__pycache__
-if exist "src\utils\__pycache__" rmdir /s /q src\utils\__pycache__
-if exist "src\ai\__pycache__" rmdir /s /q src\ai\__pycache__
+echo [3/7] Checking required packages...
+python -c "import dotenv, pyupbit, pandas, requests" > nul 2>&1
+if errorlevel 1 (
+    echo [WARNING] Some packages are missing!
+    echo.
+    echo Running setup.bat to install packages...
+    echo This may take a few minutes...
+    echo.
+    call setup.bat
+    echo.
+    echo Setup completed. Continuing...
+    echo.
+)
+echo [OK] All packages available
+echo.
+
+echo [4/7] Cleaning Python cache (Important!)
+echo Removing old .pyc files...
+if exist "src\__pycache__" rmdir /s /q src\__pycache__ 2>nul
+if exist "src\strategies\__pycache__" rmdir /s /q src\strategies\__pycache__ 2>nul
+if exist "src\utils\__pycache__" rmdir /s /q src\utils\__pycache__ 2>nul
+if exist "src\ai\__pycache__" rmdir /s /q src\ai\__pycache__ 2>nul
 del /s /q *.pyc 2>nul
 echo [OK] Cache cleaned!
 echo.
 
-echo [4/6] Checking .env file...
+echo [5/7] Checking .env file...
 if not exist ".env" (
     echo [ERROR] .env file not found!
-    echo Please copy .env.example and configure your API keys
+    echo Please create .env file with your Upbit API keys
     echo.
     echo Press any key to exit...
     pause > nul
@@ -64,10 +86,11 @@ if not exist ".env" (
 echo [OK] .env file exists
 echo.
 
-echo [5/6] Checking Upbit API keys...
-findstr /C:"UPBIT_ACCESS_KEY=" .env | findstr /V /C:"UPBIT_ACCESS_KEY=$" | findstr /V /C:"UPBIT_ACCESS_KEY= " > nul
+echo [6/7] Checking Upbit API keys...
+findstr /C:"UPBIT_ACCESS_KEY=" .env | findstr /V /C:"UPBIT_ACCESS_KEY=$" | findstr /V /C:"UPBIT_ACCESS_KEY= " > nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Upbit API keys are not configured!
+    echo.
     echo Please set UPBIT_ACCESS_KEY and UPBIT_SECRET_KEY in .env file
     echo.
     echo Press any key to exit...
@@ -77,7 +100,7 @@ if errorlevel 1 (
 echo [OK] API keys configured
 echo.
 
-echo [6/6] Starting bot...
+echo [7/7] Starting bot...
 echo.
 echo ========================================
 echo  Live Trading Mode
@@ -87,24 +110,37 @@ echo Stop: Ctrl+C
 echo Logs folder: trading_logs\
 echo Version: v6.30.25
 echo.
-echo Profit/Loss sell system enabled
-echo Position check: every 3 seconds
+echo System Status:
+echo   - Profit/Loss sell system: ENABLED
+echo   - Position check: every 3 seconds
+echo   - Auto liquidation: ACTIVE
 echo.
 
 REM Run bot with cache disabled
 python -B -m src.main --mode live
 
-REM Always pause to keep window open
+REM Check exit code
 if errorlevel 1 (
     echo.
+    echo ========================================
     echo [ERROR] Bot execution error!
-    echo Check logs in trading_logs\ folder
+    echo ========================================
+    echo.
+    echo Possible causes:
+    echo   1. Missing packages - Run setup.bat
+    echo   2. Invalid API keys - Check .env file
+    echo   3. Network error - Check internet connection
+    echo.
+    echo Check logs in trading_logs\ folder for details
 ) else (
     echo.
-    echo [INFO] Bot stopped normally.
+    echo ========================================
+    echo [INFO] Bot stopped normally
+    echo ========================================
 )
 
 echo.
-pause
+echo Press any key to exit...
+pause > nul
 
 :END
