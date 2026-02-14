@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 > nul
-title Upbit AutoProfit Bot v6.30.22 - Live Trading (Clean Start)
+title Upbit AutoProfit Bot v6.30.23 - Live Trading (Clean Start)
 color 0C
 
 echo.
@@ -21,8 +21,8 @@ if not "%confirm%"=="yes" (
 
 echo.
 echo ========================================
-echo  Upbit AutoProfit Bot v6.30.22
-echo  PROFIT-SELL-VERIFICATION-COMPLETE
+echo  Upbit AutoProfit Bot v6.30.23
+echo  BATCH-FILE-FIX (창 닫힘 버그 수정)
 echo ========================================
 echo.
 echo [1/6] 현재 디렉토리 확인...
@@ -78,7 +78,7 @@ echo ========================================
 echo.
 echo 💡 중지: Ctrl+C
 echo 📊 로그 폴더: trading_logs\
-echo 🔍 버전: v6.30.22
+echo 🔍 버전: v6.30.23
 echo.
 echo ✅ 익절/손절 매도 시스템 활성화
 echo ✅ 포지션 청산 체크: 매 3초
@@ -87,12 +87,15 @@ echo.
 REM 봇 실행 (캐시 무시 옵션 추가)
 python -B -m src.main --mode live
 
+REM 항상 pause를 실행하여 창이 닫히지 않도록 함
 if errorlevel 1 (
     echo.
     echo [ERROR] 봇 실행 중 오류 발생!
     echo trading_logs\ 폴더의 로그를 확인하세요
-    pause
-    exit /b 1
+) else (
+    echo.
+    echo [INFO] 봇이 정상 종료되었습니다.
 )
 
+echo.
 pause

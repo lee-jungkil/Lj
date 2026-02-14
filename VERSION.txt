@@ -1,39 +1,43 @@
-v6.30.22-PROFIT-SELL-VERIFICATION-COMPLETE
+v6.30.23-BATCH-FILE-FIX
 Release Date: 2026-02-14
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 22 (PROFIT-SELL-VERIFICATION-COMPLETE)
+Patch: 23 (BATCH-FILE-FIX)
 
 Changes:
-✅ 실제 포지션 시뮬레이션 테스트 완료
+✅ 배치 파일 창 닫힘 버그 수정
 
-**검증 결과**: 19/19 테스트 통과 (100%)
-- AggressiveScalping: 7/7 통과
-- ConservativeScalping: 6/6 통과
-- UltraScalping: 6/6 통과
+**문제점**:
+- RUN_PAPER_CLEAN.bat 실행 시 창이 즉시 닫힘
+- RUN_LIVE_CLEAN.bat 실행 시 에러 확인 불가
+- pause 명령이 실행되지 않음
+
+**원인**:
+- if errorlevel 1 블록 다음의 pause가 도달 불가능
+- Python 프로세스 정상 종료 시 exit /b로 인해 배치 파일 즉시 종료
 
 **수정 사항**:
-1. src/strategies/ultra_scalping.py (라인 128):
-   - price_history None 처리 추가
-   - "price_history is not None" 체크 추가
-   - KeyError 방지
+1. RUN_PAPER_CLEAN.bat:
+   - 버전: v6.30.22 → v6.30.23
+   - pause 로직을 if-else 블록 밖으로 이동
+   - 정상/에러 종료 모두 메시지 표시
+   - exit /b 제거하여 항상 pause 실행
 
-2. test_profit_sell_v6_30_21.py (신규):
-   - 포지션 시뮬레이션 테스트 스크립트
-   - 3가지 전략 19개 테스트 케이스
-   - 익절/손절/보유 조건 검증
+2. RUN_LIVE_CLEAN.bat:
+   - 버전: v6.30.22 → v6.30.23
+   - pause 로직 개선 (paper와 동일)
 
-**검증된 기능**:
-- ✅ 익절 매도: +1.5% (Aggressive), +1.0% (Conservative), +1.5% (Ultra)
-- ✅ 손절 매도: -1.0% (Aggressive), -1.0% (Conservative), -0.8% (Ultra)
-- ✅ 보유 조건: 익절/손절 미달 시 정상 보유
-- ✅ should_exit() 4개 인자 전달 정상
+3. BATCH_FILE_WINDOW_CLOSE_FIX_v6.30.23.md (신규):
+   - 문제 원인 분석
+   - 해결 방법 상세 설명
+   - 테스트 결과 및 트러블슈팅 가이드
 
-**예상 효과**:
-- 익절 실행률: 0% → 100%
-- 손절 실행률: 0% → 100%
-- 매도 지연: 무한 → 3초
+**개선 효과**:
+- ✅ 정상 실행 시 창 유지됨
+- ✅ 에러 발생 시 메시지 확인 가능
+- ✅ Ctrl+C 종료 시 안내 메시지 표시
+- ✅ 사용자 경험 개선
 
-Previous Version: v6.30.21-PROFIT-SELL-CRITICAL-FIX
+Previous Version: v6.30.22-PROFIT-SELL-VERIFICATION-COMPLETE
