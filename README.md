@@ -1,4 +1,4 @@
-# Upbit AutoProfit Bot v6.30.38
+# Upbit AutoProfit Bot v6.30.55
 
 🤖 **AI 기반 Upbit 자동매매 봇 - 완전 재설치 시스템**
 
@@ -228,7 +228,7 @@ COMPLETE_REINSTALL.bat
 
 - **GitHub:** https://github.com/lee-jungkil/Lj
 - **Issues:** https://github.com/lee-jungkil/Lj/issues
-- **Version:** v6.30.38-COMPLETE-REINSTALL-SYSTEM
+- **Version:** v6.30.55-STRATEGY-TYPO-FIX
 
 ---
 
@@ -249,4 +249,18 @@ COMPLETE_REINSTALL.bat
 ---
 
 **마지막 업데이트:** 2026-02-14  
-**현재 버전:** v6.30.38
+**현재 버전:** v6.30.55
+
+## 🆕 v6.30.55 업데이트 (2026-02-14)
+
+### 🐛 버그 수정
+- **매도 실행 안 되는 문제 해결**
+  - 전략 이름 오타 처리: `aggressive_scaling` → `aggressive_scalping`
+  - 전략 이름 오타 처리: `conservative_scaling` → `conservative_scalping`
+  - AttributeError로 인한 매도 실패 문제 완전 해결
+  - 하위 호환성 유지로 기존 포지션도 정상 작동
+
+### 📝 변경 사항
+- `src/main.py`: `_get_strategy_by_name()` 함수에 오타 버전 매핑 추가
+- 대소문자, 하이픈, 언더스코어 모든 케이스 지원
+- 기존 포지션 데이터와 완벽 호환

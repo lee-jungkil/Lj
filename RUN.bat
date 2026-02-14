@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ================================================
-echo   Upbit AutoProfit Bot v6.30.31 실행
+echo   Upbit AutoProfit Bot v6.30.55 실행
 echo ================================================
 echo.
 
