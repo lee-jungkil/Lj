@@ -1092,12 +1092,26 @@ class AutoProfitBot:
             
             # CRITICAL 리스크 시 즉시 청산
             if risk_eval['risk_level'] == 'CRITICAL':
-                self.execute_sell(ticker, f"위험도 CRITICAL 청산 ({risk_eval['recommended_action']})")
+                _original_print(f"[FORCE-SELL] 🚨 CRITICAL 리스크 강제 매도 시작!")
+                try:
+                    self.execute_sell(ticker, f"위험도 CRITICAL 청산 ({risk_eval['recommended_action']})")
+                    _original_print(f"[FORCE-SELL] ✅ CRITICAL 리스크 매도 완료!")
+                except Exception as e:
+                    _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                    import traceback
+                    _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                 return
             
             # HIGH 리스크 + 손실 중이면 청산
             if risk_eval['risk_level'] == 'HIGH' and position.profit_loss_ratio < -2.0:
-                self.execute_sell(ticker, f"고위험 + 손실 청산 ({risk_eval['recommended_action']})")
+                _original_print(f"[FORCE-SELL] 🚨 HIGH 리스크 강제 매도 시작!")
+                try:
+                    self.execute_sell(ticker, f"고위험 + 손실 청산 ({risk_eval['recommended_action']})")
+                    _original_print(f"[FORCE-SELL] ✅ HIGH 리스크 매도 완료!")
+                except Exception as e:
+                    _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                    import traceback
+                    _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                 return
                 
         except Exception as e:
@@ -1199,13 +1213,27 @@ class AutoProfitBot:
                     sudden_drop_threshold = getattr(Config, 'SUDDEN_DROP_THRESHOLD', -1.5)
                     
                     if price_change_1m <= sudden_drop_threshold:
-                        self.execute_sell(ticker, f"급락감지 (1분:{price_change_1m:.2f}%)")
+                        _original_print(f"[FORCE-SELL] 🚨 급락 감지 강제 매도 시작!")
+                        try:
+                            self.execute_sell(ticker, f"급락감지 (1분:{price_change_1m:.2f}%)")
+                            _original_print(f"[FORCE-SELL] ✅ 급락 감지 매도 완료!")
+                        except Exception as e:
+                            _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                            import traceback
+                            _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                         return
                 
                 # ⭐ 조건 6: 거래량 급감 (평균 대비 0.5배 이하)
                 volume_drop_threshold = getattr(Config, 'VOLUME_DROP_THRESHOLD', 0.5)
                 if volume_ratio < volume_drop_threshold:
-                    self.execute_sell(ticker, f"거래량급감 (평균 대비 {volume_ratio:.2f}배)")
+                    _original_print(f"[FORCE-SELL] 🚨 거래량 급감 강제 매도 시작!")
+                    try:
+                        self.execute_sell(ticker, f"거래량급감 (평균 대비 {volume_ratio:.2f}배)")
+                        _original_print(f"[FORCE-SELL] ✅ 거래량 급감 매도 완료!")
+                    except Exception as e:
+                        _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                        import traceback
+                        _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                     return
                 
                 # ⭐ 조건 3: 차트 신호 청산
@@ -1376,13 +1404,25 @@ class AutoProfitBot:
             _original_print(f"   ✅ {sell_type} 조건 충족! ({profit_ratio:+.2f}% {'≥ +1.5%' if profit_ratio > 0 else '≤ -1.0%'})")
             _original_print(f"   💰 {sell_type} 매도 주문 실행 중...")
             
+            # ⭐ v6.30.53: 강제 매도 로그 추가
+            _original_print(f"[FORCE-SELL] 🚨 {sell_type} 강제 매도 실행 시작!")
+            
             self.display.update_monitoring(
                 f"{sell_type} 트리거 발생!",
                 f"{ticker}: {exit_reason} | 손익: {profit_ratio:+.2f}%",
                 datetime.now().strftime('%H:%M:%S')
             )
             self.logger.log_info(f"{sell_type} {ticker} 매도 트리거! 사유: {exit_reason} | 손익률: {profit_ratio:+.2f}%")
-            self.execute_sell(ticker, exit_reason)
+            
+            # ⭐ v6.30.53: 강제 매도 실행 (예외 캡처)
+            try:
+                self.execute_sell(ticker, exit_reason)
+                _original_print(f"[FORCE-SELL] ✅ {sell_type} 매도 주문 완료!")
+            except Exception as e:
+                _original_print(f"[FORCE-SELL] ❌ {sell_type} 매도 실패: {e}")
+                import traceback
+                _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+            
             return
         else:
             # ⭐ v6.30.28: 보유 판단 + 익절/손절 기준 표시
