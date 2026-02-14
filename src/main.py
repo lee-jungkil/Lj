@@ -1322,6 +1322,11 @@ class AutoProfitBot:
         if should_exit:
             # 익절/손절 타입 판별
             sell_type = "💸 익절" if profit_ratio > 0 else "🚨 손절"
+            
+            # ⭐ v6.30.45: 콘솔에 익절/손절 실행 메시지 출력
+            _original_print(f"   ✅ {sell_type} 조건 충족! ({profit_ratio:+.2f}% {'≥ +1.5%' if profit_ratio > 0 else '≤ -1.0%'})")
+            _original_print(f"   💰 {sell_type} 매도 주문 실행 중...")
+            
             self.display.update_monitoring(
                 f"{sell_type} 트리거 발생!",
                 f"{ticker}: {exit_reason} | 손익: {profit_ratio:+.2f}%",
@@ -1375,10 +1380,15 @@ class AutoProfitBot:
         모든 포지션에 대해 청산 조건을 체크합니다.
         """
         try:
-            if not self.risk_manager.positions:
-                return
+            # ⭐ v6.30.45: 포지션 상태 캐싱 (멀티스레딩 경쟁 조건 방지)
+            has_positions = bool(self.risk_manager.positions)
+            position_count = len(self.risk_manager.positions) if has_positions else 0
             
-            position_count = len(self.risk_manager.positions)
+            _original_print(f"[DEBUG-QUICK] quick_check_positions 진입 - has_positions: {has_positions}, count: {position_count}")
+            
+            if not has_positions or position_count == 0:
+                _original_print(f"[DEBUG-QUICK] ⚠️ 포지션 없음! 즉시 return")
+                return
             
             # ⭐ v6.30.26: 화면 업데이트 추가
             self.display.update_monitoring(
@@ -1386,6 +1396,11 @@ class AutoProfitBot:
                 f"{position_count}개 포지션 검사 중",
                 datetime.now().strftime('%H:%M:%S')
             )
+            
+            # ⭐ v6.30.45: 청산 체크 헤더 출력 (사용자가 볼 수 있도록)
+            from datetime import datetime
+            check_time = datetime.now().strftime('%H:%M:%S')
+            _original_print(f"\n--- ⚡ 포지션 청산 체크 #{getattr(self, 'quick_check_count', 0)} - {check_time} ---")
             
             # ⭐ v6.30.18: 디버그 로그 추가
             self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {position_count}개")
@@ -1417,8 +1432,15 @@ class AutoProfitBot:
                     # 손익률 계산
                     profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
                     
-                    # ⭐ v6.30.26: 손익률 화면 표시
+                    # ⭐ v6.30.45: 콘솔에 손익률 출력 (사용자가 볼 수 있도록)
                     profit_str = f"+{profit_ratio:.2f}%" if profit_ratio > 0 else f"{profit_ratio:.2f}%"
+                    hold_seconds = int(time.time() - position.entry_time.timestamp())
+                    hold_time_str = f"{hold_seconds//60}분 {hold_seconds%60}초" if hold_seconds >= 60 else f"{hold_seconds}초"
+                    
+                    _original_print(f"📊 {ticker} 손익률: {profit_str} (보유 {hold_time_str})")
+                    _original_print(f"   익절 목표: +1.5% | 손절 목표: -1.0%")
+                    
+                    # ⭐ v6.30.26: 손익률 화면 표시
                     self.display.update_monitoring(
                         f"📊 {ticker}",
                         f"손익: {profit_str}",
