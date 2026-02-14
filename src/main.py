@@ -1121,18 +1121,45 @@ class AutoProfitBot:
         # 현재 전략의 최대 보유 시간
         max_hold_time = max_hold_times.get(position.strategy, 600)  # 기본 10분 (1시간 → 10분)
         
+        # ⭐ v6.30.52: 전략명 정규화 (대소문자 무시)
+        strategy_upper = position.strategy.upper() if position.strategy else ''
+        if 'AGGRESSIVE' in strategy_upper:
+            max_hold_time = 300  # 5분
+        elif 'CONSERVATIVE' in strategy_upper:
+            max_hold_time = 600  # 10분
+        elif 'MEAN' in strategy_upper or 'REVERSION' in strategy_upper:
+            max_hold_time = 1800  # 30분
+        elif 'GRID' in strategy_upper:
+            max_hold_time = 3600  # 1시간
+        
         _original_print(f"[DEBUG-CHECK] 조건 1: 시간 초과 체크")
-        _original_print(f"[DEBUG-CHECK] - 전략: {position.strategy}")
+        _original_print(f"[DEBUG-CHECK] - 전략: {position.strategy} (정규화: {strategy_upper})")
         _original_print(f"[DEBUG-CHECK] - 최대 보유 시간: {max_hold_time}초 ({max_hold_time//60}분)")
         _original_print(f"[DEBUG-CHECK] - 현재 보유 시간: {hold_time:.0f}초 ({hold_time//60:.0f}분 {hold_time%60:.0f}초)")
         _original_print(f"[DEBUG-CHECK] - 시간 초과? {hold_time} > {max_hold_time} = {hold_time > max_hold_time}")
         
-        # ⭐ 조건 1: 시간 초과 청산
-        if hold_time > max_hold_time:
+        # ⭐ v6.30.52: 강제 매도 로직 - 시간 초과 조건 완화
+        # 보유 시간이 최대의 80%만 넘어도 매도 (예: 10분 기준 8분 이상)
+        force_sell_threshold = max_hold_time * 0.8
+        
+        _original_print(f"[DEBUG-CHECK] - 강제 매도 기준: {force_sell_threshold:.0f}초 ({force_sell_threshold//60:.0f}분)")
+        _original_print(f"[DEBUG-CHECK] - 강제 매도 조건? {hold_time} > {force_sell_threshold:.0f} = {hold_time > force_sell_threshold}")
+        
+        # ⭐ 조건 1: 시간 초과 청산 (80% 기준 완화)
+        if hold_time > force_sell_threshold:
             profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
             _original_print(f"[DEBUG-CHECK] ⚠️ 시간 초과 청산 조건 충족!")
             _original_print(f"[DEBUG-CHECK] - 보유: {hold_time/60:.0f}분, 손익: {profit_ratio:+.2f}%")
-            self.execute_sell(ticker, f"시간초과청산 (보유:{hold_time/60:.0f}분, 손익:{profit_ratio:+.2f}%)")
+            _original_print(f"[FORCE-SELL] 🚨 강제 매도 실행 시작!")
+            
+            try:
+                self.execute_sell(ticker, f"시간초과청산 (보유:{hold_time/60:.0f}분, 손익:{profit_ratio:+.2f}%)")
+                _original_print(f"[FORCE-SELL] ✅ 매도 주문 완료!")
+            except Exception as e:
+                _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                import traceback
+                _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+            
             return
         else:
             _original_print(f"[DEBUG-CHECK] ✅ 시간 초과 조건 미충족 - 계속 보유")
