@@ -1004,14 +1004,28 @@ class AutoProfitBot:
             ticker: 코인 티커
             strategy: 전략 객체
         """
+        # ⭐ v6.30.18: check_positions 진입 로그
+        self.logger.log_info(f"✅ check_positions({ticker}) 진입 - 10가지 청산 조건 검사 시작")
+        
         if ticker not in self.risk_manager.positions:
+            self.logger.log_warning(f"⚠️ {ticker} 포지션 없음 (이미 청산됨?)")
             return
         
         position = self.risk_manager.positions[ticker]
         current_price = self.api.get_current_price(ticker)
         
         if not current_price:
+            self.logger.log_warning(f"⚠️ {ticker} 현재가 조회 실패")
             return
+        
+        # 손익률 계산
+        profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+        self.logger.log_info(
+            f"💰 {ticker} 현재 상태: "
+            f"진입가 {position.avg_buy_price:,.0f}원 → "
+            f"현재가 {current_price:,.0f}원 | "
+            f"손익률 {profit_ratio:+.2f}%"
+        )
         
         # ⭐ 조건 0: 통합 리스크 평가 (새로 추가)
         try:
@@ -1261,11 +1275,16 @@ class AutoProfitBot:
             except Exception as e:
                 self.logger.log_warning(f"{ticker} 동적 손절 체크 실패: {e}")
         
-        # ⭐ 조건 1: 기본 손익률 기준 청산 (전략별)
+        # ⭐ 조건 6: 기본 손익률 기준 청산 (전략별)
+        self.logger.log_info(f"🔍 {ticker} 조건 6 체크: 기본 익절/손절 (전략: {position.strategy})")
         should_exit, exit_reason = strategy.should_exit(position.avg_buy_price, current_price)
         
         if should_exit:
+            self.logger.log_info(f"🚨 {ticker} 매도 트리거! 사유: {exit_reason}")
             self.execute_sell(ticker, exit_reason)
+            return
+        else:
+            self.logger.log_info(f"✅ {ticker} 청산 조건 미충족 - 보유 유지")
     
     def update_all_positions(self):
         """모든 포지션 가격 업데이트"""
@@ -1298,14 +1317,21 @@ class AutoProfitBot:
             if not self.risk_manager.positions:
                 return
             
+            # ⭐ v6.30.18: 디버그 로그 추가
+            self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {len(self.risk_manager.positions)}개")
+            
             # 포지션 목록 복사 (iteration 중 변경 방지)
             positions_to_check = list(self.risk_manager.positions.items())
             
             for ticker, position in positions_to_check:
                 try:
+                    # ⭐ v6.30.18: 포지션별 체크 시작 로그
+                    self.logger.log_info(f"📌 {ticker} 청산 조건 체크 시작...")
+                    
                     # 현재 가격 조회
                     current_price = self.api.get_current_price(ticker)
                     if not current_price:
+                        self.logger.log_warning(f"⚠️ {ticker} 가격 조회 실패")
                         continue
                     
                     # 포지션 가격 업데이트
@@ -1317,7 +1343,10 @@ class AutoProfitBot:
                     
                     if strategy:
                         # check_positions 호출 (10가지 청산 조건 체크)
+                        self.logger.log_info(f"🎯 {ticker} → check_positions() 호출 (전략: {strategy_name})")
                         self.check_positions(ticker, strategy)
+                    else:
+                        self.logger.log_warning(f"⚠️ {ticker} 전략 객체 없음: {strategy_name}")
                 
                 except Exception as e:
                     self.logger.log_warning(f"{ticker} 빠른 체크 실패: {e}")

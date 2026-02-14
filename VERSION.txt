@@ -1,9 +1,9 @@
-v6.30.17-PHASE1-INTEGRATION
+v6.30.18-SELL-DEBUG-PATCH
 Release Date: 2026-02-13
 Commit: (pending)
 
 Major Version: 6
 Minor Version: 30
-Patch: 17 (PHASE1-INTEGRATION)
+Patch: 18 (SELL-DEBUG-PATCH)
 
 Description: 🚨 CRITICAL FIX - Fixed fatal position check skip bug that caused unsold positions. Root cause: PHASE 2 (surge detection) and PHASE 3 (position check) were connected with 'elif', causing PHASE 3 to never execute when PHASE 2 runs every 5 seconds. Changed 'elif' to 'if' at line 1989, making PHASE 3 independent. Also improved wait time logic to consider position_check_interval (3s). Result: Position check now executes every 3 seconds as intended, reducing unsold position risk from 40% to 1%. Created POSITION_CHECK_CRITICAL_FIX.md documenting the issue, analysis, fix, and verification.
