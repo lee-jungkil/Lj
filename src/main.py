@@ -1061,8 +1061,13 @@ class AutoProfitBot:
             _original_print(f"[DEBUG-CHECK] OHLCV 데이터 조회 완료: {len(ohlcv) if ohlcv is not None else 0}개")
             if ohlcv is not None and len(ohlcv) >= 2:
                 recent_changes = []
+                # DataFrame인 경우 .iloc 사용
                 for i in range(1, len(ohlcv)):
-                    pct_change = ((ohlcv[i]['close'] - ohlcv[i-1]['close']) / ohlcv[i-1]['close']) * 100
+                    if isinstance(ohlcv, list):
+                        pct_change = ((ohlcv[i]['close'] - ohlcv[i-1]['close']) / ohlcv[i-1]['close']) * 100
+                    else:
+                        # DataFrame일 때
+                        pct_change = ((ohlcv.iloc[i]['close'] - ohlcv.iloc[i-1]['close']) / ohlcv.iloc[i-1]['close']) * 100
                     recent_changes.append(abs(pct_change))
                 
                 avg_volatility = sum(recent_changes) / len(recent_changes) if recent_changes else 0
@@ -1075,7 +1080,10 @@ class AutoProfitBot:
                     market_condition['volatility'] = 'low'
                 
                 # 트렌드 판단
-                price_change_5min = ((current_price - ohlcv[0]['close']) / ohlcv[0]['close']) * 100
+                if isinstance(ohlcv, list):
+                    price_change_5min = ((current_price - ohlcv[0]['close']) / ohlcv[0]['close']) * 100
+                else:
+                    price_change_5min = ((current_price - ohlcv.iloc[0]['close']) / ohlcv.iloc[0]['close']) * 100
                 if price_change_5min > 1.0:
                     market_condition['trend'] = 'bullish'
                 elif price_change_5min < -1.0:
