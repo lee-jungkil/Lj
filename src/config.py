@@ -100,7 +100,7 @@ class Config:
     CHASE_STOP_LOSS = float(os.getenv('CHASE_STOP_LOSS', -3.0))
     CHASE_MAX_HOLD_TIME = int(os.getenv('CHASE_MAX_HOLD_TIME', 300))
     CHASE_MAX_CONCURRENT = int(os.getenv('CHASE_MAX_CONCURRENT', 2))
-    CHASE_DAILY_LIMIT = int(os.getenv('CHASE_DAILY_LIMIT', 10))
+    CHASE_DAILY_LIMIT = int(os.getenv('CHASE_DAILY_LIMIT', 999999))  # 무제한 (v6.30.68)
     
     # ⭐ v6.30 Phase 2B: Advanced Trading Features
     # Dynamic Stop Loss 설정
@@ -219,15 +219,15 @@ class Config:
         },
     }
     
-    # ⭐ 초단타 시스템 설정 (v5.4 업데이트)
+    # ⭐ 초단타 시스템 설정 (v5.4 업데이트) - v6.30.68: 사용자 맞춤 설정
     ULTRA_SCALPING_CONFIG = {
         'enabled': True,
-        'default_positions': 3,      # 기본 3개
-        'max_positions': 5,          # 최대 5개 (확신 있을 때)
+        'default_positions': 2,      # 기본 2개
+        'max_positions': 2,          # 최대 2개 (고정)
         'scan_interval': 5,          # 5초마다 스캔 (빠른 감지)
         'position_check_interval': 3, # 3초마다 포지션 체크
         'max_investment_ratio': 0.15, # 잔고의 15%
-        'max_investment_amount': 100000, # 최대 10만원
+        'max_investment_amount': 500000, # 최대 50만원
         'high_confidence_threshold': 0.8, # 80% 이상 확신 시 5개까지
     }
     
