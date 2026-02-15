@@ -1058,8 +1058,8 @@ class AutoProfitBot:
             
             # 최근 가격 데이터로 변동성 추정
             ohlcv = self.api.get_ohlcv(ticker, interval='minute1', count=10)
-            _original_print(f"[DEBUG-CHECK] OHLCV 데이터 조회 완료: {len(ohlcv) if ohlcv else 0}개")
-            if ohlcv and len(ohlcv) >= 2:
+            _original_print(f"[DEBUG-CHECK] OHLCV 데이터 조회 완료: {len(ohlcv) if ohlcv is not None else 0}개")
+            if ohlcv is not None and len(ohlcv) >= 2:
                 recent_changes = []
                 for i in range(1, len(ohlcv)):
                     pct_change = ((ohlcv[i]['close'] - ohlcv[i-1]['close']) / ohlcv[i-1]['close']) * 100
