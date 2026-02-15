@@ -605,8 +605,6 @@ class AutoProfitBot:
                 strategy=strategy
             )
             
-            _original_print(f"[DEBUG-BUY] {ticker} 포지션 추가 결과: {success}")
-            _original_print(f"[DEBUG-BUY] 현재 포지션 목록: {list(self.risk_manager.positions.keys())}")
             
             if success:
                 # 기존 보유 보호 시스템에도 봇 포지션 추가
@@ -1157,7 +1155,6 @@ class AutoProfitBot:
             position: 포지션 객체 (optional, 동시성 문제 방지용)
         """
         # ⭐ v6.30.48: check_positions 진입 로그 (콘솔)
-        _original_print(f"\n[DEBUG-CHECK] ========== check_positions({ticker}) 시작 ==========")
         
         # ⭐ v6.30.18: check_positions 진입 로그
         self.logger.log_info(f"✅ check_positions({ticker}) 진입 - 10가지 청산 조건 검사 시작")
@@ -1165,15 +1162,12 @@ class AutoProfitBot:
         # ⭐ v6.30.50: 포지션이 전달되지 않은 경우에만 조회
         if position is None:
             if ticker not in self.risk_manager.positions:
-                _original_print(f"[DEBUG-CHECK] ⚠️ {ticker} 포지션 없음!")
                 self.logger.log_warning(f"⚠️ {ticker} 포지션 없음 (이미 청산됨?)")
                 return
             position = self.risk_manager.positions[ticker]
         else:
-            _original_print(f"[DEBUG-CHECK] ✅ 포지션 객체 직접 전달됨 (동시성 보호)")
             # 포지션이 여전히 존재하는지 재확인
             if ticker not in self.risk_manager.positions:
-                _original_print(f"[DEBUG-CHECK] ⚠️ {ticker} 포지션이 이미 삭제됨! (다른 스레드에서 청산됨)")
                 return
         current_price = self.api.get_current_price(ticker)
         
@@ -1191,14 +1185,12 @@ class AutoProfitBot:
         )
         
         # ⭐ 조건 0: 통합 리스크 평가 (새로 추가)
-        _original_print(f"[DEBUG-CHECK] 조건 0: 리스크 평가 시작...")
         try:
             # 시장 상황 분석
             market_condition = {'volatility': 'medium', 'trend': 'neutral'}
             
             # 최근 가격 데이터로 변동성 추정
             ohlcv = self.api.get_ohlcv(ticker, interval='minute1', count=10)
-            _original_print(f"[DEBUG-CHECK] OHLCV 데이터 조회 완료: {len(ohlcv) if ohlcv is not None else 0}개")
             if ohlcv is not None and len(ohlcv) >= 2:
                 recent_changes = []
                 # DataFrame인 경우 .iloc 사용
@@ -1231,7 +1223,6 @@ class AutoProfitBot:
             
             # 리스크 평가 실행
             risk_eval = self.risk_manager.evaluate_holding_risk(ticker, market_condition)
-            _original_print(f"[DEBUG-CHECK] 리스크 평가 완료: {risk_eval['risk_level']}")
             
             # 로그 출력
             if risk_eval['risk_level'] in ['HIGH', 'CRITICAL']:
@@ -1265,12 +1256,9 @@ class AutoProfitBot:
                     _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                 return
             
-            _original_print(f"[DEBUG-CHECK] 조건 0 완료: 리스크 레벨 {risk_eval['risk_level']} - 계속 진행")
                 
         except Exception as e:
-            _original_print(f"[DEBUG-CHECK] ⚠️ 조건 0 예외 발생: {e}")
             import traceback
-            _original_print(f"[DEBUG-CHECK] 스택 트레이스:\n{traceback.format_exc()}")
             self.logger.log_warning(f"{ticker} 리스크 평가 실패: {e}")
         
         # 보유 시간 계산
@@ -1302,24 +1290,15 @@ class AutoProfitBot:
         elif 'GRID' in strategy_upper:
             max_hold_time = 3600  # 1시간
         
-        _original_print(f"[DEBUG-CHECK] 조건 1: 시간 초과 체크")
-        _original_print(f"[DEBUG-CHECK] - 전략: {position.strategy} (정규화: {strategy_upper})")
-        _original_print(f"[DEBUG-CHECK] - 최대 보유 시간: {max_hold_time}초 ({max_hold_time//60}분)")
-        _original_print(f"[DEBUG-CHECK] - 현재 보유 시간: {hold_time:.0f}초 ({hold_time//60:.0f}분 {hold_time%60:.0f}초)")
-        _original_print(f"[DEBUG-CHECK] - 시간 초과? {hold_time} > {max_hold_time} = {hold_time > max_hold_time}")
         
         # ⭐ v6.30.52: 강제 매도 로직 - 시간 초과 조건 완화
         # 보유 시간이 최대의 80%만 넘어도 매도 (예: 10분 기준 8분 이상)
         force_sell_threshold = max_hold_time * 0.8
         
-        _original_print(f"[DEBUG-CHECK] - 강제 매도 기준: {force_sell_threshold:.0f}초 ({force_sell_threshold//60:.0f}분)")
-        _original_print(f"[DEBUG-CHECK] - 강제 매도 조건? {hold_time} > {force_sell_threshold:.0f} = {hold_time > force_sell_threshold}")
         
         # ⭐ 조건 1: 시간 초과 청산 (80% 기준 완화)
         if hold_time > force_sell_threshold:
             profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
-            _original_print(f"[DEBUG-CHECK] ⚠️ 시간 초과 청산 조건 충족!")
-            _original_print(f"[DEBUG-CHECK] - 보유: {hold_time/60:.0f}분, 손익: {profit_ratio:+.2f}%")
             _original_print(f"[FORCE-SELL] 🚨 강제 매도 실행 시작!")
             
             try:
@@ -1332,7 +1311,6 @@ class AutoProfitBot:
             
             return
         else:
-            _original_print(f"[DEBUG-CHECK] ✅ 시간 초과 조건 미충족 - 계속 보유")
         
         # ⭐ 조건 2-6: 차트 지표 및 급락/거래량 분석
         try:
@@ -1629,17 +1607,14 @@ class AutoProfitBot:
             has_positions = bool(self.risk_manager.positions)
             position_count = len(self.risk_manager.positions) if has_positions else 0
             
-            _original_print(f"[DEBUG-QUICK] quick_check_positions 진입 - has_positions: {has_positions}, count: {position_count}")
             
             if not has_positions or position_count == 0:
-                _original_print(f"[DEBUG-QUICK] ⚠️ 포지션 없음! 즉시 return")
                 return
             
             # ⭐ v6.30.46: 청산 체크 헤더를 먼저 출력 (display.update_monitoring 전에)
             from datetime import datetime
             check_time = datetime.now().strftime('%H:%M:%S')
             _original_print(f"\n--- ⚡ 포지션 청산 체크 #{getattr(self, 'quick_check_count', 0)} - {check_time} ---")
-            _original_print(f"[DEBUG-QUICK] 포지션 {position_count}개 청산 조건 검사 시작...")
             
             # ⭐ v6.30.26: 화면 업데이트 (예외 발생 시에도 계속 진행)
             try:
@@ -1649,18 +1624,14 @@ class AutoProfitBot:
                     datetime.now().strftime('%H:%M:%S')
                 )
             except Exception as e:
-                _original_print(f"[DEBUG-QUICK] ⚠️ display.update_monitoring 실패: {e}")
             
             # ⭐ v6.30.18: 디버그 로그 추가
             self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {position_count}개")
             
             # 포지션 목록 복사 (iteration 중 변경 방지)
             positions_to_check = list(self.risk_manager.positions.items())
-            _original_print(f"[DEBUG-QUICK] positions_to_check 생성 완료: {len(positions_to_check)}개")
-            _original_print(f"[DEBUG-QUICK] 티커 목록: {[ticker for ticker, _ in positions_to_check]}")
             
             for idx, (ticker, position) in enumerate(positions_to_check, 1):
-                _original_print(f"\n[DEBUG-QUICK] [{idx}/{position_count}] {ticker} 체크 시작...")
                 try:
                     # ⭐ v6.30.26: 진행 상황 표시
                     self.display.update_monitoring(
@@ -1701,29 +1672,19 @@ class AutoProfitBot:
                     
                     # 전략 객체 가져오기
                     strategy_name = position.strategy
-                    _original_print(f"[DEBUG-QUICK] 포지션 전략 이름: '{strategy_name}' (타입: {type(strategy_name)})")
                     
                     try:
                         strategy = self._get_strategy_by_name(strategy_name)
-                        _original_print(f"[DEBUG-QUICK] 전략 객체 결과: {strategy} (타입: {type(strategy)})")
-                        _original_print(f"[DEBUG-QUICK] strategy is None? {strategy is None}")
-                        _original_print(f"[DEBUG-QUICK] bool(strategy)? {bool(strategy)}")
                     except Exception as e:
-                        _original_print(f"[DEBUG-QUICK] ❌ 전략 객체 가져오기 실패: {e}")
-                        _original_print(f"[DEBUG-QUICK] ❌ 예외 타입: {type(e)}")
                         import traceback
-                        _original_print(f"[DEBUG-QUICK] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                         strategy = None
                     
                     if strategy:
                         # check_positions 호출 (10가지 청산 조건 체크)
                         # ⭐ v6.30.50: 포지션 객체를 직접 전달 (동시성 문제 방지)
-                        _original_print(f"[DEBUG-QUICK] ✅ check_positions() 호출 시작...")
                         self.logger.log_info(f"🎯 {ticker} → check_positions() 호출 (전략: {strategy_name})")
                         self.check_positions(ticker, strategy, position=position)  # ← 포지션 직접 전달!
-                        _original_print(f"[DEBUG-QUICK] ✅ check_positions() 호출 완료")
                     else:
-                        _original_print(f"[DEBUG-QUICK] ⚠️ 전략 객체 없음: {strategy_name}")
                         self.logger.log_warning(f"⚠️ {ticker} 전략 객체 없음: {strategy_name}")
                 
                 except Exception as e:
@@ -1739,8 +1700,6 @@ class AutoProfitBot:
         ⭐ v6.30.49: 대소문자 및 다양한 형식 지원 강화
         ⭐ v6.30.54: self.strategies 딕셔너리 사용 (AttributeError 수정)
         """
-        _original_print(f"[DEBUG-STRATEGY-MAP] _get_strategy_by_name 호출됨")
-        _original_print(f"[DEBUG-STRATEGY-MAP] 입력 strategy_name: '{strategy_name}' (타입: {type(strategy_name)})")
         
         # ⭐ v6.30.54: self.strategies 딕셔너리에서 직접 가져오기
         strategy_map = {
@@ -1800,28 +1759,20 @@ class AutoProfitBot:
             'chase_buy': self.strategies.get('ultra_scalping'),
         }
         
-        _original_print(f"[DEBUG-STRATEGY-MAP] '{strategy_name}' in strategy_map? {strategy_name in strategy_map}")
         
         # 먼저 정확히 매칭되는지 확인
         if strategy_name in strategy_map and strategy_map[strategy_name]:
             result = strategy_map[strategy_name]
-            _original_print(f"[DEBUG-STRATEGY-MAP] ✅ 정확히 매칭됨!")
-            _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {result} (타입: {type(result)})")
             return result
         
         # 매칭 실패 시 대소문자 무시하고 재시도
-        _original_print(f"[DEBUG-STRATEGY-MAP] ⚠️ 정확히 매칭 실패, 대소문자 무시하고 재시도...")
         strategy_name_upper = strategy_name.upper()
         for key, value in strategy_map.items():
             if value and key.upper() == strategy_name_upper:
-                _original_print(f"[DEBUG-STRATEGY-MAP] ✅ 대소문자 무시 매칭 성공: '{key}'")
-                _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {value} (타입: {type(value)})")
                 return value
         
         # 그래도 실패 시 기본값 (aggressive_scalping)
-        _original_print(f"[DEBUG-STRATEGY-MAP] ❌ 매칭 실패! 기본값(aggressive_scalping) 반환")
         result = self.strategies.get('aggressive_scalping')
-        _original_print(f"[DEBUG-STRATEGY-MAP] 반환 결과: {result} (타입: {type(result)})")
         return result
     
     def check_profit_withdrawal(self):
@@ -2351,7 +2302,6 @@ class AutoProfitBot:
                 monitor_count += 1  # ⭐ 모니터링 카운터 증가
                 
                 # 🔍 DEBUG: 루프 시작 확인
-                _original_print(f"\n[DEBUG-LOOP] 메인 루프 #{monitor_count} 시작 - 시간: {current_time:.2f}")
                 
                 # 화면 갱신 (3초마다)
                 if current_time - self.last_display_update_time >= self.display_update_interval:
@@ -2523,22 +2473,15 @@ class AutoProfitBot:
                 positions_list = list(self.risk_manager.positions.keys())
                 positions_bool = bool(self.risk_manager.positions)
                 
-                _original_print(f"\n[DEBUG] Phase 3 체크 - 현재시간: {current_time:.2f}, 마지막체크: {self.last_position_check_time:.2f}, 경과: {current_time - self.last_position_check_time:.2f}초, 포지션: {positions_count}개")
-                _original_print(f"[DEBUG] risk_manager.positions 키 목록: {positions_list}")
-                _original_print(f"[DEBUG] risk_manager.positions 타입: {type(self.risk_manager.positions)}")
-                _original_print(f"[DEBUG] bool(risk_manager.positions): {positions_bool}")
                 
                 if current_time - self.last_position_check_time >= self.position_check_interval:
-                    _original_print(f"[DEBUG] ✅ 시간 조건 충족! (>= {self.position_check_interval}초)")
                     
                     # ⭐ 포지션 체크 (positions를 변수에 고정)
                     has_positions = bool(self.risk_manager.positions)
                     positions_count = len(self.risk_manager.positions)
                     
-                    _original_print(f"[DEBUG] 포지션 체크 - has_positions: {has_positions}, count: {positions_count}")
                     
                     if has_positions:
-                        _original_print(f"[DEBUG] ✅ 포지션 있음! Phase 3 실행! (count={positions_count})")
                         quick_check_count += 1
                         
                         # ⭐ 스캔 시간 기록
@@ -2564,9 +2507,7 @@ class AutoProfitBot:
                         
                         # ⭐ v6.30.29: 마지막 체크 시간 업데이트 (중요!)
                         self.last_position_check_time = current_time
-                        _original_print(f"[DEBUG] ✅ Phase 3 완료! 마지막 체크 시간 업데이트: {current_time:.2f}")
                     else:
-                        _original_print(f"[DEBUG] ⚠️ 포지션 없음! Phase 3 스킵 (has_positions={has_positions}, count={positions_count})")
                 
                 # ⭐ 대기 중일 때 (간단하게)
                 else:
@@ -2588,13 +2529,10 @@ class AutoProfitBot:
                     next_action = "전체 스캔"
                 
                 # 🔍 DEBUG: 대기 시간 확인
-                _original_print(f"[DEBUG-SLEEP] {wait_time:.2f}초 대기 중... (다음: {next_action})")
-                _original_print(f"[DEBUG-SLEEP] 포지션: {len(self.risk_manager.positions)}개, 초단타: {len(self.ultra_positions)}개")
                 
                 self.logger.log_info(f"⏳ {wait_time:.0f}초 대기 (다음: {next_action})")
                 time.sleep(wait_time)
                 
-                _original_print(f"[DEBUG-SLEEP] 대기 완료! 루프 재시작...")
         
         except KeyboardInterrupt:
             self.logger.log_info("\n⏹️ 사용자에 의해 중지됨")
