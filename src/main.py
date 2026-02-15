@@ -715,22 +715,32 @@ class AutoProfitBot:
             _original_print(f"[EXECUTE-SELL] ✅ 포지션 찾음: {ticker}, amount={position.amount}, avg_price={position.avg_buy_price}")
             
             # 현재가 조회 (⭐ v6.30.13: 재시도 로직 추가)
+            _original_print(f"[EXECUTE-SELL] 현재가 조회 시작...")
             current_price = None
             for attempt in range(3):  # 최대 3회 재시도
-                current_price = self.api.get_current_price(ticker)
-                if current_price:
-                    break
+                _original_print(f"[EXECUTE-SELL] 가격 조회 시도 {attempt+1}/3...")
+                try:
+                    current_price = self.api.get_current_price(ticker)
+                    _original_print(f"[EXECUTE-SELL] 가격 조회 결과: {current_price}")
+                    if current_price:
+                        break
+                except Exception as e:
+                    _original_print(f"[EXECUTE-SELL] 가격 조회 예외: {e}")
                 if attempt < 2:
                     time.sleep(0.5)  # 0.5초 대기 후 재시도
             
             if not current_price:
                 self.logger.log_error("PRICE_FETCH_FAILED", f"{ticker} 가격 조회 3회 실패", None)
-                return
+                _original_print(f"[EXECUTE-SELL] ❌ 가격 조회 실패 - 평균 매수가로 대체")
+                current_price = position.avg_buy_price  # ⭐ v6.30.67: 가격 실패 시에도 청산 진행
             
             # 손익률 계산
+            _original_print(f"[EXECUTE-SELL] 손익률 계산 중...")
             profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+            _original_print(f"[EXECUTE-SELL] 손익률: {profit_ratio:+.2f}%")
             
             # ⭐ ExitReason 파싱 (매도 사유 분석)
+            _original_print(f"[EXECUTE-SELL] ExitReason 파싱 중...")
             from src.utils.order_method_selector import ExitReason
             
             exit_reason = ExitReason.TAKE_PROFIT  # 기본값
@@ -747,10 +757,19 @@ class AutoProfitBot:
             elif "거래량" in reason or "volume" in reason.lower():
                 exit_reason = ExitReason.VOLUME_DROP
             
+            _original_print(f"[EXECUTE-SELL] ExitReason: {exit_reason}")
+            
             # ⭐ 스프레드 분석
-            spread_pct = self.api.calculate_spread_percentage(ticker)
+            _original_print(f"[EXECUTE-SELL] 스프레드 분석 중...")
+            try:
+                spread_pct = self.api.calculate_spread_percentage(ticker)
+                _original_print(f"[EXECUTE-SELL] 스프레드: {spread_pct:.2f}%")
+            except Exception as e:
+                _original_print(f"[EXECUTE-SELL] 스프레드 계산 실패: {e}, 기본값 0.1 사용")
+                spread_pct = 0.1
             
             # ⭐ 시장 조건 분석
+            _original_print(f"[EXECUTE-SELL] 시장 조건 분석 중...")
             market_condition = {}
             try:
                 df = self.api.get_ohlcv(ticker, interval="minute5", count=50)
@@ -766,18 +785,27 @@ class AutoProfitBot:
                         'volatility': 'high' if volatility > 2.0 else 'medium' if volatility > 1.0 else 'low',
                         'trend': 'bullish' if price_change > 1.0 else 'bearish' if price_change < -1.0 else 'neutral'
                     }
-            except:
+                    _original_print(f"[EXECUTE-SELL] 시장 조건: {market_condition}")
+            except Exception as e:
+                _original_print(f"[EXECUTE-SELL] 시장 조건 분석 실패: {e}, 기본값 사용")
                 market_condition = {'volatility': 'medium', 'trend': 'neutral'}
             
             # ⭐ SmartOrderExecutor로 주문 방법 자동 선택
-            order_method, method_reason = self.order_method_selector.select_sell_method(
-                ticker=ticker,
-                strategy=position.strategy,
-                exit_reason=exit_reason,
-                market_condition=market_condition,
-                spread_pct=spread_pct,
-                profit_ratio=profit_ratio
-            )
+            _original_print(f"[EXECUTE-SELL] 주문 방법 선택 중...")
+            try:
+                order_method, method_reason = self.order_method_selector.select_sell_method(
+                    ticker=ticker,
+                    strategy=position.strategy,
+                    exit_reason=exit_reason,
+                    market_condition=market_condition,
+                    spread_pct=spread_pct,
+                    profit_ratio=profit_ratio
+                )
+                _original_print(f"[EXECUTE-SELL] 주문 방법: {order_method}, 이유: {method_reason}")
+            except Exception as e:
+                _original_print(f"[EXECUTE-SELL] 주문 방법 선택 실패: {e}, 시장가 주문 사용")
+                order_method = "market"
+                method_reason = "fallback"
             
             # 기존 보유 보호: 매도 가능 수량 확인 (v5.7: 투자금 + 이익분만)
             # ⭐ v6.30.65: 모의거래 모드에서는 holding_protector 체크 우회
