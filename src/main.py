@@ -853,37 +853,65 @@ class AutoProfitBot:
                 _original_print(f"[EXECUTE-SELL] 모의거래 매도 완료: {ticker}, amount={sell_amount:.8f}")
             
             # 기존 보유 보호 시스템에서 봇 포지션 청산
+            _original_print(f"[EXECUTE-SELL] ========== 포지션 청산 시작 ==========")
             _original_print(f"[EXECUTE-SELL] holding_protector.close_bot_position() 호출...")
-            bot_profit_loss = self.holding_protector.close_bot_position(
-                ticker, sell_amount, current_price
-            )
-            _original_print(f"[EXECUTE-SELL] holding_protector 청산 완료, P/L: {bot_profit_loss}")
+            bot_profit_loss = None
+            try:
+                bot_profit_loss = self.holding_protector.close_bot_position(
+                    ticker, sell_amount, current_price
+                )
+                _original_print(f"[EXECUTE-SELL] ✅ holding_protector 청산 완료, P/L: {bot_profit_loss}")
+            except Exception as e:
+                _original_print(f"[EXECUTE-SELL] ❌ holding_protector 청산 실패: {e}")
+                import traceback
+                _original_print(f"[EXECUTE-SELL] 스택 트레이스:\n{traceback.format_exc()}")
             
             # 리스크 관리자에서도 포지션 청산
             _original_print(f"[EXECUTE-SELL] risk_manager.close_position() 호출...")
-            profit_loss = self.risk_manager.close_position(ticker, current_price)
-            _original_print(f"[EXECUTE-SELL] risk_manager 청산 완료, P/L: {profit_loss}")
-            _original_print(f"[EXECUTE-SELL] 포지션 제거 후 남은 포지션: {list(self.risk_manager.positions.keys())}")
+            profit_loss = None
+            try:
+                profit_loss = self.risk_manager.close_position(ticker, current_price)
+                _original_print(f"[EXECUTE-SELL] ✅ risk_manager 청산 완료, P/L: {profit_loss}")
+                _original_print(f"[EXECUTE-SELL] 포지션 제거 후 남은 포지션: {list(self.risk_manager.positions.keys())}")
+            except Exception as e:
+                _original_print(f"[EXECUTE-SELL] ❌ risk_manager 청산 실패: {e}")
+                import traceback
+                _original_print(f"[EXECUTE-SELL] 스택 트레이스:\n{traceback.format_exc()}")
             
             # ⭐ 화면에서 포지션 제거
+            _original_print(f"[EXECUTE-SELL] ========== 화면 업데이트 시작 ==========")
             _original_print(f"[EXECUTE-SELL] 화면에서 포지션 제거 시작...")
-            slot = self.display.get_slot_by_ticker(ticker)
-            _original_print(f"[EXECUTE-SELL] 화면 슬롯: {slot}")
-            if slot:
-                # ⭐ 수정: avg_buy_price 사용
-                profit_ratio = (profit_loss / (position.avg_buy_price * position.amount)) * 100 if position.amount > 0 else 0
-                self.display.remove_position(slot, current_price, profit_loss, profit_ratio)
-                
-                # 작업 상태에 로그 기록 완료 표시
-                result = "수익" if profit_loss > 0 else "손실"
-                coin_short = ticker.split('-')[1]
-                self.display.update_monitoring(
-                    f"✅ {coin_short} 매도 완료",
-                    f"{result}: {profit_loss:+,.0f}원 ({profit_ratio:+.2f}%)",
-                    f"로그 기록 완료"
-                )
-                self.display.render()
-                time.sleep(1)  # 1초간 표시
+            try:
+                slot = self.display.get_slot_by_ticker(ticker)
+                _original_print(f"[EXECUTE-SELL] 화면 슬롯: {slot}")
+                if slot:
+                    # ⭐ 수정: avg_buy_price 사용
+                    if profit_loss is not None:
+                        profit_ratio = (profit_loss / (position.avg_buy_price * position.amount)) * 100 if position.amount > 0 else 0
+                    else:
+                        profit_ratio = 0
+                    
+                    _original_print(f"[EXECUTE-SELL] display.remove_position() 호출...")
+                    self.display.remove_position(slot, current_price, profit_loss if profit_loss else 0, profit_ratio)
+                    _original_print(f"[EXECUTE-SELL] ✅ 화면에서 포지션 제거 완료")
+                    
+                    # 작업 상태에 로그 기록 완료 표시
+                    result = "수익" if (profit_loss and profit_loss > 0) else "손실"
+                    coin_short = ticker.split('-')[1]
+                    self.display.update_monitoring(
+                        f"✅ {coin_short} 매도 완료",
+                        f"{result}: {profit_loss if profit_loss else 0:+,.0f}원 ({profit_ratio:+.2f}%)",
+                        f"로그 기록 완료"
+                    )
+                    self.display.render()
+                    _original_print(f"[EXECUTE-SELL] ✅ 화면 렌더링 완료")
+                    time.sleep(1)  # 1초간 표시
+                else:
+                    _original_print(f"[EXECUTE-SELL] ⚠️ 화면 슬롯을 찾을 수 없음: {ticker}")
+            except Exception as e:
+                _original_print(f"[EXECUTE-SELL] ❌ 화면 업데이트 실패: {e}")
+                import traceback
+                _original_print(f"[EXECUTE-SELL] 스택 트레이스:\n{traceback.format_exc()}")
             
             if profit_loss is not None:
                 # 거래 로그
