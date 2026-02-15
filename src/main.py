@@ -1051,7 +1051,59 @@ class AutoProfitBot:
                 self.last_trade_time[ticker] = time.time()
             
         except Exception as e:
-            self.logger.log_error("SELL_ERROR", f"{ticker} 매도 실패", e)
+            self.logger.log_error("SELL_ERROR", f"{ticker} 매도 중 예외 발생 - 포지션 강제 청산 진행", e)
+            _original_print(f"[EXECUTE-SELL] ⚠️ 예외 발생: {e}")
+            import traceback
+            _original_print(f"[EXECUTE-SELL] 스택 트레이스:\n{traceback.format_exc()}")
+            
+            # ⭐ v6.30.66: 예외 발생 시에도 포지션 강제 청산
+            _original_print(f"[EXECUTE-SELL] ========== 예외 발생 - 포지션 강제 청산 시작 ==========")
+            try:
+                if ticker in self.risk_manager.positions:
+                    position = self.risk_manager.positions[ticker]
+                    current_price = self.api.get_current_price(ticker)
+                    
+                    if not current_price:
+                        # 가격 조회 실패 시 평균 매수가로 청산
+                        current_price = position.avg_buy_price
+                        _original_print(f"[EXECUTE-SELL] ⚠️ 가격 조회 실패, 평균 매수가로 청산: {current_price}")
+                    
+                    # holding_protector 청산
+                    _original_print(f"[EXECUTE-SELL] holding_protector.close_bot_position() 호출...")
+                    try:
+                        bot_profit_loss = self.holding_protector.close_bot_position(
+                            ticker, position.amount, current_price
+                        )
+                        _original_print(f"[EXECUTE-SELL] ✅ holding_protector 청산 완료, P/L: {bot_profit_loss}")
+                    except Exception as e2:
+                        _original_print(f"[EXECUTE-SELL] ❌ holding_protector 청산 실패: {e2}")
+                    
+                    # risk_manager 청산
+                    _original_print(f"[EXECUTE-SELL] risk_manager.close_position() 호출...")
+                    try:
+                        profit_loss = self.risk_manager.close_position(ticker, current_price)
+                        _original_print(f"[EXECUTE-SELL] ✅ risk_manager 청산 완료, P/L: {profit_loss}")
+                        _original_print(f"[EXECUTE-SELL] 포지션 제거 후 남은 포지션: {list(self.risk_manager.positions.keys())}")
+                    except Exception as e3:
+                        _original_print(f"[EXECUTE-SELL] ❌ risk_manager 청산 실패: {e3}")
+                    
+                    # UI 업데이트
+                    _original_print(f"[EXECUTE-SELL] display.remove_position() 호출...")
+                    try:
+                        slot = self.display.get_slot_by_ticker(ticker)
+                        if slot:
+                            self.display.remove_position(slot, current_price, 0, 0)
+                            _original_print(f"[EXECUTE-SELL] ✅ UI에서 포지션 제거 완료")
+                    except Exception as e4:
+                        _original_print(f"[EXECUTE-SELL] ❌ UI 업데이트 실패: {e4}")
+                    
+                    _original_print(f"[EXECUTE-SELL] ✅ 예외 발생했지만 포지션 강제 청산 완료")
+                else:
+                    _original_print(f"[EXECUTE-SELL] ⚠️ 포지션이 이미 없음: {ticker}")
+            except Exception as cleanup_error:
+                _original_print(f"[EXECUTE-SELL] ❌ 강제 청산 중 오류: {cleanup_error}")
+                import traceback
+                _original_print(f"[EXECUTE-SELL] 청산 오류 스택:\n{traceback.format_exc()}")
     
     def check_positions(self, ticker: str, strategy, position=None):
         """
