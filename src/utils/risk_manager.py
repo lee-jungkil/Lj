@@ -277,7 +277,8 @@ class RiskManager:
         self.daily_profit_loss += profit_loss
         self.cumulative_profit_loss += profit_loss
         self.monthly_profit += profit_loss
-        self.current_balance += sell_value
+        # ⭐ v6.31.2: 수수료를 차감한 실제 매도 금액을 잔액에 추가
+        self.current_balance += (sell_value - (sell_value * 0.0005))
         
         # 포지션 제거
         del self.positions[ticker]
