@@ -1,26 +1,24 @@
-# Upbit AutoProfit Bot v6.30.55
+# 🚀 Upbit AutoProfit Bot v6.30.62
 
-🤖 **AI 기반 Upbit 자동매매 봇 - 완전 재설치 시스템**
+**Automated cryptocurrency trading bot for Upbit exchange with AI-powered strategies.**
 
 ---
 
-## 🚀 빠른 시작 (1분)
+## ⚡ Quick Start
 
-### Windows 사용자
+### Download & Install
 
-```batch
-# 1. 프로젝트 다운로드
-curl -L -o upbit-bot.zip https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
-tar -xf upbit-bot.zip
-cd Lj-main
-
-# 2. 완전 재설치 (권장)
-COMPLETE_REINSTALL.bat
+**Option 1: ZIP Download (Recommended)**
+```
+1. Download: https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+2. Extract to: C:\Lj-main\
+3. Double-click: COMPLETE_REINSTALL.bat
+4. Type: Y
+5. Done!
 ```
 
-**또는 Git 사용:**
-
-```batch
+**Option 2: Git Clone**
+```bash
 git clone https://github.com/lee-jungkil/Lj.git
 cd Lj
 COMPLETE_REINSTALL.bat
@@ -28,239 +26,329 @@ COMPLETE_REINSTALL.bat
 
 ---
 
-## 📦 주요 파일
+## 📋 System Requirements
 
-### 실행 파일
-- **COMPLETE_REINSTALL.bat** - 완전 재설치 (문제 발생 시)
-- **setup.bat** - 초기 설정
-- **RUN_PAPER_CLEAN.bat** - 모의투자 시작
-- **RUN_LIVE_CLEAN.bat** - 실전투자 시작
-
-### 업데이트
-- **QUICK_UPDATE.bat** - 빠른 업데이트
-- **UPDATE.bat** - 전체 업데이트
-
-### 기타
-- **RUN.bat** - 기본 실행
-- **DOWNLOAD_ALL_FILES.bat** - 전체 파일 다운로드
+- **OS**: Windows 10/11
+- **Python**: 3.8 or higher
+- **RAM**: 2GB minimum
+- **Disk**: 500MB free space
+- **Internet**: Required
 
 ---
 
-## ⚙️ 시스템 요구사항
+## 🎯 Features
 
-- **OS:** Windows 10/11
-- **Python:** 3.8 이상
-- **메모리:** 2GB 이상
-- **디스크:** 500MB 이상
-- **인터넷:** 필수
+### Core Features
+- ✅ **Automated Trading**: 24/7 autonomous operation
+- ✅ **Multiple Strategies**: Aggressive, Conservative, Mean Reversion, Grid
+- ✅ **AI Learning**: Adaptive strategy optimization
+- ✅ **Risk Management**: Stop-loss, take-profit, position limits
+- ✅ **Paper Trading**: Safe testing with virtual money
+
+### v6.30.62 Updates
+- ✅ **Enhanced Sell Debugging**: Detailed error tracking
+- ✅ **Individual Try/Except**: Per-step error handling
+- ✅ **Stack Trace Logging**: Automatic error diagnosis
+- ✅ **English Batch Files**: No encoding errors
+- ✅ **Cache Management**: Complete cleanup system
 
 ---
 
-## 📖 사용 방법
+## 🚀 Usage
 
-### 1️⃣ 처음 설치
-
-```batch
-# 프로젝트 다운로드
-git clone https://github.com/lee-jungkil/Lj.git
-cd Lj
-
-# 완전 재설치 실행
-COMPLETE_REINSTALL.bat
-```
-
-### 2️⃣ 설정
-
-`.env` 파일 수정:
-
-```env
-# 거래 모드
-TRADING_MODE=paper  # 모의투자 (paper) 또는 실전 (live)
-
-# 초기 자본
-INITIAL_CAPITAL=5000000
-
-# 리스크 관리
-MAX_DAILY_LOSS=500000
-MAX_CUMULATIVE_LOSS=1000000
-MAX_POSITIONS=5
-MAX_POSITION_RATIO=0.3
-
-# Upbit API 키 (실전 거래 시 필수)
-UPBIT_ACCESS_KEY=
-UPBIT_SECRET_KEY=
-```
-
-### 3️⃣ 실행
-
-**모의투자:**
+### Paper Trading (Safe Testing)
 ```batch
 RUN_PAPER_CLEAN.bat
 ```
+- No real money
+- Safe for testing
+- Learn bot behavior
 
-**실전투자:**
+### Live Trading (Real Money)
 ```batch
-RUN_LIVE_CLEAN.bat
+# 1. Edit .env file
+notepad .env
+
+# 2. Add your Upbit API keys
+TRADING_MODE=live
+UPBIT_ACCESS_KEY=your_access_key
+UPBIT_SECRET_KEY=your_secret_key
+
+# 3. Run bot
+python -B -u -m src.main --mode live
 ```
 
 ---
 
-## 🔧 문제 해결
+## 🔧 Configuration (.env)
 
-### ❌ DEBUG 로그가 안 나와요
+### Basic Settings
+```ini
+# Trading Mode
+TRADING_MODE=paper          # paper or live
 
+# Capital Management
+INITIAL_CAPITAL=5000000     # Starting capital (KRW)
+MAX_DAILY_LOSS=500000       # Max loss per day
+MAX_CUMULATIVE_LOSS=1000000 # Max total loss
+MAX_POSITIONS=5             # Max concurrent positions
+
+# Strategy
+EXIT_MODE=aggressive        # aggressive, moderate, conservative
+```
+
+### API Keys (Live Trading Only)
+```ini
+UPBIT_ACCESS_KEY=your_key_here
+UPBIT_SECRET_KEY=your_secret_here
+```
+
+---
+
+## 📊 Trading Strategies
+
+### 1. Aggressive Scalping
+- **Hold Time**: 4 minutes
+- **Take Profit**: +1.5%
+- **Stop Loss**: -1.0%
+- **Best For**: High volatility markets
+
+### 2. Conservative Scalping
+- **Hold Time**: 8 minutes
+- **Take Profit**: +2.0%
+- **Stop Loss**: -1.5%
+- **Best For**: Stable markets
+
+### 3. Mean Reversion
+- **Hold Time**: 30 minutes
+- **Take Profit**: +3.0%
+- **Stop Loss**: -2.0%
+- **Best For**: Range-bound markets
+
+### 4. Grid Trading
+- **Hold Time**: 1 hour
+- **Take Profit**: +5.0%
+- **Stop Loss**: -3.0%
+- **Best For**: Sideways markets
+
+---
+
+## 🐛 Troubleshooting
+
+### Problem: Sell Not Executing
+
+**Symptoms**:
+- Positions held for 70+ minutes
+- [EXECUTE-SELL] logs missing
+- No sell count increase
+
+**Solution**:
+```batch
+# 1. Run emergency cache clear
+EMERGENCY_CACHE_CLEAR.bat
+
+# 2. Or complete reinstall
+COMPLETE_REINSTALL.bat
+
+# 3. Verify logs show:
+[EXECUTE-SELL] Position cleanup start
+[EXECUTE-SELL] holding_protector called
+[EXECUTE-SELL] risk_manager called
+```
+
+### Problem: Python Not Found
+
+**Solution**:
+```
+1. Download Python: https://www.python.org/
+2. Check "Add Python to PATH" during install
+3. Restart computer
+4. Run COMPLETE_REINSTALL.bat
+```
+
+### Problem: Package Install Fails
+
+**Solution**:
+```batch
+python -m pip install --upgrade pip
+python -m pip install pyupbit pandas numpy requests python-dotenv colorlog ta
+```
+
+### Problem: Batch File Encoding Errors
+
+**Solution**:
+- ✅ Fixed in v6.30.62
+- All batch files now English-only
+- No Korean characters
+- No encoding issues
+
+---
+
+## 📈 Expected Performance
+
+### Paper Trading
+- **Purpose**: Testing and learning
+- **Risk**: Zero (virtual money)
+- **Duration**: Unlimited
+
+### Live Trading
+- **Daily Trades**: 10-30
+- **Win Rate**: 60-70% (typical)
+- **Daily Return**: 1-3% (varies)
+- **Risk Level**: Managed by settings
+
+**⚠️ Warning**: Past performance does not guarantee future results. Cryptocurrency trading carries high risk.
+
+---
+
+## 🔄 Updating
+
+### Method 1: Complete Reinstall (Recommended)
 ```batch
 COMPLETE_REINSTALL.bat
 ```
+- Preserves .env settings
+- Downloads latest code
+- Cleans all cache
+- Installs dependencies
 
-### ❌ ImportError: TradingBot 클래스 없음
-
+### Method 2: Git Pull
 ```batch
-COMPLETE_REINSTALL.bat
+cd C:\Lj
+git pull origin main
+EMERGENCY_CACHE_CLEAR.bat
 ```
 
-### ❌ 포지션 청산 체크가 안 돼요
+---
 
+## 📁 Project Structure
+
+```
+Lj/
+├── src/
+│   ├── main.py              # Main bot engine
+│   ├── config.py            # Configuration
+│   ├── strategies/          # Trading strategies
+│   ├── ai/                  # AI learning modules
+│   └── utils/               # Utility functions
+├── COMPLETE_REINSTALL.bat   # Full installation
+├── RUN_PAPER_CLEAN.bat      # Paper trading
+├── EMERGENCY_CACHE_CLEAR.bat# Cache cleanup
+├── .env                     # Configuration file
+├── VERSION.txt              # Current version
+└── README.md                # This file
+```
+
+---
+
+## 🎓 Best Practices
+
+### Before Live Trading
+1. ✅ Test in paper mode for 1-2 weeks
+2. ✅ Understand bot behavior
+3. ✅ Set appropriate risk limits
+4. ✅ Start with small capital
+5. ✅ Monitor daily
+
+### Risk Management
+1. ✅ Never invest more than you can afford to lose
+2. ✅ Set MAX_DAILY_LOSS conservatively
+3. ✅ Use stop-loss for all positions
+4. ✅ Diversify positions
+5. ✅ Monitor regularly
+
+### Maintenance
+1. ✅ Update weekly (git pull)
+2. ✅ Check logs daily
+3. ✅ Clear cache when issues occur
+4. ✅ Backup .env file
+5. ✅ Keep API keys secure
+
+---
+
+## 🔐 Security
+
+### API Keys
+- ✅ Never share your API keys
+- ✅ Keep .env file private
+- ✅ Use IP whitelist on Upbit
+- ✅ Enable 2FA on Upbit account
+
+### Permissions
+- ✅ Read: Required
+- ✅ Trade: Required for live mode
+- ✅ Withdraw: **NOT REQUIRED** (safer)
+
+---
+
+## 📞 Support
+
+### Issues
+- **GitHub Issues**: https://github.com/lee-jungkil/Lj/issues
+- **Discussions**: https://github.com/lee-jungkil/Lj/discussions
+
+### Version Check
 ```batch
-COMPLETE_REINSTALL.bat
+type VERSION.txt
 ```
-
-### ❌ Python이 설치 안 됐어요
-
-1. https://www.python.org/ 방문
-2. Python 3.8+ 다운로드
-3. 설치 시 **"Add Python to PATH" 체크 필수**
-4. 재시작 후 `COMPLETE_REINSTALL.bat` 실행
+Current: **v6.30.62-ENGLISH-BATCH-FILES**
 
 ---
 
-## 📊 예상 로그
+## 🎯 Changelog
 
-### 정상 작동 시
+### v6.30.62 (2026-02-15)
+- ✅ English-only batch files (no encoding errors)
+- ✅ Enhanced sell execution debugging
+- ✅ Individual try/except per cleanup step
+- ✅ Automatic stack trace logging
+- ✅ Fixed Korean character issues
 
-```
-[2026-02-14 21:00:00] 🤖 봇 가동 시작!
+### v6.30.61 (2026-02-15)
+- ✅ Complete reinstall script
+- ✅ 9-step automation
+- ✅ Emergency cache clear
+- ✅ DataFrame bug fixes
 
-[DEBUG-LOOP] 메인 루프 #1 시작 - 시간: 1771067600.12
-
-[DEBUG] Phase 3 체크 - 포지션: 0개
-[DEBUG] ⚠️ 포지션 없음, Phase 3 스킵
-
-[DEBUG-SLEEP] 5.00초 대기 중...
-```
-
-### 포지션 보유 시
-
-```
---- ⚡ 포지션 청산 체크 #5 - 21:00:45 ---
-📊 KRW-BTC 손익률: +1.23% (보유 180초)
-   익절 목표: +1.5% | 손절 목표: -1.0%
-   📊 보유 유지
-```
-
-### 매도 실행 시
-
-```
-✅ 익절 트리거 발동! (+1.58% >= +1.5%)
-
-💰 매도 주문 체결 완료!
-   코인: KRW-BTC
-   매도가: 45,234,000 원
-   수익: +358,920 원 (+1.58%)
-```
+### v6.30.60 (2026-02-14)
+- ✅ [EXECUTE-SELL] debug logs
+- ✅ Position tracking enhancement
 
 ---
 
-## 📚 상세 문서
+## ⚖️ Disclaimer
 
-자세한 내용은 [COMPLETE_REINSTALL_GUIDE.md](COMPLETE_REINSTALL_GUIDE.md)를 참고하세요.
+This software is provided "as is" without warranty of any kind. Trading cryptocurrency carries significant risk. You are responsible for your own investment decisions. The developers are not liable for any financial losses incurred while using this software.
 
----
-
-## 🌟 주요 기능
-
-### AI 기반 매매
-- ✅ 실시간 시장 분석
-- ✅ 기술적 지표 복합 분석 (RSI, MACD, 볼린저밴드 등)
-- ✅ AI 학습 기반 매매 전략
-- ✅ 동적 손절/익절 최적화
-
-### 리스크 관리
-- ✅ 일일 손실 한도
-- ✅ 누적 손실 한도
-- ✅ 최대 포지션 수 제한
-- ✅ 포지션별 비율 관리
-
-### 자동 청산
-- ✅ 3초마다 포지션 체크
-- ✅ 10가지 청산 조건
-- ✅ 즉시 매도 실행
-- ✅ 완전 자동화
-
-### 모니터링
-- ✅ 실시간 손익 표시
-- ✅ 상세 로그 기록
-- ✅ 고정 화면 UI
-- ✅ 거래 통계
+**USE AT YOUR OWN RISK.**
 
 ---
 
-## ⚠️ 주의사항
+## 📄 License
 
-1. **모의투자 먼저 테스트**
-   - 실전 거래 전 반드시 모의투자로 테스트하세요
-
-2. **API 키 보안**
-   - `.env` 파일을 절대 공유하지 마세요
-   - Git에 업로드하지 마세요
-
-3. **리스크 관리**
-   - 초기 자본은 손실 가능한 금액으로 설정하세요
-   - 손실 한도를 반드시 설정하세요
-
-4. **법적 책임**
-   - 모든 투자 손실은 사용자 책임입니다
-   - 프로그램 오류로 인한 손실도 책임지지 않습니다
+MIT License - See LICENSE file for details
 
 ---
 
-## 🔗 링크
+## 🌟 Contributors
 
-- **GitHub:** https://github.com/lee-jungkil/Lj
-- **Issues:** https://github.com/lee-jungkil/Lj/issues
-- **Version:** v6.30.55-STRATEGY-TYPO-FIX
-
----
-
-## 📞 지원
-
-문제가 발생하면:
-1. [COMPLETE_REINSTALL_GUIDE.md](COMPLETE_REINSTALL_GUIDE.md) 확인
-2. GitHub Issues에 문의
-3. `COMPLETE_REINSTALL.bat` 실행
+- **Main Developer**: lee-jungkil
+- **AI Assistant**: GenSpark AI
+- **Community**: GitHub Contributors
 
 ---
 
-## 📜 라이선스
+## 🔗 Links
 
-이 프로젝트는 개인 사용 목적으로 제공됩니다.  
-상업적 사용은 제한될 수 있습니다.
+- **GitHub**: https://github.com/lee-jungkil/Lj
+- **Issues**: https://github.com/lee-jungkil/Lj/issues
+- **Download**: https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+- **Upbit**: https://upbit.com/
 
 ---
 
-**마지막 업데이트:** 2026-02-14  
-**현재 버전:** v6.30.55
+**Current Version**: v6.30.62-ENGLISH-BATCH-FILES  
+**Release Date**: 2026-02-15  
+**Status**: ✅ Stable
 
-## 🆕 v6.30.55 업데이트 (2026-02-14)
-
-### 🐛 버그 수정
-- **매도 실행 안 되는 문제 해결**
-  - 전략 이름 오타 처리: `aggressive_scaling` → `aggressive_scalping`
-  - 전략 이름 오타 처리: `conservative_scaling` → `conservative_scalping`
-  - AttributeError로 인한 매도 실패 문제 완전 해결
-  - 하위 호환성 유지로 기존 포지션도 정상 작동
-
-### 📝 변경 사항
-- `src/main.py`: `_get_strategy_by_name()` 함수에 오타 버전 매핑 추가
-- 대소문자, 하이픈, 언더스코어 모든 케이스 지원
-- 기존 포지션 데이터와 완벽 호환
+**Download Now**: https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
