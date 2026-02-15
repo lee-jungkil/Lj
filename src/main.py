@@ -1156,7 +1156,6 @@ class AutoProfitBot:
         # ⭐ v6.30.48: check_positions 진입 로그 (콘솔)
         
         # ⭐ v6.30.18: check_positions 진입 로그
-        self.logger.log_info(f"✅ check_positions({ticker}) 진입 - 10가지 청산 조건 검사 시작")
         
         # ⭐ v6.30.50: 포지션이 전달되지 않은 경우에만 조회
         if position is None:
@@ -1623,7 +1622,6 @@ class AutoProfitBot:
             except Exception as e:
             
             # ⭐ v6.30.18: 디버그 로그 추가
-            self.logger.log_info(f"🔍 quick_check_positions 실행 - 포지션 {position_count}개")
             
             # 포지션 목록 복사 (iteration 중 변경 방지)
             positions_to_check = list(self.risk_manager.positions.items())
@@ -1678,7 +1676,6 @@ class AutoProfitBot:
                     if strategy:
                         # check_positions 호출 (10가지 청산 조건 체크)
                         # ⭐ v6.30.50: 포지션 객체를 직접 전달 (동시성 문제 방지)
-                        self.logger.log_info(f"🎯 {ticker} → check_positions() 호출 (전략: {strategy_name})")
                         self.check_positions(ticker, strategy, position=position)  # ← 포지션 직접 전달!
                     else:
                         self.logger.log_warning(f"⚠️ {ticker} 전략 객체 없음: {strategy_name}")
