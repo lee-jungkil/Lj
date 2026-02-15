@@ -803,11 +803,16 @@ class AutoProfitBot:
                 )
             
             # ⭐ SmartOrderExecutor로 매도 주문 실행 (⭐ v6.30.13: 재시도 + 추적)
+            # ⭐ v6.30.64: 모의거래 모드에서도 포지션 청산 진행하도록 수정
             order_result = None
+            order_success = False
+            
             if self.mode == 'live' and self.api.upbit:
+                _original_print(f"[EXECUTE-SELL] 실거래 모드: 실제 매도 주문 실행")
                 # 최대 3회 재시도
                 max_attempts = 3
                 for attempt in range(max_attempts):
+                    _original_print(f"[EXECUTE-SELL] 매도 시도 {attempt+1}/{max_attempts}...")
                     order_result = self.smart_order_executor.execute_sell(
                         ticker=ticker,
                         volume=sell_amount,
@@ -821,15 +826,18 @@ class AutoProfitBot:
                         # 성공 시 실패 추적 리셋
                         if ticker in self.failed_sell_tracker:
                             del self.failed_sell_tracker[ticker]
+                        order_success = True
+                        _original_print(f"[EXECUTE-SELL] ✅ 실거래 매도 주문 성공")
                         break
                     
                     self.logger.log_warning(f"{ticker} 매도 시도 {attempt+1}/{max_attempts} 실패")
+                    _original_print(f"[EXECUTE-SELL] ⚠️ 매도 시도 {attempt+1}/{max_attempts} 실패")
                     
                     if attempt < max_attempts - 1:
                         time.sleep(1)  # 1초 대기 후 재시도
                 
-                # 최종 실패 시 추적 및 알림
-                if not order_result or not order_result.get('success'):
+                # 최종 실패 시 추적 및 알림 (하지만 포지션 청산은 계속 진행)
+                if not order_success:
                     # 실패 횟수 기록
                     if ticker not in self.failed_sell_tracker:
                         self.failed_sell_tracker[ticker] = {'count': 0, 'last_attempt': datetime.now()}
@@ -846,11 +854,13 @@ class AutoProfitBot:
                         )
                     
                     self.logger.log_error("SELL_ORDER_FAILED", f"{ticker} 매도 주문 {max_attempts}회 실패", None)
-                    return
+                    _original_print(f"[EXECUTE-SELL] ❌ 실거래 매도 주문 실패 - 하지만 포지션 청산은 계속 진행")
+                    # ⭐ 중요: return 하지 않고 포지션 청산 계속 진행
             else:
                 _original_print(f"[EXECUTE-SELL] 모의거래 모드: 매도 주문 시뮬레이션")
                 self.logger.log_info(f"[모의거래] 매도: {ticker}, {sell_amount:.8f}")
                 _original_print(f"[EXECUTE-SELL] 모의거래 매도 완료: {ticker}, amount={sell_amount:.8f}")
+                order_success = True
             
             # 기존 보유 보호 시스템에서 봇 포지션 청산
             _original_print(f"[EXECUTE-SELL] ========== 포지션 청산 시작 ==========")
