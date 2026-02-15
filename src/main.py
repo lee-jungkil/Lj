@@ -1051,12 +1051,14 @@ class AutoProfitBot:
         )
         
         # ⭐ 조건 0: 통합 리스크 평가 (새로 추가)
+        _original_print(f"[DEBUG-CHECK] 조건 0: 리스크 평가 시작...")
         try:
             # 시장 상황 분석
             market_condition = {'volatility': 'medium', 'trend': 'neutral'}
             
             # 최근 가격 데이터로 변동성 추정
             ohlcv = self.api.get_ohlcv(ticker, interval='minute1', count=10)
+            _original_print(f"[DEBUG-CHECK] OHLCV 데이터 조회 완료: {len(ohlcv) if ohlcv else 0}개")
             if ohlcv and len(ohlcv) >= 2:
                 recent_changes = []
                 for i in range(1, len(ohlcv)):
@@ -1081,6 +1083,7 @@ class AutoProfitBot:
             
             # 리스크 평가 실행
             risk_eval = self.risk_manager.evaluate_holding_risk(ticker, market_condition)
+            _original_print(f"[DEBUG-CHECK] 리스크 평가 완료: {risk_eval['risk_level']}")
             
             # 로그 출력
             if risk_eval['risk_level'] in ['HIGH', 'CRITICAL']:
@@ -1113,8 +1116,13 @@ class AutoProfitBot:
                     import traceback
                     _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                 return
+            
+            _original_print(f"[DEBUG-CHECK] 조건 0 완료: 리스크 레벨 {risk_eval['risk_level']} - 계속 진행")
                 
         except Exception as e:
+            _original_print(f"[DEBUG-CHECK] ⚠️ 조건 0 예외 발생: {e}")
+            import traceback
+            _original_print(f"[DEBUG-CHECK] 스택 트레이스:\n{traceback.format_exc()}")
             self.logger.log_warning(f"{ticker} 리스크 평가 실패: {e}")
         
         # 보유 시간 계산
