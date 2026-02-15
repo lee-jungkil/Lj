@@ -703,11 +703,16 @@ class AutoProfitBot:
             ticker: 코인 티커
             reason: 매도 사유
         """
+        _original_print(f"[EXECUTE-SELL] execute_sell() 호출됨 - ticker: {ticker}, reason: {reason}")
         try:
+            _original_print(f"[EXECUTE-SELL] 포지션 존재 여부 체크: {ticker in self.risk_manager.positions}")
             if ticker not in self.risk_manager.positions:
+                _original_print(f"[EXECUTE-SELL] ❌ 포지션 없음! ticker={ticker}")
+                _original_print(f"[EXECUTE-SELL] 현재 보유 포지션 목록: {list(self.risk_manager.positions.keys())}")
                 return
             
             position = self.risk_manager.positions[ticker]
+            _original_print(f"[EXECUTE-SELL] ✅ 포지션 찾음: {ticker}, amount={position.amount}, avg_price={position.avg_buy_price}")
             
             # 현재가 조회 (⭐ v6.30.13: 재시도 로직 추가)
             current_price = None
@@ -843,18 +848,27 @@ class AutoProfitBot:
                     self.logger.log_error("SELL_ORDER_FAILED", f"{ticker} 매도 주문 {max_attempts}회 실패", None)
                     return
             else:
+                _original_print(f"[EXECUTE-SELL] 모의거래 모드: 매도 주문 시뮬레이션")
                 self.logger.log_info(f"[모의거래] 매도: {ticker}, {sell_amount:.8f}")
+                _original_print(f"[EXECUTE-SELL] 모의거래 매도 완료: {ticker}, amount={sell_amount:.8f}")
             
             # 기존 보유 보호 시스템에서 봇 포지션 청산
+            _original_print(f"[EXECUTE-SELL] holding_protector.close_bot_position() 호출...")
             bot_profit_loss = self.holding_protector.close_bot_position(
                 ticker, sell_amount, current_price
             )
+            _original_print(f"[EXECUTE-SELL] holding_protector 청산 완료, P/L: {bot_profit_loss}")
             
             # 리스크 관리자에서도 포지션 청산
+            _original_print(f"[EXECUTE-SELL] risk_manager.close_position() 호출...")
             profit_loss = self.risk_manager.close_position(ticker, current_price)
+            _original_print(f"[EXECUTE-SELL] risk_manager 청산 완료, P/L: {profit_loss}")
+            _original_print(f"[EXECUTE-SELL] 포지션 제거 후 남은 포지션: {list(self.risk_manager.positions.keys())}")
             
             # ⭐ 화면에서 포지션 제거
+            _original_print(f"[EXECUTE-SELL] 화면에서 포지션 제거 시작...")
             slot = self.display.get_slot_by_ticker(ticker)
+            _original_print(f"[EXECUTE-SELL] 화면 슬롯: {slot}")
             if slot:
                 # ⭐ 수정: avg_buy_price 사용
                 profit_ratio = (profit_loss / (position.avg_buy_price * position.amount)) * 100 if position.amount > 0 else 0
