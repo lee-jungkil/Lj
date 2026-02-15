@@ -175,18 +175,30 @@ class DynamicStopLoss:
                 exp for exp in experiences
                 if exp.ticker == ticker
                 and exp.strategy == strategy
+                and exp.profit_loss is not None
                 and exp.profit_loss < 0
                 and exp.profit_loss_ratio is not None
+                and isinstance(exp.profit_loss_ratio, (int, float))  # v6.31.3: 타입 체크 추가
             ]
             
             if len(loss_trades) < 3:
                 return None  # 데이터 부족
             
+            # v6.31.3: 안전한 손실 비율 리스트 생성
+            loss_ratios = [abs(exp.profit_loss_ratio) for exp in loss_trades if exp.profit_loss_ratio is not None]
+            
+            if not loss_ratios:
+                return None  # 유효한 데이터 없음
+            
             # 최대 손실 비율 계산
-            max_loss_ratio = max(abs(exp.profit_loss_ratio) for exp in loss_trades)
+            max_loss_ratio = max(loss_ratios)
             
             # 평균 손실 비율
-            avg_loss_ratio = sum(abs(exp.profit_loss_ratio) for exp in loss_trades) / len(loss_trades)
+            avg_loss_ratio = sum(loss_ratios) / len(loss_ratios)
+            
+            # v6.31.3: None 체크 추가
+            if max_loss_ratio is None or avg_loss_ratio is None:
+                return None
             
             # 최적 손절 = 최대 손실의 120% (안전 마진)
             optimal_stop = max_loss_ratio * 1.2
