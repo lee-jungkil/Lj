@@ -350,10 +350,12 @@ class AutoProfitBot:
         self.last_position_check_time = 0
         self.last_surge_scan_time = 0
         self.last_coin_update_time = 0
+        self.last_screen_clear_time = 0  # ⭐ v6.30.69: 10분마다 화면 클리어
         
         # 화면 갱신 주기
         self.display_update_interval = 3  # 3초마다 화면 갱신
         self.last_display_update_time = 0
+        self.screen_clear_interval = 600  # ⭐ v6.30.69: 10분 = 600초
         
         # 초단타 포지션 (v5.4: 기본 3개, 최대 5개)
         self.ultra_positions = {}
@@ -2407,6 +2409,13 @@ class AutoProfitBot:
                         )
                     else:
                         self.display.update_scan_status(f"코인 갱신 완료: {old_count}개 → {len(self.tickers)}개")
+                
+                # ⭐ v6.30.69: 10분마다 화면 클리어 (가독성 향상)
+                if current_time - self.last_screen_clear_time >= self.screen_clear_interval:
+                    import os
+                    os.system('cls' if os.name == 'nt' else 'clear')
+                    self.display.render()
+                    self.last_screen_clear_time = current_time
                 
                 # ⭐ PHASE 1: 전체 스캔 (60초)
                 if current_time - self.last_full_scan_time >= self.full_scan_interval:

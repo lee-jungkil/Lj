@@ -70,10 +70,12 @@ class FixedScreenDisplay:
         self.last_position_check_time = None
         self.last_surge_scan_time = None
         
-        # ⭐ 모니터링 상태 (3줄) - 간단한 표현만
+        # ⭐ 모니터링 상태 (5줄) - v6.30.69: 확장
         self.monitor_line1 = "대기 중..."
         self.monitor_line2 = ""
         self.monitor_line3 = ""
+        self.monitor_line4 = ""
+        self.monitor_line5 = ""
         
         # 매도 결과 (임시 표시용)
         self.last_trade_result = None
@@ -401,18 +403,22 @@ class FixedScreenDisplay:
         """
         self.coin_summary = summary
     
-    def update_monitoring(self, line1: str, line2: str = "", line3: str = ""):
+    def update_monitoring(self, line1: str, line2: str = "", line3: str = "", line4: str = "", line5: str = ""):
         """
-        모니터링 상태 업데이트 (3줄)
+        모니터링 상태 업데이트 (5줄) - v6.30.69: 확장
         
         Args:
             line1: 첫 번째 줄 (필수)
             line2: 두 번째 줄 (선택)
             line3: 세 번째 줄 (선택)
+            line4: 네 번째 줄 (선택) - v6.30.69
+            line5: 다섯 번째 줄 (선택) - v6.30.69
         """
         self.monitor_line1 = line1
         self.monitor_line2 = line2
         self.monitor_line3 = line3
+        self.monitor_line4 = line4
+        self.monitor_line5 = line5
     
     def update_position_details(self, ticker: str, action: str, reason: str):
         """
@@ -749,6 +755,12 @@ class FixedScreenDisplay:
         if self.monitor_line3:
             line3 = self.monitor_line3[:self.screen_width - 10]
             lines.append(f"{Fore.BLUE}▸ {line3}{Style.RESET_ALL}")
+        if self.monitor_line4:  # ⭐ v6.30.69
+            line4 = self.monitor_line4[:self.screen_width - 10]
+            lines.append(f"{Fore.CYAN}▸ {line4}{Style.RESET_ALL}")
+        if self.monitor_line5:  # ⭐ v6.30.69
+            line5 = self.monitor_line5[:self.screen_width - 10]
+            lines.append(f"{Fore.MAGENTA}▸ {line5}{Style.RESET_ALL}")
         
         return '\n'.join(lines)
     
