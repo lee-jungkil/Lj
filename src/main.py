@@ -780,27 +780,33 @@ class AutoProfitBot:
             )
             
             # 기존 보유 보호: 매도 가능 수량 확인 (v5.7: 투자금 + 이익분만)
-            sellable_amount, sell_msg = self.holding_protector.calculate_sellable_amount(
-                ticker,
-                current_price=current_price,  # 현재가 전달 (이익 계산용)
-                upbit_api=self.api if self.mode == 'live' else None
-            )
-            
-            # 매도 수량 결정
+            # ⭐ v6.30.65: 모의거래 모드에서는 holding_protector 체크 우회
             sell_amount = position.amount
             
-            # 기존 보유가 있으면 봇 투자분만 매도
-            if self.holding_protector.is_existing_holding(ticker):
-                if sellable_amount <= 0:
-                    self.logger.log_warning(
-                        f"🛡️  {ticker} 매도 불가: 기존 보유 보호 중 ({sell_msg})"
-                    )
-                    return
-                
-                sell_amount = min(sell_amount, sellable_amount)
-                self.logger.log_info(
-                    f"🛡️  {ticker} 부분 매도: {sell_amount:.8f} (기존 보유 보호)"
+            if self.mode == 'live':
+                # 실거래 모드에서만 보유 보호 체크
+                sellable_amount, sell_msg = self.holding_protector.calculate_sellable_amount(
+                    ticker,
+                    current_price=current_price,
+                    upbit_api=self.api.upbit
                 )
+                
+                # 기존 보유가 있으면 봇 투자분만 매도
+                if self.holding_protector.is_existing_holding(ticker):
+                    if sellable_amount <= 0:
+                        self.logger.log_warning(
+                            f"🛡️  {ticker} 매도 불가: 기존 보유 보호 중 ({sell_msg})"
+                        )
+                        _original_print(f"[EXECUTE-SELL] ❌ 실거래 모드: 기존 보유 보호로 매도 차단")
+                        return
+                    
+                    sell_amount = min(sell_amount, sellable_amount)
+                    self.logger.log_info(
+                        f"🛡️  {ticker} 부분 매도: {sell_amount:.8f} (기존 보유 보호)"
+                    )
+            else:
+                # 모의거래 모드: 포지션 전체 매도
+                _original_print(f"[EXECUTE-SELL] 모의거래 모드: 포지션 전체 매도 허용 (holding_protector 우회)")
             
             # ⭐ SmartOrderExecutor로 매도 주문 실행 (⭐ v6.30.13: 재시도 + 추적)
             # ⭐ v6.30.64: 모의거래 모드에서도 포지션 청산 진행하도록 수정
