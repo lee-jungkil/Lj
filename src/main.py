@@ -1309,109 +1309,108 @@ class AutoProfitBot:
             
             return
         else:
-        
-        # ⭐ 조건 2-6: 차트 지표 및 급락/거래량 분석
-        try:
-            df = self.api.get_ohlcv(ticker, interval="minute5", count=200)
-            df_1m = self.api.get_ohlcv(ticker, interval="minute1", count=5)  # 급락 감지용
-            
-            if df is not None and not df.empty:
-                # RSI 계산
-                delta = df['close'].diff()
-                gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-                loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-                rs = gain / loss
-                rsi = 100 - (100 / (1 + rs))
-                current_rsi = rsi.iloc[-1] if not rsi.empty else 50
+            # ⭐ 조건 2-6: 차트 지표 및 급락/거래량 분석
+            try:
+                df = self.api.get_ohlcv(ticker, interval="minute5", count=200)
+                df_1m = self.api.get_ohlcv(ticker, interval="minute1", count=5)  # 급락 감지용
                 
-                # MACD 계산
-                exp1 = df['close'].ewm(span=12).mean()
-                exp2 = df['close'].ewm(span=26).mean()
-                macd = exp1 - exp2
-                signal = macd.ewm(span=9).mean()
-                macd_val = macd.iloc[-1]
-                signal_val = signal.iloc[-1]
-                macd_direction = "상승" if macd_val > signal_val else "하락"
-                
-                # 거래량 변화 분석
-                avg_volume = df['volume'].mean()
-                current_volume = df['volume'].iloc[-1]
-                volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
-                
-                # ⭐ 조건 5: 급락 감지 (1분 내 -1.5% 이상)
-                if df_1m is not None and not df_1m.empty and len(df_1m) >= 2:
-                    price_1m_ago = df_1m['close'].iloc[-2]
-                    price_change_1m = ((current_price - price_1m_ago) / price_1m_ago) * 100
-                    sudden_drop_threshold = getattr(Config, 'SUDDEN_DROP_THRESHOLD', -1.5)
+                if df is not None and not df.empty:
+                    # RSI 계산
+                    delta = df['close'].diff()
+                    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+                    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+                    rs = gain / loss
+                    rsi = 100 - (100 / (1 + rs))
+                    current_rsi = rsi.iloc[-1] if not rsi.empty else 50
                     
-                    if price_change_1m <= sudden_drop_threshold:
-                        _original_print(f"[FORCE-SELL] 🚨 급락 감지 강제 매도 시작!")
+                    # MACD 계산
+                    exp1 = df['close'].ewm(span=12).mean()
+                    exp2 = df['close'].ewm(span=26).mean()
+                    macd = exp1 - exp2
+                    signal = macd.ewm(span=9).mean()
+                    macd_val = macd.iloc[-1]
+                    signal_val = signal.iloc[-1]
+                    macd_direction = "상승" if macd_val > signal_val else "하락"
+                    
+                    # 거래량 변화 분석
+                    avg_volume = df['volume'].mean()
+                    current_volume = df['volume'].iloc[-1]
+                    volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
+                    
+                    # ⭐ 조건 5: 급락 감지 (1분 내 -1.5% 이상)
+                    if df_1m is not None and not df_1m.empty and len(df_1m) >= 2:
+                        price_1m_ago = df_1m['close'].iloc[-2]
+                        price_change_1m = ((current_price - price_1m_ago) / price_1m_ago) * 100
+                        sudden_drop_threshold = getattr(Config, 'SUDDEN_DROP_THRESHOLD', -1.5)
+                        
+                        if price_change_1m <= sudden_drop_threshold:
+                            _original_print(f"[FORCE-SELL] 🚨 급락 감지 강제 매도 시작!")
+                            try:
+                                self.execute_sell(ticker, f"급락감지 (1분:{price_change_1m:.2f}%)")
+                                _original_print(f"[FORCE-SELL] ✅ 급락 감지 매도 완료!")
+                            except Exception as e:
+                                _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                                import traceback
+                                _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+                            return
+                    
+                    # ⭐ 조건 6: 거래량 급감 (평균 대비 0.5배 이하)
+                    volume_drop_threshold = getattr(Config, 'VOLUME_DROP_THRESHOLD', 0.5)
+                    if volume_ratio < volume_drop_threshold:
+                        _original_print(f"[FORCE-SELL] 🚨 거래량 급감 강제 매도 시작!")
                         try:
-                            self.execute_sell(ticker, f"급락감지 (1분:{price_change_1m:.2f}%)")
-                            _original_print(f"[FORCE-SELL] ✅ 급락 감지 매도 완료!")
+                            self.execute_sell(ticker, f"거래량급감 (평균 대비 {volume_ratio:.2f}배)")
+                            _original_print(f"[FORCE-SELL] ✅ 거래량 급감 매도 완료!")
                         except Exception as e:
                             _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
                             import traceback
                             _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                         return
-                
-                # ⭐ 조건 6: 거래량 급감 (평균 대비 0.5배 이하)
-                volume_drop_threshold = getattr(Config, 'VOLUME_DROP_THRESHOLD', 0.5)
-                if volume_ratio < volume_drop_threshold:
-                    _original_print(f"[FORCE-SELL] 🚨 거래량 급감 강제 매도 시작!")
-                    try:
-                        self.execute_sell(ticker, f"거래량급감 (평균 대비 {volume_ratio:.2f}배)")
-                        _original_print(f"[FORCE-SELL] ✅ 거래량 급감 매도 완료!")
-                    except Exception as e:
-                        _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
-                        import traceback
-                        _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
-                    return
-                
-                # ⭐ 조건 3: 차트 신호 청산
-                chart_exit = False
-                chart_reason = ""
-                
-                # 과매수 + MACD 하락
-                if current_rsi > 70 and macd_direction == "하락":
-                    chart_exit = True
-                    chart_reason = f"과매수+MACD하락 (RSI:{current_rsi:.0f})"
-                
-                # 과매도 + MACD 하락 + 거래량 감소
-                elif current_rsi < 30 and macd_direction == "하락" and volume_ratio < 0.8:
-                    chart_exit = True
-                    chart_reason = f"과매도+MACD하락+거래량감소 (RSI:{current_rsi:.0f})"
-                
-                if chart_exit:
-                    self.execute_sell(ticker, chart_reason)
-                    return
-                
-                # ⭐ 조건 2: 트레일링 스탑 (Trailing Stop)
-                enable_trailing = getattr(Config, 'ENABLE_TRAILING_STOP', True)
-                if enable_trailing:
-                    # 포지션에 최고가 기록 (없으면 현재가로 초기화)
-                    if not hasattr(position, 'highest_price'):
-                        position.highest_price = current_price
-                    else:
-                        position.highest_price = max(position.highest_price, current_price)
                     
-                    # 최고가 대비 하락률 계산
-                    drop_from_peak = ((current_price - position.highest_price) / position.highest_price) * 100
-                    trailing_offset = getattr(Config, 'TRAILING_STOP_OFFSET', 1.0)  # 기본 1%
-                    trailing_min_profit = getattr(Config, 'TRAILING_STOP_MIN_PROFIT', 1.0)  # 최소 1% 수익
+                    # ⭐ 조건 3: 차트 신호 청산
+                    chart_exit = False
+                    chart_reason = ""
                     
-                    current_profit = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+                    # 과매수 + MACD 하락
+                    if current_rsi > 70 and macd_direction == "하락":
+                        chart_exit = True
+                        chart_reason = f"과매수+MACD하락 (RSI:{current_rsi:.0f})"
                     
-                    # 최소 수익 조건 만족 + 최고가 대비 하락 시 트레일링 스탑
-                    if current_profit >= trailing_min_profit and drop_from_peak <= -trailing_offset:
-                        self.execute_sell(
-                            ticker, 
-                            f"트레일링스탑 (최고가 대비 {drop_from_peak:.2f}%, 수익:{current_profit:+.2f}%)"
-                        )
+                    # 과매도 + MACD 하락 + 거래량 감소
+                    elif current_rsi < 30 and macd_direction == "하락" and volume_ratio < 0.8:
+                        chart_exit = True
+                        chart_reason = f"과매도+MACD하락+거래량감소 (RSI:{current_rsi:.0f})"
+                    
+                    if chart_exit:
+                        self.execute_sell(ticker, chart_reason)
                         return
                     
-        except Exception as e:
-            self.logger.log_warning(f"{ticker} 고급 청산 조건 분석 실패: {e}")
+                    # ⭐ 조건 2: 트레일링 스탑 (Trailing Stop)
+                    enable_trailing = getattr(Config, 'ENABLE_TRAILING_STOP', True)
+                    if enable_trailing:
+                        # 포지션에 최고가 기록 (없으면 현재가로 초기화)
+                        if not hasattr(position, 'highest_price'):
+                            position.highest_price = current_price
+                        else:
+                            position.highest_price = max(position.highest_price, current_price)
+                        
+                        # 최고가 대비 하락률 계산
+                        drop_from_peak = ((current_price - position.highest_price) / position.highest_price) * 100
+                        trailing_offset = getattr(Config, 'TRAILING_STOP_OFFSET', 1.0)  # 기본 1%
+                        trailing_min_profit = getattr(Config, 'TRAILING_STOP_MIN_PROFIT', 1.0)  # 최소 1% 수익
+                        
+                        current_profit = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
+                        
+                        # 최소 수익 조건 만족 + 최고가 대비 하락 시 트레일링 스탑
+                        if current_profit >= trailing_min_profit and drop_from_peak <= -trailing_offset:
+                            self.execute_sell(
+                                ticker, 
+                                f"트레일링스탑 (최고가 대비 {drop_from_peak:.2f}%, 수익:{current_profit:+.2f}%)"
+                            )
+                            return
+                        
+            except Exception as e:
+                self.logger.log_warning(f"{ticker} 고급 청산 조건 분석 실패: {e}")
         
         # ⭐ v6.30.1 Phase 2B: 고급 청산 기능 통합
         
@@ -1620,6 +1619,7 @@ class AutoProfitBot:
                     datetime.now().strftime('%H:%M:%S')
                 )
             except Exception as e:
+                self.logger.log_warning(f"포지션 카운트 업데이트 실패: {e}")
             
             # ⭐ v6.30.18: 디버그 로그 추가
             
@@ -2499,6 +2499,7 @@ class AutoProfitBot:
                         # ⭐ v6.30.29: 마지막 체크 시간 업데이트 (중요!)
                         self.last_position_check_time = current_time
                     else:
+                        pass  # 시간 조건 미충족
                 
                 # ⭐ 대기 중일 때 (간단하게)
                 else:
