@@ -705,7 +705,6 @@ class AutoProfitBot:
         """
         _original_print(f"[EXECUTE-SELL] execute_sell() 호출됨 - ticker: {ticker}, reason: {reason}")
         try:
-            _original_print(f"[EXECUTE-SELL] 포지션 존재 여부 체크: {ticker in self.risk_manager.positions}")
             if ticker not in self.risk_manager.positions:
                 _original_print(f"[EXECUTE-SELL] ❌ 포지션 없음! ticker={ticker}")
                 _original_print(f"[EXECUTE-SELL] 현재 보유 포지션 목록: {list(self.risk_manager.positions.keys())}")
@@ -1498,7 +1497,6 @@ class AutoProfitBot:
                 self.logger.log_warning(f"{ticker} 동적 손절 체크 실패: {e}")
         
         # ⭐ 조건 6: 기본 손익률 기준 청산 (전략별) - v6.30.28: hold_time 계산 수정
-        self.logger.log_info(f"🔍 {ticker} 조건 6 체크: 기본 익절/손절 (전략: {position.strategy})")
         
         # 보유 시간 계산 (v6.30.28: timestamp() 추가)
         if hasattr(position, 'entry_time'):
@@ -1614,7 +1612,6 @@ class AutoProfitBot:
             # ⭐ v6.30.46: 청산 체크 헤더를 먼저 출력 (display.update_monitoring 전에)
             from datetime import datetime
             check_time = datetime.now().strftime('%H:%M:%S')
-            _original_print(f"\n--- ⚡ 포지션 청산 체크 #{getattr(self, 'quick_check_count', 0)} - {check_time} ---")
             
             # ⭐ v6.30.26: 화면 업데이트 (예외 발생 시에도 계속 진행)
             try:
@@ -1641,7 +1638,6 @@ class AutoProfitBot:
                     )
                     
                     # ⭐ v6.30.18: 포지션별 체크 시작 로그
-                    self.logger.log_info(f"📌 {ticker} 청산 조건 체크 시작...")
                     
                     # 현재 가격 조회
                     current_price = self.api.get_current_price(ticker)
@@ -2289,7 +2285,6 @@ class AutoProfitBot:
         # 초기 로그는 파일에만 기록
         # self.logger.log_info("🤖 봇 가동 시작! (AI 학습 통합 모드)")
         # self.logger.log_info(f"   📅 전체 스캔: {self.full_scan_interval}초 ({self.full_scan_interval//60}분)")
-        # self.logger.log_info(f"   ⚡ 포지션 체크: {self.position_check_interval}초")
         # self.logger.log_info(f"   🔥 급등 감지: {self.surge_scan_interval}초 (초단타 최대 {self.max_ultra_positions}개)")
         # self.logger.log_info(f"   🔄 화면 갱신: {self.display_update_interval}초\n")
         
@@ -2497,7 +2492,6 @@ class AutoProfitBot:
                         )
                         
                         # ⭐ v6.30.19: UI 업데이트 제거, 바로 청산 조건 체크
-                        self.logger.log_info(f"\n--- ⚡ 포지션 청산 체크 #{quick_check_count} - {datetime.now().strftime('%H:%M:%S')} ---")
                         
                         # 실제 포지션 청산 조건 체크 (10가지 조건)
                         if hasattr(self, 'quick_check_positions'):
@@ -2812,7 +2806,6 @@ def main():
         print("=" * 60)
         print("\n🔥 초단타 모드 안내:")
         print("   - 5분: 전체 코인 스캔")
-        print("   - 1분: 일반 포지션 체크")
         print("   - 30초: 급등/급락 감지 + 초단타 진입 (최대 2개)")
         print("   - 익절: 1% / 손절: 0.5% / 최대 보유: 5분\n")
         confirm = input("계속하시겠습니까? (yes/no): ")
