@@ -238,7 +238,10 @@ class RiskManager:
         )
         
         self.positions[ticker] = position
-        self.current_balance -= (price * amount)
+        # ⭐ v6.31.4: 매수 수수료(0.05%) 포함하여 잔액 차감
+        buy_value = price * amount
+        buy_fee = buy_value * 0.0005
+        self.current_balance -= (buy_value + buy_fee)
         self.total_trades += 1
         
         return True
@@ -277,8 +280,9 @@ class RiskManager:
         self.daily_profit_loss += profit_loss
         self.cumulative_profit_loss += profit_loss
         self.monthly_profit += profit_loss
-        # ⭐ v6.31.2: 수수료를 차감한 실제 매도 금액을 잔액에 추가
-        self.current_balance += (sell_value - (sell_value * 0.0005))
+        # ⭐ v6.31.4: 매도 수수료(0.05%) 차감 후 잔액에 추가
+        sell_fee = sell_value * 0.0005
+        self.current_balance += (sell_value - sell_fee)
         
         # 포지션 제거
         del self.positions[ticker]
