@@ -79,6 +79,7 @@ from src.utils.trade_monitor import TradeMonitor
 from src.utils.surge_detector import surge_detector
 from src.utils.order_method_selector import order_method_selector, ExitReason
 from src.utils.smart_order_executor import SmartOrderExecutor
+from src.utils.smart_position_sizer import SmartPositionSizer  # ⭐ v6.31.7: 스마트 포지션 사이징
 # Phase 2: AI 시스템
 from src.ai.learning_engine import LearningEngine
 from src.ai.scenario_identifier import ScenarioIdentifier
@@ -224,6 +225,10 @@ class AutoProfitBot:
         # ⭐ 고정 화면 디스플레이 (v5.4)
         self.display = FixedScreenDisplay(max_positions=5)
         self.logger.log_info("🖥️ 고정 화면 디스플레이 활성화")
+        
+        # ⭐ v6.31.7: 스마트 포지션 사이징 시스템
+        self.position_sizer = SmartPositionSizer()
+        self.logger.log_info("💰 스마트 포지션 사이징 활성화 (10만~50만원 동적 조절)")
         
         # 리스크 관리자
         self.risk_manager = RiskManager(
@@ -556,17 +561,25 @@ class AutoProfitBot:
             if not current_price:
                 return
             
-            # 투자 금액 계산 (⭐ v6.29: 추격매수 시 배율 적용)
-            investment = self.risk_manager.calculate_position_size(current_price)
+            # ⭐ v6.31.7: 스마트 포지션 사이징 (점수 기반 10만~50만원)
+            position_size, sizing_detail = self.position_sizer.get_recommended_position(
+                ticker=ticker,
+                api=self.api,
+                surge_info=surge_info,
+                ai_decision={'confidence': trade_signal.get('confidence', 0) / 100 if trade_signal else 0},
+                current_balance=self.risk_manager.current_balance
+            )
             
-            if is_chase and surge_info:
-                # 추격매수: 투자 배율 적용 (1.5~2.0x)
-                multiplier = surge_detector.get_chase_investment_multiplier(
-                    surge_info['surge_score'],
-                    surge_info['confidence']
-                )
-                investment = investment * multiplier
-                self.logger.log_info(f"⚡ 추격매수 배율: {multiplier:.1f}x, 투자금: {investment:,.0f}원")
+            investment = position_size
+            
+            # 로그 출력
+            _original_print(f"\n💰 [SMART-SIZING] {ticker}")
+            _original_print(f"   종합 점수: {sizing_detail['total_score']:.1f}/100")
+            _original_print(f"   - 급등: {sizing_detail['surge_score']:.0f}, AI: {sizing_detail['ai_confidence']:.0f}")
+            _original_print(f"   - 거래량: {sizing_detail['volume_ratio']:.1f}x, 모멘텀: {sizing_detail['price_momentum']:+.2f}%")
+            _original_print(f"   호가창 깊이: {sizing_detail['orderbook_depth']['total_ask_amount_krw']:,.0f}원")
+            _original_print(f"   예상 슬리피지: {sizing_detail['slippage_estimate']:.3f}%")
+            _original_print(f"   → 결정: {investment:,.0f}원 매수\n")
             
             if investment < 5000:
                 self.logger.log_warning(f"투자 금액 부족: {ticker} - {investment:,.0f}원")
