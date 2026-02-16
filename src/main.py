@@ -499,8 +499,8 @@ class AutoProfitBot:
             # 신호 생성
             signal, reason, indicators = strategy.generate_signal(df, ticker)
             
-            # 🔥 AI 학습 기반 신호 보정
-            if trade_signal and trade_signal.get('should_enter') and trade_signal.get('confidence') >= 60:
+            # 🔥 AI 학습 기반 신호 보정 (⭐ v6.31.6: 신뢰도 임계값 10% 상향)
+            if trade_signal and trade_signal.get('should_enter') and trade_signal.get('confidence') >= 66:  # 60 → 66
                 # 체결 데이터가 강한 매수 신호를 주면 신호 강화
                 if signal == 'HOLD' and trade_signal['signal'] in ['BUY', 'STRONG_BUY']:
                     signal = 'BUY'

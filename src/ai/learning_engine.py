@@ -183,8 +183,8 @@ class LearningEngine:
             if exp.profit_loss_ratio is not None
         ])
         
-        # 의사결정
-        if success_rate >= 0.65:  # 65% 이상 승률
+        # 의사결정 (⭐ v6.31.6: 승률 임계값 10% 상향)
+        if success_rate >= 0.715:  # 71.5% 이상 승률 (65% → 71.5%)
             if avg_profit > 0:
                 confidence = min(success_rate, 0.95)
                 reason = f"유사 상황 성공률 {success_rate*100:.1f}% (평균 수익 {avg_profit:+.2f}%)"

@@ -19,12 +19,12 @@ class SurgeDetector:
         self.failed_chase_history = {}  # {ticker: [(timestamp, reason)]}
         self.max_history = 100
         
-        # 임계값 설정
-        self.threshold_1m = 1.5  # 1분 상승률 ≥ 1.5%
-        self.threshold_5m = 3.0  # 5분 상승률 ≥ 3.0%
-        self.threshold_15m = 5.0  # 15분 상승률 ≥ 5.0%
-        self.volume_ratio_threshold = 2.0  # 거래량 비율 ≥ 2.0
-        self.min_surge_score = 50  # 최소 급등 점수
+        # 임계값 설정 (⭐ v6.31.6: 10% 상향 조정으로 매수 진입 강화)
+        self.threshold_1m = 1.65  # 1분 상승률 ≥ 1.65% (1.5% → 1.65%)
+        self.threshold_5m = 3.3  # 5분 상승률 ≥ 3.3% (3.0% → 3.3%)
+        self.threshold_15m = 5.5  # 15분 상승률 ≥ 5.5% (5.0% → 5.5%)
+        self.volume_ratio_threshold = 2.2  # 거래량 비율 ≥ 2.2 (2.0 → 2.2)
+        self.min_surge_score = 55  # 최소 급등 점수 (50 → 55)
     
     def detect_surge(self, ticker: str, api) -> Optional[Dict]:
         """
