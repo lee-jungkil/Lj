@@ -48,6 +48,22 @@ class Config:
     
     # 동적 청산 설정
     ENABLE_DYNAMIC_EXIT = os.getenv('ENABLE_DYNAMIC_EXIT', 'true').lower() == 'true'
+    
+    # ⭐ v6.31.5: Trading Strategy Improvements
+    # Minimum hold time before allowing any exit (seconds)
+    MIN_HOLD_TIME = int(os.getenv('MIN_HOLD_TIME', 300))  # 5 minutes = 300 seconds
+    
+    # Sudden drop threshold (more relaxed to avoid panic sells)
+    SUDDEN_DROP_THRESHOLD = float(os.getenv('SUDDEN_DROP_THRESHOLD', -2.5))  # -1.5% → -2.5%
+    
+    # Volume drop threshold
+    VOLUME_DROP_THRESHOLD = float(os.getenv('VOLUME_DROP_THRESHOLD', 0.5))
+    
+    # Take profit threshold (raised to let winners run)
+    DEFAULT_TAKE_PROFIT = float(os.getenv('DEFAULT_TAKE_PROFIT', 1.5))  # 1.0% → 1.5%
+    
+    # Trading fee rate (buy + sell = 0.1% total)
+    TRADING_FEE_RATE = float(os.getenv('TRADING_FEE_RATE', 0.0005))  # 0.05% per trade
     EXIT_MODE = os.getenv('EXIT_MODE', 'moderate')  # aggressive, moderate, conservative
     
     # ⭐ Phase 2-B/2-C AI 고급 시스템 설정

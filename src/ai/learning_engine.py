@@ -356,8 +356,17 @@ class LearningEngine:
                 
                 # 청산 정보 업데이트
                 exp.exit_price = exit_price
-                exp.profit_loss = (exit_price - exp.entry_price) * exp.entry_amount
-                exp.profit_loss_ratio = ((exit_price - exp.entry_price) / exp.entry_price) * 100
+                
+                # ⭐ v6.31.5: Include trading fees in profit calculation
+                # Buy fee: 0.05%, Sell fee: 0.05% = Total 0.1%
+                buy_cost = exp.entry_price * exp.entry_amount
+                buy_fee = buy_cost * 0.0005  # 0.05%
+                sell_revenue = exit_price * exp.entry_amount
+                sell_fee = sell_revenue * 0.0005  # 0.05%
+                
+                # Net profit = sell revenue - sell fee - buy cost - buy fee
+                exp.profit_loss = sell_revenue - sell_fee - buy_cost - buy_fee
+                exp.profit_loss_ratio = (exp.profit_loss / buy_cost) * 100
                 exp.exit_reason = exit_reason  # ⭐ 새로 추가
                 
                 # 타임스탬프 처리

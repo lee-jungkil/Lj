@@ -1265,6 +1265,15 @@ class AutoProfitBot:
         
         # 환경 변수 설정 (기본값) - ⭐ v6.30.47: 단축형 설정
         from src.config import Config
+        
+        # ⭐ v6.31.5: Minimum hold time enforcement (CRITICAL FIX)
+        # Prevent premature exits that lock in small losses
+        MIN_HOLD_TIME = getattr(Config, 'MIN_HOLD_TIME', 300)  # Default 5 minutes
+        
+        if hold_time < MIN_HOLD_TIME:
+            # Skip ALL exit checks if holding time is less than minimum
+            # Exception: Allow CRITICAL risk exits (already handled above)
+            return
         max_hold_times = {
             'CHASE_BUY': getattr(Config, 'MAX_HOLD_TIME_CHASE', 300),  # 5분
             'ULTRA_SCALPING': getattr(Config, 'MAX_HOLD_TIME_ULTRA', 600),  # 10분
@@ -1341,7 +1350,7 @@ class AutoProfitBot:
                     if df_1m is not None and not df_1m.empty and len(df_1m) >= 2:
                         price_1m_ago = df_1m['close'].iloc[-2]
                         price_change_1m = ((current_price - price_1m_ago) / price_1m_ago) * 100
-                        sudden_drop_threshold = getattr(Config, 'SUDDEN_DROP_THRESHOLD', -1.5)
+                        sudden_drop_threshold = getattr(Config, 'SUDDEN_DROP_THRESHOLD', -2.5)
                         
                         if price_change_1m <= sudden_drop_threshold:
                             _original_print(f"[FORCE-SELL] 🚨 급락 감지 강제 매도 시작!")
