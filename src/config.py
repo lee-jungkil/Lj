@@ -51,19 +51,26 @@ class Config:
     
     # ⭐ v6.31.5: Trading Strategy Improvements
     # Minimum hold time before allowing any exit (seconds)
-    MIN_HOLD_TIME = int(os.getenv('MIN_HOLD_TIME', 300))  # 5 minutes = 300 seconds
+    MIN_HOLD_TIME = int(os.getenv('MIN_HOLD_TIME', 420))  # 7 minutes = 420 seconds (⭐ v6.31.8: 5분 → 7분)
     
     # Sudden drop threshold (more relaxed to avoid panic sells)
     SUDDEN_DROP_THRESHOLD = float(os.getenv('SUDDEN_DROP_THRESHOLD', -2.5))  # -1.5% → -2.5%
     
-    # Volume drop threshold
-    VOLUME_DROP_THRESHOLD = float(os.getenv('VOLUME_DROP_THRESHOLD', 0.5))
+    # Volume drop threshold (⭐ v6.31.8: 0.5 → 0.2 완화)
+    VOLUME_DROP_THRESHOLD = float(os.getenv('VOLUME_DROP_THRESHOLD', 0.2))  # 0.5 → 0.2
+    
+    # Volume drop with price check (⭐ v6.31.8: 가격 하락 조건 추가)
+    VOLUME_DROP_PRICE_CHECK = float(os.getenv('VOLUME_DROP_PRICE_CHECK', -0.5))  # -0.5% 하락 시에만
     
     # Take profit threshold (raised to let winners run)
     DEFAULT_TAKE_PROFIT = float(os.getenv('DEFAULT_TAKE_PROFIT', 1.5))  # 1.0% → 1.5%
     
     # Trading fee rate (buy + sell = 0.1% total)
     TRADING_FEE_RATE = float(os.getenv('TRADING_FEE_RATE', 0.0005))  # 0.05% per trade
+    
+    # ⭐ v6.31.8: Time-based force sell with profit condition
+    TIME_FORCE_SELL_MIN_PROFIT = float(os.getenv('TIME_FORCE_SELL_MIN_PROFIT', 0.3))  # +0.3% 이상에서만 시간 매도
+    TIME_FORCE_SELL_MAX_LOSS = float(os.getenv('TIME_FORCE_SELL_MAX_LOSS', -0.5))  # -0.5% 이하는 즉시 매도
     EXIT_MODE = os.getenv('EXIT_MODE', 'moderate')  # aggressive, moderate, conservative
     
     # ⭐ Phase 2-B/2-C AI 고급 시스템 설정

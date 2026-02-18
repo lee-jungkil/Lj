@@ -1316,20 +1316,31 @@ class AutoProfitBot:
         force_sell_threshold = max_hold_time * 0.8
         
         
-        # ⭐ 조건 1: 시간 초과 청산 (80% 기준 완화)
+        # ⭐ 조건 1: 시간 초과 청산 (⭐ v6.31.8: 수익 조건 추가)
         if hold_time > force_sell_threshold:
             profit_ratio = ((current_price - position.avg_buy_price) / position.avg_buy_price) * 100
-            _original_print(f"[FORCE-SELL] 🚨 강제 매도 실행 시작!")
             
-            try:
-                self.execute_sell(ticker, f"시간초과청산 (보유:{hold_time/60:.0f}분, 손익:{profit_ratio:+.2f}%)")
-                _original_print(f"[FORCE-SELL] ✅ 매도 주문 완료!")
-            except Exception as e:
-                _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
-                import traceback
-                _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+            # v6.31.8: 수익/손실 조건 체크
+            min_profit = getattr(Config, 'TIME_FORCE_SELL_MIN_PROFIT', 0.3)
+            max_loss = getattr(Config, 'TIME_FORCE_SELL_MAX_LOSS', -0.5)
             
-            return
+            # 조건: +0.3% 이상 OR -0.5% 이하만 매도
+            should_force_sell = (profit_ratio >= min_profit) or (profit_ratio <= max_loss)
+            
+            if should_force_sell:
+                _original_print(f"[FORCE-SELL] 🚨 강제 매도 실행 시작!")
+                try:
+                    self.execute_sell(ticker, f"시간초과청산 (보유:{hold_time/60:.0f}분, 손익:{profit_ratio:+.2f}%)")
+                    _original_print(f"[FORCE-SELL] ✅ 매도 주문 완료!")
+                except Exception as e:
+                    _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                    import traceback
+                    _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+                return
+            else:
+                # 수익/손실이 기준 범위 내면 계속 보유
+                _original_print(f"[HOLD] {ticker} 시간 도달했지만 보유 지속 (손익:{profit_ratio:+.2f}%)")
+                # 다른 청산 조건 체크는 계속 진행
         else:
             # ⭐ 조건 2-6: 차트 지표 및 급락/거래량 분석
             try:
@@ -1376,18 +1387,28 @@ class AutoProfitBot:
                                 _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
                             return
                     
-                    # ⭐ 조건 6: 거래량 급감 (평균 대비 0.5배 이하)
-                    volume_drop_threshold = getattr(Config, 'VOLUME_DROP_THRESHOLD', 0.5)
+                    # ⭐ 조건 6: 거래량 급감 (⭐ v6.31.8: 가격 하락 조건 추가)
+                    volume_drop_threshold = getattr(Config, 'VOLUME_DROP_THRESHOLD', 0.2)  # 0.5 → 0.2
+                    price_drop_threshold = getattr(Config, 'VOLUME_DROP_PRICE_CHECK', -0.5)  # -0.5%
+                    
+                    # 거래량이 극도로 낮고 + 가격이 하락 중일 때만 매도
                     if volume_ratio < volume_drop_threshold:
-                        _original_print(f"[FORCE-SELL] 🚨 거래량 급감 강제 매도 시작!")
-                        try:
-                            self.execute_sell(ticker, f"거래량급감 (평균 대비 {volume_ratio:.2f}배)")
-                            _original_print(f"[FORCE-SELL] ✅ 거래량 급감 매도 완료!")
-                        except Exception as e:
-                            _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
-                            import traceback
-                            _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
-                        return
+                        # 가격 변화율 계산
+                        if df_1m is not None and not df_1m.empty and len(df_1m) >= 2:
+                            price_1m_ago = df_1m['close'].iloc[-2]
+                            price_change_1m = ((current_price - price_1m_ago) / price_1m_ago) * 100
+                            
+                            # 최소 3분 경과 + 거래량 급감 + 가격 하락
+                            if hold_time >= 180 and price_change_1m <= price_drop_threshold:
+                                _original_print(f"[FORCE-SELL] 🚨 거래량 급감 + 가격 하락 매도 시작!")
+                                try:
+                                    self.execute_sell(ticker, f"거래량급감+가격하락 (거래량:{volume_ratio:.2f}배, 가격:{price_change_1m:+.2f}%)")
+                                    _original_print(f"[FORCE-SELL] ✅ 거래량 급감 매도 완료!")
+                                except Exception as e:
+                                    _original_print(f"[FORCE-SELL] ❌ 매도 실패: {e}")
+                                    import traceback
+                                    _original_print(f"[FORCE-SELL] ❌ 스택 트레이스:\n{traceback.format_exc()}")
+                                return
                     
                     # ⭐ 조건 3: 차트 신호 청산
                     chart_exit = False
