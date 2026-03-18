@@ -207,6 +207,57 @@ class Config:
             'smart_exit': True,      # 스마트 매도 활성화
             'profit_recheck_threshold': 0.005,  # 0.5% 이상부터 재확인
             'momentum_threshold': 0.001,  # 0.1% 모멘텀 기준
+        },
+        # ⭐ v6.31.9: 5가지 고급 매수 전략 추가
+        # 1. 돌파 매수 전략 (Breakout Buy)
+        'breakout': {
+            'enabled': True,
+            'lookback_period': 20,  # 20일 최고가 확인
+            'volume_multiplier': 2.0,  # 거래량 2배 이상
+            'rsi_max': 70,  # RSI < 70 (과매수 아님)
+            'take_profit': 0.05,  # 익절 5%
+            'stop_loss': -0.02,  # 손절 -2%
+        },
+        # 2. 되돌림 매수 전략 (Pullback Buy)
+        'pullback': {
+            'enabled': True,
+            'trend_period': 20,  # 20일 추세 확인
+            'trend_min': 0.05,  # 최소 5% 상승 추세
+            'pullback_min': -0.02,  # 최소 -2% 되돌림
+            'pullback_max': -0.05,  # 최대 -5% 되돌림
+            'rsi_max': 35,  # RSI < 35 (과매도)
+            'fib_range': (0.45, 0.55),  # 피보나치 50% 근처
+            'take_profit': 0.04,  # 익절 4%
+            'stop_loss': -0.03,  # 손절 -3%
+        },
+        # 3. 골든크로스 매수 전략 (Golden Cross)
+        'golden_cross': {
+            'enabled': True,
+            'fast_period': 5,  # 5일 단기 이평선
+            'slow_period': 20,  # 20일 장기 이평선
+            'cross_window': 3,  # 최근 3봉 이내 크로스
+            'volume_multiplier': 1.3,  # 거래량 1.3배 이상
+            'take_profit': 0.08,  # 익절 8%
+            'stop_loss': -0.03,  # 손절 -3%
+        },
+        # 4. 변동성 돌파 매수 전략 (Volatility Breakout)
+        'volatility_breakout': {
+            'enabled': True,
+            'k_value': 0.4,  # 변동성 계수 (0.3~0.5)
+            'volume_multiplier': 1.5,  # 거래량 1.5배 이상
+            'rsi_max': 75,  # RSI < 75
+            'take_profit': 0.06,  # 익절 6%
+            'stop_loss': -0.025,  # 손절 -2.5%
+        },
+        # 5. 더블바텀 매수 전략 (Double Bottom)
+        'double_bottom': {
+            'enabled': True,
+            'lookback_period': 30,  # 30일 패턴 확인
+            'bottom_tolerance': 0.02,  # 저점 오차 2%
+            'volume_multiplier': 1.8,  # 거래량 1.8배 이상
+            'rsi_min': 40,  # RSI > 40 (과매도 탈출)
+            'take_profit': 0.07,  # 익절 7%
+            'stop_loss': -0.03,  # 손절 -3%
         }
     }
     
