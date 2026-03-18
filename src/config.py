@@ -165,7 +165,7 @@ class Config:
     # 전략별 설정
     STRATEGIES = {
         'aggressive_scalping': {
-            'enabled': True,
+            'enabled': False,  # ⭐ v6.31.9: 승률 33.1% - 비활성화
             'stop_loss': 0.03,      # 3% 손절 (완화)
             'take_profit': 0.02,    # 2% 익절 (완화)
             'rsi_oversold': 40,     # 40으로 완화 (더 자주 진입)
@@ -182,14 +182,14 @@ class Config:
             'bb_threshold': 0.9,    # 90%로 완화 (더 자주 진입)
         },
         'mean_reversion': {
-            'enabled': True,
+            'enabled': False,  # ⭐ v6.31.9: 거의 미사용 - 비활성화
             'stop_loss': 0.04,      # 4% 손절
             'take_profit': 0.03,    # 3% 익절 (완화)
             'ma_period': 20,
             'deviation_threshold': 0.03,  # 3%로 완화 (더 자주 진입)
         },
         'grid_trading': {
-            'enabled': True,
+            'enabled': False,  # ⭐ v6.31.9: 거의 미사용 - 비활성화
             'stop_loss': 0.05,      # 5% 손절 (완화)
             'grid_count': 10,
             'grid_spacing': 0.005,  # 0.5% 간격

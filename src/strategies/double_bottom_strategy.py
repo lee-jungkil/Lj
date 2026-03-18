@@ -162,13 +162,15 @@ class DoubleBottomStrategy(BaseStrategy):
         
         return 'HOLD', 'No double bottom signal', indicators
     
-    def should_exit(self, entry_price: float, current_price: float) -> Tuple[bool, str]:
+    def should_exit(self, entry_price: float, current_price: float, holding_duration: float = 0, market_snapshot=None) -> Tuple[bool, str]:
         """
         청산 여부 확인
         
         Args:
             entry_price: 진입 가격
             current_price: 현재 가격
+            holding_duration: 보유 시간 (초)
+            market_snapshot: 시장 스냅샷 (옵션)
         
         Returns:
             (청산 여부, 사유)
