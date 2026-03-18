@@ -1,13 +1,14 @@
 @echo off
 chcp 65001 > nul
-title Advanced Strategies Update v6.31.9
+title Advanced Strategies Update v6.31.9 (FIXED)
 color 0A
 
 echo ========================================
-echo   ADVANCED STRATEGIES v6.31.9
+echo   ADVANCED STRATEGIES v6.31.9 (FIXED)
 echo ========================================
 echo.
 echo ** 5 NEW PROFESSIONAL TRADING STRATEGIES **
+echo ** BUG FIX: Exit signature compatibility **
 echo.
 echo 1. BREAKOUT BUY (Breakout) - 5-Star Rating
 echo    - Target: 3-5 percent profit (short), 10-20 percent (mid)
@@ -38,6 +39,11 @@ echo ** DISABLED STRATEGIES **
 echo - aggressive_scalping (Win rate 33.1 percent - DISABLED)
 echo - grid_trading (Almost unused - DISABLED)
 echo - mean_reversion (Almost unused - DISABLED)
+echo.
+echo ** BUG FIXES **
+echo - Fixed should_exit signature compatibility
+echo - All strategies now properly connected to main bot
+echo - Buy-Sell flow verified and tested
 echo.
 echo Press any key to continue update or Ctrl+C to cancel...
 pause > nul
