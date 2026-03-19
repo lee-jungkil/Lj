@@ -87,6 +87,23 @@ class Config:
         'cache_duration': 3,  # 캐시 유효 시간 (초)
     }
     
+    # ⭐ v6.31.8-R3: 스마트 투자 금액 시스템
+    ENABLE_SMART_INVESTMENT = os.getenv('ENABLE_SMART_INVESTMENT', 'true').lower() == 'true'
+    SMART_INVESTMENT_CONFIG = {
+        'enabled': True,
+        'verify_orderbook': True,  # 호가창 검증 활성화
+        'max_slippage': 0.5,  # 최대 허용 슬리피지 (%)
+        'liquidity_ratio': 0.3,  # 유동성의 30%까지만 사용
+        # 전략별 점수 (1~10, 10만원~300만원)
+        'strategy_scores': {
+            'aggressive_scalping': 4,    # 30만원
+            'conservative_scalping': 5,  # 50만원
+            'mean_reversion': 6,         # 70만원
+            'grid_trading': 5,           # 50만원
+            'ultra_scalping': 3,         # 20만원
+        }
+    }
+    
     # 분할 전략 설정
     SPLIT_CONFIG = {
         'min_split_amount': 5000,  # 최소 분할 금액 (원)
