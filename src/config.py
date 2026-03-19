@@ -168,10 +168,10 @@ class Config:
             'enabled': True,
             'stop_loss': 0.015,     # 1.5% 손절 (⭐ v6.31.8-R: 개선 - 손실 감소)
             'take_profit': 0.025,   # 2.5% 익절 (⭐ v6.31.8-R: 개선 - 수익 증가)
-            'rsi_oversold': 35,     # 35로 강화 (더 확실한 과매도)
-            'rsi_overbought': 65,   # 65로 강화 (더 확실한 과매수)
-            'volume_threshold': 1.3,  # 130%로 강화 (더 강한 거래량)
-            'min_price_change': 0.008,  # 0.8%로 강화 (더 확실한 움직임)
+            'rsi_oversold': 45,     # 45로 완화 (⭐ v6.31.8-R2: 30% 진입 조건 상향)
+            'rsi_overbought': 55,   # 55로 강화 (⭐ v6.31.8-R2: 30% 진입 조건 상향)
+            'volume_threshold': 1.7,  # 170%로 완화 (⭐ v6.31.8-R2: 30% 진입 조건 상향)
+            'min_price_change': 0.012,  # 1.2%로 상향 (⭐ v6.31.8-R2: 30% 진입 조건 상향)
         },
         'conservative_scalping': {
             'enabled': True,
@@ -186,14 +186,14 @@ class Config:
             'stop_loss': 0.02,      # 2% 손절 (⭐ v6.31.8-R: 개선 - 손실 대폭 감소)
             'take_profit': 0.035,   # 3.5% 익절 (⭐ v6.31.8-R: 개선 - 수익 증가)
             'ma_period': 20,
-            'deviation_threshold': 0.025,  # 2.5%로 강화 (더 확실한 신호)
+            'deviation_threshold': 0.02,  # 2.0%로 완화 (⭐ v6.31.8-R2: 20% 진입 조건 하향)
         },
         'grid_trading': {
             'enabled': True,
             'stop_loss': 0.025,     # 2.5% 손절 (⭐ v6.31.8-R: 개선 - 손실 대폭 감소)
             'grid_count': 8,        # 8개로 감소 (더 넓은 간격)
             'grid_spacing': 0.008,  # 0.8% 간격 (⭐ v6.31.8-R: 개선 - 더 안정적)
-            'max_volatility': 0.025,  # 2.5%로 강화 (안정적인 시장만)
+            'max_volatility': 0.03,  # 3.0%로 완화 (⭐ v6.31.8-R2: 20% 진입 조건 하향)
         },
         # ⭐ 초단타 전략 (Ultra Scalping) - 스마트 버전
         'ultra_scalping': {
