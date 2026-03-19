@@ -165,35 +165,35 @@ class Config:
     # 전략별 설정
     STRATEGIES = {
         'aggressive_scalping': {
-            'enabled': False,  # ⭐ v6.31.9: 승률 33.1% - 비활성화
-            'stop_loss': 0.03,      # 3% 손절 (완화)
-            'take_profit': 0.02,    # 2% 익절 (완화)
-            'rsi_oversold': 40,     # 40으로 완화 (더 자주 진입)
-            'rsi_overbought': 60,   # 60으로 완화
-            'volume_threshold': 1.2,  # 120%로 완화 (더 쉽게 진입)
-            'min_price_change': 0.005,  # 0.5%로 완화 (더 쉽게 진입)
+            'enabled': True,
+            'stop_loss': 0.015,     # 1.5% 손절 (⭐ v6.31.8-R: 개선 - 손실 감소)
+            'take_profit': 0.025,   # 2.5% 익절 (⭐ v6.31.8-R: 개선 - 수익 증가)
+            'rsi_oversold': 35,     # 35로 강화 (더 확실한 과매도)
+            'rsi_overbought': 65,   # 65로 강화 (더 확실한 과매수)
+            'volume_threshold': 1.3,  # 130%로 강화 (더 강한 거래량)
+            'min_price_change': 0.008,  # 0.8%로 강화 (더 확실한 움직임)
         },
         'conservative_scalping': {
             'enabled': True,
-            'stop_loss': 0.02,      # 2% 손절 (완화)
-            'take_profit': 0.015,   # 1.5% 익절 (완화)
-            'rsi_min': 35,          # 35로 완화
-            'rsi_max': 65,          # 65로 완화
-            'bb_threshold': 0.9,    # 90%로 완화 (더 자주 진입)
+            'stop_loss': 0.015,     # 1.5% 손절 (⭐ v6.31.8-R: 개선 - 손실 감소)
+            'take_profit': 0.02,    # 2.0% 익절 (⭐ v6.31.8-R: 개선 - 수익 증가)
+            'rsi_min': 30,          # 30으로 강화 (더 확실한 과매도)
+            'rsi_max': 70,          # 70으로 강화 (더 확실한 과매수)
+            'bb_threshold': 0.85,   # 85%로 강화 (더 확실한 신호)
         },
         'mean_reversion': {
-            'enabled': False,  # ⭐ v6.31.9: 거의 미사용 - 비활성화
-            'stop_loss': 0.04,      # 4% 손절
-            'take_profit': 0.03,    # 3% 익절 (완화)
+            'enabled': True,
+            'stop_loss': 0.02,      # 2% 손절 (⭐ v6.31.8-R: 개선 - 손실 대폭 감소)
+            'take_profit': 0.035,   # 3.5% 익절 (⭐ v6.31.8-R: 개선 - 수익 증가)
             'ma_period': 20,
-            'deviation_threshold': 0.03,  # 3%로 완화 (더 자주 진입)
+            'deviation_threshold': 0.025,  # 2.5%로 강화 (더 확실한 신호)
         },
         'grid_trading': {
-            'enabled': False,  # ⭐ v6.31.9: 거의 미사용 - 비활성화
-            'stop_loss': 0.05,      # 5% 손절 (완화)
-            'grid_count': 10,
-            'grid_spacing': 0.005,  # 0.5% 간격
-            'max_volatility': 0.03,  # 3%로 완화 (더 쉽게 진입)
+            'enabled': True,
+            'stop_loss': 0.025,     # 2.5% 손절 (⭐ v6.31.8-R: 개선 - 손실 대폭 감소)
+            'grid_count': 8,        # 8개로 감소 (더 넓은 간격)
+            'grid_spacing': 0.008,  # 0.8% 간격 (⭐ v6.31.8-R: 개선 - 더 안정적)
+            'max_volatility': 0.025,  # 2.5%로 강화 (안정적인 시장만)
         },
         # ⭐ 초단타 전략 (Ultra Scalping) - 스마트 버전
         'ultra_scalping': {
@@ -207,57 +207,6 @@ class Config:
             'smart_exit': True,      # 스마트 매도 활성화
             'profit_recheck_threshold': 0.005,  # 0.5% 이상부터 재확인
             'momentum_threshold': 0.001,  # 0.1% 모멘텀 기준
-        },
-        # ⭐ v6.31.9: 5가지 고급 매수 전략 추가
-        # 1. 돌파 매수 전략 (Breakout Buy)
-        'breakout': {
-            'enabled': True,
-            'lookback_period': 20,  # 20일 최고가 확인
-            'volume_multiplier': 2.0,  # 거래량 2배 이상
-            'rsi_max': 70,  # RSI < 70 (과매수 아님)
-            'take_profit': 0.05,  # 익절 5%
-            'stop_loss': -0.02,  # 손절 -2%
-        },
-        # 2. 되돌림 매수 전략 (Pullback Buy)
-        'pullback': {
-            'enabled': True,
-            'trend_period': 20,  # 20일 추세 확인
-            'trend_min': 0.05,  # 최소 5% 상승 추세
-            'pullback_min': -0.02,  # 최소 -2% 되돌림
-            'pullback_max': -0.05,  # 최대 -5% 되돌림
-            'rsi_max': 35,  # RSI < 35 (과매도)
-            'fib_range': (0.45, 0.55),  # 피보나치 50% 근처
-            'take_profit': 0.04,  # 익절 4%
-            'stop_loss': -0.03,  # 손절 -3%
-        },
-        # 3. 골든크로스 매수 전략 (Golden Cross)
-        'golden_cross': {
-            'enabled': True,
-            'fast_period': 5,  # 5일 단기 이평선
-            'slow_period': 20,  # 20일 장기 이평선
-            'cross_window': 3,  # 최근 3봉 이내 크로스
-            'volume_multiplier': 1.3,  # 거래량 1.3배 이상
-            'take_profit': 0.08,  # 익절 8%
-            'stop_loss': -0.03,  # 손절 -3%
-        },
-        # 4. 변동성 돌파 매수 전략 (Volatility Breakout)
-        'volatility_breakout': {
-            'enabled': True,
-            'k_value': 0.4,  # 변동성 계수 (0.3~0.5)
-            'volume_multiplier': 1.5,  # 거래량 1.5배 이상
-            'rsi_max': 75,  # RSI < 75
-            'take_profit': 0.06,  # 익절 6%
-            'stop_loss': -0.025,  # 손절 -2.5%
-        },
-        # 5. 더블바텀 매수 전략 (Double Bottom)
-        'double_bottom': {
-            'enabled': True,
-            'lookback_period': 30,  # 30일 패턴 확인
-            'bottom_tolerance': 0.02,  # 저점 오차 2%
-            'volume_multiplier': 1.8,  # 거래량 1.8배 이상
-            'rsi_min': 40,  # RSI > 40 (과매도 탈출)
-            'take_profit': 0.07,  # 익절 7%
-            'stop_loss': -0.03,  # 손절 -3%
         }
     }
     

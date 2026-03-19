@@ -96,12 +96,6 @@ from src.strategies.grid_trading import GridTrading
 from src.strategies.ultra_scalping import UltraScalping
 from src.strategies.split_strategies import SplitStrategies
 from src.strategies.dynamic_exit_manager import DynamicExitManager
-# ⭐ v6.31.9: 5가지 고급 매수 전략 추가
-from src.strategies.breakout_strategy import BreakoutStrategy
-from src.strategies.pullback_strategy import PullbackStrategy
-from src.strategies.golden_cross_strategy import GoldenCrossStrategy
-from src.strategies.volatility_breakout_strategy import VolatilityBreakoutStrategy
-from src.strategies.double_bottom_strategy import DoubleBottomStrategy
 
 
 class AutoProfitBot:
@@ -268,13 +262,7 @@ class AutoProfitBot:
             ),
             'mean_reversion': MeanReversion(Config.get_strategy_config('mean_reversion')),
             'grid_trading': GridTrading(Config.get_strategy_config('grid_trading')),
-            'ultra_scalping': UltraScalping(Config.get_strategy_config('ultra_scalping')),
-            # ⭐ v6.31.9: 5가지 고급 매수 전략 추가
-            'breakout': BreakoutStrategy(Config.get_strategy_config('breakout')),
-            'pullback': PullbackStrategy(Config.get_strategy_config('pullback')),
-            'golden_cross': GoldenCrossStrategy(Config.get_strategy_config('golden_cross')),
-            'volatility_breakout': VolatilityBreakoutStrategy(Config.get_strategy_config('volatility_breakout')),
-            'double_bottom': DoubleBottomStrategy(Config.get_strategy_config('double_bottom'))
+            'ultra_scalping': UltraScalping(Config.get_strategy_config('ultra_scalping'))
         }
         
         # 전략 최적화 엔진
