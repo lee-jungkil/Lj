@@ -1,10 +1,22 @@
-# 🎯 Profit Bot v7.0 - 수익 최적화 자동매매 봇
+# 🎯 Profit Bot v7.0.2 - 수익 최적화 자동매매 봇
 
 > **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
 
-[![Version](https://img.shields.io/badge/version-7.0-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Version](https://img.shields.io/badge/version-7.0.2-blue.svg)](https://github.com/lee-jungkil/Lj)
 [![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
+
+---
+
+## 📥 다운로드 (v7.0.2)
+
+### Windows 사용자
+**ZIP 파일**: [profit_bot_v7.0.2.zip](https://www.genspark.ai/api/files/s/64h0cpNu) (192 KB)
+
+### Linux/Mac 사용자
+**TAR.GZ 파일**: [profit_bot_v7.0.2.tar.gz](https://www.genspark.ai/api/files/s/Kwev7NT6) (155 KB)
+
+📖 **전체 다운로드 가이드**: [DOWNLOAD_v7.0.2.md](DOWNLOAD_v7.0.2.md)
 
 ---
 
