@@ -273,8 +273,15 @@ class RealtimeLearner:
             today = datetime.now().strftime('%Y%m%d')
             filepath = self.learning_data_dir / f'trades_{today}.jsonl'
             
+            # datetime 객체를 문자열로 변환
+            record_copy = trade_record.copy()
+            if 'entry_time' in record_copy and hasattr(record_copy['entry_time'], 'isoformat'):
+                record_copy['entry_time'] = record_copy['entry_time'].isoformat()
+            if 'exit_time' in record_copy and hasattr(record_copy['exit_time'], 'isoformat'):
+                record_copy['exit_time'] = record_copy['exit_time'].isoformat()
+            
             with open(filepath, 'a', encoding='utf-8') as f:
-                f.write(json.dumps(trade_record, ensure_ascii=False) + '\n')
+                f.write(json.dumps(record_copy, ensure_ascii=False) + '\n')
         
         except Exception as e:
             logger.error(f"[REALTIME-LEARNER] 거래 파일 저장 실패: {e}")
