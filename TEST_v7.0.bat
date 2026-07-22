@@ -1,31 +1,29 @@
 @echo off
-chcp 65001 >nul
 echo ================================================================
-echo 🧪 Profit Bot v7.0 - 테스트 실행
+echo  Profit Bot v7.0 - TEST MODE
 echo ================================================================
 echo.
-echo [테스트 항목]
-echo - 모듈 임포트 테스트
-echo - 전략 객체 생성 테스트
-echo - 학습 시스템 테스트
-echo - 봇 객체 생성 테스트
-echo - 진입/청산 로직 테스트 (8개 시나리오)
+echo [TEST ITEMS]
+echo - Module import test
+echo - Strategy object creation test
+echo - Learning system test
+echo - Bot object creation test
+echo - Entry/Exit logic test (8 scenarios)
 echo.
 echo ----------------------------------------------------------------
-echo 테스트 시작 중...
+echo Starting tests...
 echo ----------------------------------------------------------------
 echo.
 
-REM Python 테스트 실행
 python test_quick_v7.py
 
 echo.
 echo ----------------------------------------------------------------
-echo 테스트 완료!
+echo Test completed!
 echo ----------------------------------------------------------------
 echo.
-echo 다음 단계:
-echo 1. 모든 테스트 통과 시 → RUN_PAPER_v7.0.bat 실행 (시뮬레이션)
-echo 2. 시뮬레이션 충분히 후 → RUN_LIVE_v7.0.bat 실행 (실전)
+echo NEXT STEPS:
+echo 1. If all tests pass -^> Run RUN_PAPER_v7.0.bat (Simulation)
+echo 2. After sufficient simulation -^> Run RUN_LIVE_v7.0.bat (Live)
 echo.
 pause

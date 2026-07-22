@@ -1,26 +1,24 @@
 @echo off
-chcp 65001 >nul
 echo ================================================================
-echo 🎯 Profit Bot v7.0 - 시뮬레이션 모드 실행
+echo  Profit Bot v7.0 - PAPER TRADING MODE
 echo ================================================================
 echo.
-echo [정보]
-echo - 모드: 시뮬레이션 (Paper Trading)
-echo - 실제 거래: 하지 않음
-echo - 시장 데이터: 실제 사용
-echo - 안전성: 100%% (실제 돈 사용 안함)
+echo [INFO]
+echo - Mode: Simulation (Paper Trading)
+echo - Real Trading: NO
+echo - Market Data: Real-time
+echo - Safety: 100%% (No real money used)
 echo.
 echo ----------------------------------------------------------------
-echo 시작 중...
+echo Starting bot...
 echo ----------------------------------------------------------------
 echo.
 
-REM Python 실행
 python profit_bot_v7.py --mode paper
 
 echo.
 echo ----------------------------------------------------------------
-echo 봇이 종료되었습니다.
+echo Bot stopped.
 echo ----------------------------------------------------------------
 echo.
 pause

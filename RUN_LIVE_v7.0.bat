@@ -1,40 +1,37 @@
 @echo off
-chcp 65001 >nul
 echo ================================================================
-echo 💰 Profit Bot v7.0 - 실전 모드 실행
+echo  Profit Bot v7.0 - LIVE TRADING MODE
 echo ================================================================
 echo.
-echo ⚠️⚠️⚠️ 경 고 ⚠️⚠️⚠️
+echo *** WARNING *** WARNING *** WARNING ***
 echo.
-echo [실전 모드 주의사항]
-echo - 실제 돈을 사용합니다!
-echo - API 키가 설정되어 있어야 합니다 (src\config.py)
-echo - 소액으로 시작하세요 (10-50만원 권장)
-echo - 24시간 모니터링이 필요합니다
+echo [LIVE MODE CAUTION]
+echo - Uses REAL MONEY!
+echo - API keys must be set (src\config.py)
+echo - Start with small amount (100-500 USD recommended)
+echo - Requires 24/7 monitoring
 echo.
-echo 계속하시겠습니까?
+echo Press any key to continue or close window to cancel...
 echo.
 pause
 echo.
 echo ----------------------------------------------------------------
-echo 실전 모드 시작 중...
+echo Starting LIVE trading...
 echo ----------------------------------------------------------------
 echo.
 
-REM API 키 확인
 if not exist "src\config.py" (
-    echo ❌ 오류: src\config.py 파일이 없습니다!
+    echo [ERROR] src\config.py file not found!
     echo.
     pause
     exit /b 1
 )
 
-REM Python 실행
 python profit_bot_v7.py --mode live
 
 echo.
 echo ----------------------------------------------------------------
-echo 봇이 종료되었습니다.
+echo Bot stopped.
 echo ----------------------------------------------------------------
 echo.
 pause
