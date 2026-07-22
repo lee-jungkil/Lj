@@ -1,0 +1,110 @@
+================================================================
+  Profit Bot v7.0 - QUICK START GUIDE
+================================================================
+
+IMPORTANT: All batch files now use ENGLISH ONLY
+           (Korean characters removed to fix encoding issues)
+
+----------------------------------------------------------------
+  STEP 1: TEST (REQUIRED!)
+----------------------------------------------------------------
+
+Double-click: TEST_v7.0.bat
+
+Expected result: All tests pass
+
+----------------------------------------------------------------
+  STEP 2: SIMULATION (RECOMMENDED: 1-3 days)
+----------------------------------------------------------------
+
+Double-click: RUN_PAPER_v7.0.bat
+
+Features:
+- Uses real market data
+- No real trading
+- Safe testing environment
+- Learning data accumulation
+
+----------------------------------------------------------------
+  STEP 3: LIVE TRADING (CAUTION!)
+----------------------------------------------------------------
+
+Double-click: RUN_LIVE_v7.0.bat
+
+Prerequisites:
+1. Simulation completed (1-3 days)
+2. Profitability confirmed (PF > 2.0, Win rate > 60%)
+3. API keys set (src/config.py)
+4. Start with small amount (100-500 USD)
+
+WARNING: Uses REAL MONEY!
+
+----------------------------------------------------------------
+  BATCH FILES
+----------------------------------------------------------------
+
+1. TEST_v7.0.bat
+   - Run all tests
+   - Verify system works correctly
+
+2. RUN_PAPER_v7.0.bat
+   - Simulation mode
+   - No real money used
+   - Safe for testing
+
+3. RUN_LIVE_v7.0.bat
+   - Live trading mode
+   - Uses real money
+   - Requires API keys
+
+----------------------------------------------------------------
+  TROUBLESHOOTING
+----------------------------------------------------------------
+
+Q: Batch files show garbled text?
+A: FIXED in v7.0.1 - All batch files now use English only
+
+Q: Python not found?
+A: Install Python 3.8+ from https://www.python.org/
+
+Q: Module import errors?
+A: Run: pip install -r requirements.txt
+
+Q: API key errors?
+A: Check src/config.py and set your Upbit API keys
+
+----------------------------------------------------------------
+  MONITORING
+----------------------------------------------------------------
+
+Real-time log:
+  tail -f profit_bot.log
+
+Performance summary:
+  Displayed every 60 seconds in console
+
+Learning data:
+  src/learning_data/realtime_learning.json
+
+----------------------------------------------------------------
+  TARGET PERFORMANCE
+----------------------------------------------------------------
+
+Daily Profit:     1-3%
+Win Rate:         60%+
+Profit Factor:    2.0+
+Per Trade Profit: 0.3-0.8%
+Max Loss:         -0.5%
+
+----------------------------------------------------------------
+  SUPPORT
+----------------------------------------------------------------
+
+Documentation: See USER_GUIDE_V7.md
+GitHub Issues: https://github.com/lee-jungkil/Lj/issues
+
+================================================================
+Version: v7.0.1
+Status: Production Ready
+Last Update: 2026-07-22
+================================================================
