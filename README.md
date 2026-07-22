@@ -1,354 +1,312 @@
-# 🚀 Upbit AutoProfit Bot v6.30.62
+# 🎯 Profit Bot v7.0 - 수익 최적화 자동매매 봇
 
-**Automated cryptocurrency trading bot for Upbit exchange with AI-powered strategies.**
+> **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
+
+[![Version](https://img.shields.io/badge/version-7.0-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
 
 ---
 
-## ⚡ Quick Start
+## 🚀 빠른 시작 (3단계)
 
-### Download & Install
-
-**Option 1: ZIP Download (Recommended)**
-```
-1. Download: https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
-2. Extract to: C:\Lj-main\
-3. Double-click: COMPLETE_REINSTALL.bat
-4. Type: Y
-5. Done!
-```
-
-**Option 2: Git Clone**
+### 1️⃣ 테스트 (필수!)
 ```bash
-git clone https://github.com/lee-jungkil/Lj.git
-cd Lj
-COMPLETE_REINSTALL.bat
+더블클릭: TEST_v7.0.bat
+```
+
+### 2️⃣ 시뮬레이션
+```bash
+더블클릭: RUN_PAPER_v7.0.bat
+```
+
+### 3️⃣ 실전 (신중!)
+```bash
+더블클릭: RUN_LIVE_v7.0.bat
 ```
 
 ---
 
-## 📋 System Requirements
+## 📊 핵심 기능
 
-- **OS**: Windows 10/11
-- **Python**: 3.8 or higher
-- **RAM**: 2GB minimum
-- **Disk**: 500MB free space
-- **Internet**: Required
-
----
-
-## 🎯 Features
-
-### Core Features
-- ✅ **Automated Trading**: 24/7 autonomous operation
-- ✅ **Multiple Strategies**: Aggressive, Conservative, Mean Reversion, Grid
-- ✅ **AI Learning**: Adaptive strategy optimization
-- ✅ **Risk Management**: Stop-loss, take-profit, position limits
-- ✅ **Paper Trading**: Safe testing with virtual money
-
-### v6.30.62 Updates
-- ✅ **Enhanced Sell Debugging**: Detailed error tracking
-- ✅ **Individual Try/Except**: Per-step error handling
-- ✅ **Stack Trace Logging**: Automatic error diagnosis
-- ✅ **English Batch Files**: No encoding errors
-- ✅ **Cache Management**: Complete cleanup system
-
----
-
-## 🚀 Usage
-
-### Paper Trading (Safe Testing)
-```batch
-RUN_PAPER_CLEAN.bat
+### ✅ 수익 최적화 전략
 ```
-- No real money
-- Safe for testing
-- Learn bot behavior
+✅ 진입: 거래량 급증(2.5x) + 모멘텀(0.15-1.5%) + RSI + 호가창
+✅ 청산: 7가지 조건 (손절 -0.5%, 익절 +0.5%, 시간 180초 등)
+✅ 검증: 모든 테스트 통과
+```
 
-### Live Trading (Real Money)
-```batch
-# 1. Edit .env file
-notepad .env
+### ✅ 실시간 학습
+```
+✅ 매 거래마다 학습 → 10건마다 최적화
+✅ 승률 < 40% → 진입 조건 강화
+✅ 승률 > 60% → 진입 조건 완화
+✅ 파라미터 자동 조정 (±5%)
+```
 
-# 2. Add your Upbit API keys
-TRADING_MODE=live
-UPBIT_ACCESS_KEY=your_access_key
-UPBIT_SECRET_KEY=your_secret_key
-
-# 3. Run bot
-python -B -u -m src.main --mode live
+### ✅ 간결한 코드
+```
+기존: 132KB, 3500줄 → v7.0: 17KB, 500줄 (87% 감소!)
+✅ 읽기 쉬움
+✅ 디버그 가능
+✅ 수정 용이
 ```
 
 ---
 
-## 🔧 Configuration (.env)
+## 💰 기대 성과
 
-### Basic Settings
-```ini
-# Trading Mode
-TRADING_MODE=paper          # paper or live
-
-# Capital Management
-INITIAL_CAPITAL=5000000     # Starting capital (KRW)
-MAX_DAILY_LOSS=500000       # Max loss per day
-MAX_CUMULATIVE_LOSS=1000000 # Max total loss
-MAX_POSITIONS=5             # Max concurrent positions
-
-# Strategy
-EXIT_MODE=aggressive        # aggressive, moderate, conservative
-```
-
-### API Keys (Live Trading Only)
-```ini
-UPBIT_ACCESS_KEY=your_key_here
-UPBIT_SECRET_KEY=your_secret_here
-```
+| 지표 | 목표 |
+|------|------|
+| **일일 수익** | 1-3% |
+| **승률** | 60% 이상 |
+| **Profit Factor** | 2.0 이상 |
+| **거래당 수익** | 0.3-0.8% |
+| **손실 제한** | 최대 -0.5% |
 
 ---
 
-## 📊 Trading Strategies
-
-### 1. Aggressive Scalping
-- **Hold Time**: 4 minutes
-- **Take Profit**: +1.5%
-- **Stop Loss**: -1.0%
-- **Best For**: High volatility markets
-
-### 2. Conservative Scalping
-- **Hold Time**: 8 minutes
-- **Take Profit**: +2.0%
-- **Stop Loss**: -1.5%
-- **Best For**: Stable markets
-
-### 3. Mean Reversion
-- **Hold Time**: 30 minutes
-- **Take Profit**: +3.0%
-- **Stop Loss**: -2.0%
-- **Best For**: Range-bound markets
-
-### 4. Grid Trading
-- **Hold Time**: 1 hour
-- **Take Profit**: +5.0%
-- **Stop Loss**: -3.0%
-- **Best For**: Sideways markets
-
----
-
-## 🐛 Troubleshooting
-
-### Problem: Sell Not Executing
-
-**Symptoms**:
-- Positions held for 70+ minutes
-- [EXECUTE-SELL] logs missing
-- No sell count increase
-
-**Solution**:
-```batch
-# 1. Run emergency cache clear
-EMERGENCY_CACHE_CLEAR.bat
-
-# 2. Or complete reinstall
-COMPLETE_REINSTALL.bat
-
-# 3. Verify logs show:
-[EXECUTE-SELL] Position cleanup start
-[EXECUTE-SELL] holding_protector called
-[EXECUTE-SELL] risk_manager called
-```
-
-### Problem: Python Not Found
-
-**Solution**:
-```
-1. Download Python: https://www.python.org/
-2. Check "Add Python to PATH" during install
-3. Restart computer
-4. Run COMPLETE_REINSTALL.bat
-```
-
-### Problem: Package Install Fails
-
-**Solution**:
-```batch
-python -m pip install --upgrade pip
-python -m pip install pyupbit pandas numpy requests python-dotenv colorlog ta
-```
-
-### Problem: Batch File Encoding Errors
-
-**Solution**:
-- ✅ Fixed in v6.30.62
-- All batch files now English-only
-- No Korean characters
-- No encoding issues
-
----
-
-## 📈 Expected Performance
-
-### Paper Trading
-- **Purpose**: Testing and learning
-- **Risk**: Zero (virtual money)
-- **Duration**: Unlimited
-
-### Live Trading
-- **Daily Trades**: 10-30
-- **Win Rate**: 60-70% (typical)
-- **Daily Return**: 1-3% (varies)
-- **Risk Level**: Managed by settings
-
-**⚠️ Warning**: Past performance does not guarantee future results. Cryptocurrency trading carries high risk.
-
----
-
-## 🔄 Updating
-
-### Method 1: Complete Reinstall (Recommended)
-```batch
-COMPLETE_REINSTALL.bat
-```
-- Preserves .env settings
-- Downloads latest code
-- Cleans all cache
-- Installs dependencies
-
-### Method 2: Git Pull
-```batch
-cd C:\Lj
-git pull origin main
-EMERGENCY_CACHE_CLEAR.bat
-```
-
----
-
-## 📁 Project Structure
+## 📁 파일 구조
 
 ```
 Lj/
-├── src/
-│   ├── main.py              # Main bot engine
-│   ├── config.py            # Configuration
-│   ├── strategies/          # Trading strategies
-│   ├── ai/                  # AI learning modules
-│   └── utils/               # Utility functions
-├── COMPLETE_REINSTALL.bat   # Full installation
-├── RUN_PAPER_CLEAN.bat      # Paper trading
-├── EMERGENCY_CACHE_CLEAR.bat# Cache cleanup
-├── .env                     # Configuration file
-├── VERSION.txt              # Current version
-└── README.md                # This file
+├── 🚀 실행 파일
+│   ├── TEST_v7.0.bat              ⭐ 테스트 (필수!)
+│   ├── RUN_PAPER_v7.0.bat         ⭐ 시뮬레이션
+│   └── RUN_LIVE_v7.0.bat          ⭐ 실전 (신중!)
+│
+├── 🎯 핵심 파일
+│   ├── profit_bot_v7.py           메인 봇
+│   ├── test_quick_v7.py           테스트 스크립트
+│   └── src/
+│       ├── strategies/
+│       │   └── profit_optimized_strategy.py
+│       ├── ai/
+│       │   └── realtime_learner.py
+│       ├── config.py              ⚙️ 설정 (API 키)
+│       └── utils/
+│
+└── 📚 문서
+    ├── README_V7.md               빠른 시작
+    ├── USER_GUIDE_V7.md           사용자 가이드
+    ├── PROFIT_BOT_V7_FINAL_REPORT.md
+    ├── COMPARISON_OLD_VS_V7.md
+    ├── COMPLETE_VERIFICATION_REPORT.md
+    └── FINAL_DELIVERY_REPORT.md
 ```
 
 ---
 
-## 🎓 Best Practices
+## ⚙️ 설치 및 설정
 
-### Before Live Trading
-1. ✅ Test in paper mode for 1-2 weeks
-2. ✅ Understand bot behavior
-3. ✅ Set appropriate risk limits
-4. ✅ Start with small capital
-5. ✅ Monitor daily
+### 1. Python 설치
+- Python 3.8 이상 필요
+- [다운로드](https://www.python.org/downloads/)
 
-### Risk Management
-1. ✅ Never invest more than you can afford to lose
-2. ✅ Set MAX_DAILY_LOSS conservatively
-3. ✅ Use stop-loss for all positions
-4. ✅ Diversify positions
-5. ✅ Monitor regularly
-
-### Maintenance
-1. ✅ Update weekly (git pull)
-2. ✅ Check logs daily
-3. ✅ Clear cache when issues occur
-4. ✅ Backup .env file
-5. ✅ Keep API keys secure
-
----
-
-## 🔐 Security
-
-### API Keys
-- ✅ Never share your API keys
-- ✅ Keep .env file private
-- ✅ Use IP whitelist on Upbit
-- ✅ Enable 2FA on Upbit account
-
-### Permissions
-- ✅ Read: Required
-- ✅ Trade: Required for live mode
-- ✅ Withdraw: **NOT REQUIRED** (safer)
-
----
-
-## 📞 Support
-
-### Issues
-- **GitHub Issues**: https://github.com/lee-jungkil/Lj/issues
-- **Discussions**: https://github.com/lee-jungkil/Lj/discussions
-
-### Version Check
-```batch
-type VERSION.txt
+### 2. 라이브러리 설치
+```bash
+pip install -r requirements.txt
 ```
-Current: **v6.30.62-ENGLISH-BATCH-FILES**
+
+### 3. API 키 설정 (실전 모드만)
+`src/config.py` 파일 수정:
+```python
+UPBIT_ACCESS_KEY = "여기에_입력"
+UPBIT_SECRET_KEY = "여기에_입력"
+```
 
 ---
 
-## 🎯 Changelog
+## 🧪 테스트
 
-### v6.30.62 (2026-02-15)
-- ✅ English-only batch files (no encoding errors)
-- ✅ Enhanced sell execution debugging
-- ✅ Individual try/except per cleanup step
-- ✅ Automatic stack trace logging
-- ✅ Fixed Korean character issues
+**더블클릭**: `TEST_v7.0.bat`
 
-### v6.30.61 (2026-02-15)
-- ✅ Complete reinstall script
-- ✅ 9-step automation
-- ✅ Emergency cache clear
-- ✅ DataFrame bug fixes
-
-### v6.30.60 (2026-02-14)
-- ✅ [EXECUTE-SELL] debug logs
-- ✅ Position tracking enhancement
+**예상 결과**:
+```
+🎉 모든 테스트 통과!
+✅ [1] 모듈 임포트: PASS
+✅ [2] 전략 생성: PASS
+✅ [3] 학습 시스템: PASS
+✅ [4] 봇 생성: PASS
+✅ [5] 진입/청산 로직: PASS
+✅ [6] 학습 시스템: PASS
+```
 
 ---
 
-## ⚖️ Disclaimer
+## 🎮 실행 방법
 
-This software is provided "as is" without warranty of any kind. Trading cryptocurrency carries significant risk. You are responsible for your own investment decisions. The developers are not liable for any financial losses incurred while using this software.
+### 시뮬레이션 모드 (권장)
 
-**USE AT YOUR OWN RISK.**
+**더블클릭**: `RUN_PAPER_v7.0.bat`
 
----
+**특징**:
+- ✅ 실제 시장 데이터 사용
+- ✅ 실제 주문은 하지 않음
+- ✅ 안전하게 전략 검증
+- ✅ 학습 데이터 축적
 
-## 📄 License
+**권장 기간**: 1-3일
 
-MIT License - See LICENSE file for details
+### 실전 모드 (신중!)
 
----
+**더블클릭**: `RUN_LIVE_v7.0.bat`
 
-## 🌟 Contributors
-
-- **Main Developer**: lee-jungkil
-- **AI Assistant**: GenSpark AI
-- **Community**: GitHub Contributors
-
----
-
-## 🔗 Links
-
-- **GitHub**: https://github.com/lee-jungkil/Lj
-- **Issues**: https://github.com/lee-jungkil/Lj/issues
-- **Download**: https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
-- **Upbit**: https://upbit.com/
+**준비사항**:
+1. ✅ 시뮬레이션 완료 (1-3일)
+2. ✅ 수익성 확인 (PF > 2.0, 승률 > 60%)
+3. ✅ API 키 설정 (`src/config.py`)
+4. ✅ 소액 시작 (10-50만원)
 
 ---
 
-**Current Version**: v6.30.62-ENGLISH-BATCH-FILES  
-**Release Date**: 2026-02-15  
-**Status**: ✅ Stable
+## 📊 성과 모니터링
 
-**Download Now**: https://github.com/lee-jungkil/Lj/archive/refs/heads/main.zip
+### 로그 확인
+```bash
+# 실시간 로그
+tail -f profit_bot.log
+
+# 학습 데이터
+cat src/learning_data/realtime_learning.json
+```
+
+### 성과 요약 (60초마다)
+```
+======================================================================
+📊 성과 요약
+----------------------------------------------------------------------
+   총 거래: 15건
+   승률: 66.7% (10/15)
+   총 수익: +4,250원
+   오늘 수익: +4,250원
+   현재 포지션: 1개
+   학습 승률: 66.7%
+   Profit Factor: 2.15
+======================================================================
+```
+
+---
+
+## 🎓 핵심 개념
+
+### 수익 전략
+```
+거래량 급증 감지 (2.5x)
+    ↓
+가격 모멘텀 확인 (0.15-1.5%)
+    ↓
+RSI + 호가창 체크
+    ↓
+✅ 진입 (시장가 매수)
+    ↓
+7가지 청산 조건 감시 (3초마다)
+    ↓
+조건 충족 → 즉시 청산 ✅
+```
+
+### 학습 시스템
+```
+거래 10건 → 학습 → 파라미터 조정 (±5%) → 다음 거래에 즉시 적용 ✅
+```
+
+---
+
+## ⚠️ 주의사항
+
+### ✅ DO
+1. ✅ 테스트 먼저 실행 (`TEST_v7.0.bat`)
+2. ✅ 시뮬레이션 충분히 (1-3일)
+3. ✅ 소액으로 시작 (10-50만원)
+4. ✅ 로그 확인 (`tail -f profit_bot.log`)
+5. ✅ 학습 데이터 확인 (`src/learning_data/`)
+
+### ❌ DON'T
+1. ❌ 테스트 없이 실전
+2. ❌ 큰 금액으로 시작
+3. ❌ 로그 무시
+4. ❌ 네트워크 불안정한 환경
+5. ❌ API 키 공유
+
+---
+
+## 📚 문서
+
+| 문서 | 설명 |
+|------|------|
+| [USER_GUIDE_V7.md](USER_GUIDE_V7.md) | 사용자 가이드 (설치, 실행, 모니터링) |
+| [PROFIT_BOT_V7_FINAL_REPORT.md](PROFIT_BOT_V7_FINAL_REPORT.md) | 상세 기술 보고서 |
+| [COMPARISON_OLD_VS_V7.md](COMPARISON_OLD_VS_V7.md) | 기존 봇 vs v7.0 비교 |
+| [COMPLETE_VERIFICATION_REPORT.md](COMPLETE_VERIFICATION_REPORT.md) | 완전 검증 보고서 |
+
+---
+
+## 🆚 기존 봇과의 차이
+
+| 항목 | 기존 main.py | Profit Bot v7.0 |
+|------|-------------|-----------------|
+| 코드 크기 | 132KB, 3500줄 | 17KB, 500줄 ✅ |
+| 진입 조건 | 45개 시나리오 | 4개 조건 ✅ |
+| 청산 로직 | 버그 多 | 정상 작동 ✅ |
+| 학습 시스템 | 미작동 | 실시간 ✅ |
+| 디버그 | 불가능 | 가능 ✅ |
+| 테스트 | 실패 | 통과 ✅ |
+
+---
+
+## 🔧 문제 해결
+
+### Q1: 봇이 실행되지 않습니다
+```bash
+# Python 버전 확인
+python --version
+# Python 3.8 이상 필요
+
+# 라이브러리 설치
+pip install -r requirements.txt
+```
+
+### Q2: API 키 오류
+```bash
+# src/config.py 파일 확인
+# UPBIT_ACCESS_KEY와 UPBIT_SECRET_KEY 설정 확인
+```
+
+### Q3: 더 자세한 도움이 필요합니다
+- [USER_GUIDE_V7.md](USER_GUIDE_V7.md) 참조
+- [GitHub Issues](https://github.com/lee-jungkil/Lj/issues)
+
+---
+
+## 📝 변경 이력
+
+### v7.0 (2026-07-22) - 완전 재설계
+- ✅ 새로운 수익 전략 구현
+- ✅ 실시간 학습 시스템
+- ✅ 코드 87% 감소
+- ✅ 모든 테스트 통과
+- ✅ 실행 배치파일 제공
+
+---
+
+## 📄 라이선스
+
+MIT License
+
+---
+
+## 🎯 목표
+
+**일일 수익률 1-3% 달성!**
+
+---
+
+**⚡ 지금 바로 시작하세요!**
+
+1. 더블클릭: `TEST_v7.0.bat` (테스트)
+2. 더블클릭: `RUN_PAPER_v7.0.bat` (시뮬레이션)
+3. 더블클릭: `RUN_LIVE_v7.0.bat` (실전)
+
+**✅ 버전**: v7.0  
+**✅ 상태**: Production Ready  
+**✅ 최종 업데이트**: 2026-07-22

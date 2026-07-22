@@ -20,10 +20,25 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# 환경
+.env
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
+
+# 로그
+*.log
+logs/
+*.log.*
+profit_bot.log
+
+# 데이터
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
@@ -31,31 +46,22 @@ env/
 *.swp
 *.swo
 *~
-
-# Logs
-*.log
-trading_logs/
-logs/
-
-# Environment
-.env
-.env.local
-.env.backup
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Test files
-test_*.py
-*_test.py
+# 학습 데이터 (필요시 주석 해제)
+# src/learning_data/*.jsonl
+# src/learning_data/*.json
 
-# Backup files
-*.backup
-*.bak
-*.old
+# 구버전 파일 (정리됨)
+old_batch_files/
+old_files/
+old_docs/
+batch_archive/
+test_archive/
+update/
 
-# Temporary files
+# 임시 파일
 *.tmp
-temp/
-tmp/
+*.temp
+*.bak
+*.backup

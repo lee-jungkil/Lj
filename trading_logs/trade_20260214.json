@@ -1,0 +1,110 @@
+[
+  {
+    "timestamp": "2026-02-14T07:23:05.869100",
+    "action": "BUY",
+    "ticker": "KRW-BIRB",
+    "price": 297.0,
+    "amount": 3367.003367003367,
+    "total_krw": 1000000.0000000001,
+    "strategy": "conservative_scalping",
+    "reason": "볼린저 하단 근접 + RSI 중립 (BB위치: -0.14, RSI: 37.5)",
+    "profit_loss": 0.0,
+    "balance": 4000000.0,
+    "metadata": {
+      "rsi": 37.5,
+      "bb_position": -0.14216164269360562,
+      "bb_lower": 297.43169069097576,
+      "bb_middle": 298.95,
+      "bb_upper": 300.4683093090242,
+      "current_price": 297.0,
+      "volume_ratio": 1.8293178220063893,
+      "volatility": 0.40806657080802655
+    }
+  },
+  {
+    "timestamp": "2026-02-14T11:19:32.043965",
+    "action": "BUY",
+    "ticker": "KRW-ME",
+    "price": 226.0,
+    "amount": 3539.8230088495575,
+    "total_krw": 800000.0,
+    "strategy": "aggressive_scalping",
+    "reason": "과매도 + 거래량 급증 (RSI: 28.6, 거래량: 1.28x, 변동: -0.44%)",
+    "profit_loss": 0.0,
+    "balance": 3200000.0,
+    "metadata": {
+      "rsi": 28.57142857142857,
+      "volume_ratio": 1.277111763940655,
+      "price_change": -0.4405286343612335,
+      "current_price": 226.0,
+      "bb_position": -0.1661853841855483,
+      "volatility": 0.4355807623160789
+    }
+  },
+  {
+    "timestamp": "2026-02-14T11:27:01.144010",
+    "action": "BUY",
+    "ticker": "KRW-TOKAMAK",
+    "price": 826.0,
+    "amount": 774.818401937046,
+    "total_krw": 640000.0,
+    "strategy": "conservative_scalping",
+    "reason": "볼린저 하단 근접 + RSI 중립 (BB위치: -0.03, RSI: 40.7)",
+    "profit_loss": 0.0,
+    "balance": 2560000.0,
+    "metadata": {
+      "rsi": 40.65934065934066,
+      "bb_position": -0.0269502855886891,
+      "bb_lower": 827.0535640615637,
+      "bb_middle": 846.6,
+      "bb_upper": 866.1464359384363,
+      "current_price": 826.0,
+      "volume_ratio": 0.6690751714417764,
+      "volatility": 1.3256197593083163
+    }
+  },
+  {
+    "timestamp": "2026-02-14T11:34:12.052934",
+    "action": "BUY",
+    "ticker": "KRW-MOC",
+    "price": 45.6,
+    "amount": 11228.070175438595,
+    "total_krw": 511999.99999999994,
+    "strategy": "conservative_scalping",
+    "reason": "볼린저 하단 근접 + RSI 중립 (BB위치: 0.00, RSI: 35.3)",
+    "profit_loss": 0.0,
+    "balance": 2048000.0,
+    "metadata": {
+      "rsi": 35.294117647058854,
+      "bb_position": 0.0011235955369120006,
+      "bb_lower": 45.59884009005771,
+      "bb_middle": 46.114999999999995,
+      "bb_upper": 46.631159909942276,
+      "current_price": 45.6,
+      "volume_ratio": 3.921393604518093,
+      "volatility": 1.2418926953956033
+    }
+  },
+  {
+    "timestamp": "2026-02-14T12:30:20.859487",
+    "action": "BUY",
+    "ticker": "KRW-COMP",
+    "price": 29200.0,
+    "amount": 14.027397260273972,
+    "total_krw": 409600.0,
+    "strategy": "conservative_scalping",
+    "reason": "볼린저 하단 근접 + RSI 중립 (BB위치: 0.06, RSI: 36.6)",
+    "profit_loss": 0.0,
+    "balance": 1638400.0,
+    "metadata": {
+      "rsi": 36.633663366336634,
+      "bb_position": 0.05635459808118428,
+      "bb_lower": 29176.309610115008,
+      "bb_middle": 29386.5,
+      "bb_upper": 29596.690389884992,
+      "current_price": 29200.0,
+      "volume_ratio": 0.2755807136056948,
+      "volatility": 1.1222654881033964
+    }
+  }
+]
