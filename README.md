@@ -272,13 +272,26 @@ pip install -r requirements.txt
 # UPBIT_ACCESS_KEY와 UPBIT_SECRET_KEY 설정 확인
 ```
 
-### Q3: 더 자세한 도움이 필요합니다
+### Q3: 배치 파일 실행 시 한글이 깨집니다
+```
+✅ 해결됨: v7.0부터 배치 파일이 영어로만 작성되어 있습니다
+- 모든 메시지가 영어로 표시됩니다
+- Windows 인코딩 문제 완전 해결
+- 정상적으로 동작합니다
+```
+
+### Q4: 더 자세한 도움이 필요합니다
 - [USER_GUIDE_V7.md](USER_GUIDE_V7.md) 참조
 - [GitHub Issues](https://github.com/lee-jungkil/Lj/issues)
 
 ---
 
 ## 📝 변경 이력
+
+### v7.0.1 (2026-07-22) - 한글 인코딩 수정
+- ✅ 배치 파일 한글 제거 (영어로 변경)
+- ✅ Windows 인코딩 문제 완전 해결
+- ✅ 모든 Windows 환경에서 정상 동작
 
 ### v7.0 (2026-07-22) - 완전 재설계
 - ✅ 새로운 수익 전략 구현
