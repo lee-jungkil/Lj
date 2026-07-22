@@ -101,9 +101,9 @@ class ProfitOptimizedBot:
         
         # 타이밍
         self.last_scan_time = 0
-        self.scan_interval = 10  # 10초마다 스캔
+        self.scan_interval = 30  # 30초마다 스캔 (API 부하 감소)
         self.last_position_check_time = 0
-        self.position_check_interval = 3  # 3초마다 포지션 체크
+        self.position_check_interval = 5  # 5초마다 포지션 체크
         
         logger.info("✅ 초기화 완료!")
     
@@ -159,12 +159,26 @@ class ProfitOptimizedBot:
             # 거래량 상위 50개만 검토 (효율성)
             top_volume_tickers = self._get_top_volume_tickers(available_tickers, limit=50)
             
-            # 각 코인 검토
-            for ticker in top_volume_tickers:
+            logger.info(f"📊 {len(top_volume_tickers)}개 코인 빠른 스캔 중...")
+            
+            # 빠른 1차 스캔: 가격만 체크 (API 호출 최소화)
+            candidates = []
+            for ticker in top_volume_tickers[:10]:  # 상위 10개만 빠르게 체크 (더 빠르게)
+                try:
+                    current_price = self.api.get_current_price(ticker)
+                    if current_price and current_price > 0:
+                        candidates.append(ticker)
+                except:
+                    continue
+            
+            logger.info(f"🎯 {len(candidates)}개 후보 발견, 상세 분석 중...")
+            
+            # 2차 상세 스캔: 후보들만 상세 분석 (최대 5개까지만)
+            for i, ticker in enumerate(candidates[:5]):
                 if len(self.positions) >= self.risk_manager.max_open_positions:
                     break  # 포지션 제한 도달
                 
-                # 시장 데이터 수집
+                # 시장 데이터 수집 (상세)
                 market_data = self._get_market_data(ticker)
                 if not market_data:
                     continue
@@ -176,6 +190,8 @@ class ProfitOptimizedBot:
                     logger.info(f"✅ 진입 신호: {ticker} - {reason}")
                     self._execute_buy(ticker, market_data)
                     break  # 한 번에 하나씩만 진입
+            
+            logger.info("✅ 스캔 완료")
         
         except Exception as e:
             logger.error(f"❌ 스캔 중 오류: {e}")
@@ -422,21 +438,36 @@ class ProfitOptimizedBot:
             return {}
     
     def _get_top_volume_tickers(self, tickers: List[str], limit: int = 50) -> List[str]:
-        """거래량 상위 코인 목록"""
+        """거래량 상위 코인 목록 (빠른 버전 - 샘플링)"""
         try:
-            # 24시간 거래대금 기준 정렬
-            ticker_volumes = []
+            # 너무 많은 코인을 검사하면 느려지므로, 랜덤 샘플링 후 limit개 반환
+            # 또는 이미 알려진 주요 코인 우선 검사
+            import random
             
-            for ticker in tickers:
-                df = self.api.get_ohlcv(ticker, interval='minute1', count=1)
-                if df is not None and not df.empty:
-                    volume_krw = float(df['volume'].iloc[-1]) * float(df['close'].iloc[-1])
-                    ticker_volumes.append((ticker, volume_krw))
+            # 주요 코인 (거래량이 높은 코인들)
+            major_coins = [
+                'KRW-BTC', 'KRW-ETH', 'KRW-XRP', 'KRW-ADA', 'KRW-SOL',
+                'KRW-DOGE', 'KRW-AVAX', 'KRW-DOT', 'KRW-MATIC', 'KRW-SHIB',
+                'KRW-LINK', 'KRW-UNI', 'KRW-ATOM', 'KRW-ETC', 'KRW-BCH',
+                'KRW-LTC', 'KRW-NEAR', 'KRW-APT', 'KRW-FIL', 'KRW-ICP'
+            ]
             
-            # 정렬
-            ticker_volumes.sort(key=lambda x: x[1], reverse=True)
+            # 주요 코인 중 사용 가능한 것들
+            available_major = [t for t in major_coins if t in tickers]
             
-            return [t[0] for t in ticker_volumes[:limit]]
+            # 나머지 코인에서 랜덤 샘플링
+            remaining = [t for t in tickers if t not in available_major]
+            sample_size = max(0, limit - len(available_major))
+            
+            if sample_size > 0 and remaining:
+                sampled = random.sample(remaining, min(sample_size, len(remaining)))
+            else:
+                sampled = []
+            
+            result = available_major + sampled
+            
+            logger.info(f"✅ {len(result)}개 코인 선정 (주요 {len(available_major)}개 + 샘플 {len(sampled)}개)")
+            return result[:limit]
         
         except Exception as e:
             logger.error(f"❌ 거래량 정렬 실패: {e}")
