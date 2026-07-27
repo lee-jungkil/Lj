@@ -167,18 +167,25 @@ class ProfitOptimizedBot:
             
             # 빠른 1차 스캔: 가격만 체크 (API 호출 최소화)
             candidates = []
-            for ticker in top_volume_tickers[:10]:  # 상위 10개만 빠르게 체크 (더 빠르게)
+            for i, ticker in enumerate(top_volume_tickers[:10], 1):  # 상위 10개만 빠르게 체크
                 try:
                     current_price = self.api.get_current_price(ticker)
                     if current_price and current_price > 0:
                         candidates.append(ticker)
-                except:
+                        logger.debug(f"   [{i}/10] {ticker}: {current_price:,.0f}원")
+                    
+                    # API 제한 방지: 각 호출 사이 0.2초 대기 (초당 5개)
+                    import time
+                    time.sleep(0.2)
+                except Exception as e:
+                    logger.debug(f"   [{i}/10] {ticker}: 오류 - {e}")
                     continue
             
             logger.info(f"🎯 {len(candidates)}개 후보 발견, 상세 분석 중...")
             
             # 2차 상세 스캔: 후보들만 상세 분석 (최대 5개까지만)
-            for i, ticker in enumerate(candidates[:5]):
+            logger.debug(f"   상세 스캔 시작: {min(len(candidates), 5)}개 코인 분석...")
+            for i, ticker in enumerate(candidates[:5], 1):
                 # 동적 포지션 제한 체크
                 current_position_limit = self._get_current_position_limit()
                 if len(self.positions) >= current_position_limit:
@@ -186,9 +193,14 @@ class ProfitOptimizedBot:
                     break
                 
                 # 시장 데이터 수집 (상세)
+                logger.debug(f"   [{i}/5] {ticker} 분석 중...")
                 market_data = self._get_market_data(ticker)
                 if not market_data:
+                    logger.debug(f"   [{i}/5] {ticker}: 데이터 수집 실패")
                     continue
+                
+                # 상세 스캔 각 코인 사이 딜레이 (API 호출이 많으므로)
+                time.sleep(0.5)  # 0.5초 대기
                 
                 # 포지션 수에 따라 진입 조건 강화
                 if len(self.positions) >= self.base_position_limit:
@@ -285,6 +297,7 @@ class ProfitOptimizedBot:
             
             # 2️⃣ 호가창 유동성 체크 (v7.0.5)
             # ⚠️ API 호출 추가 - 필요시에만 호출
+            time.sleep(0.15)  # API 제한 방지
             try:
                 liquidity = self.api.check_orderbook_liquidity(
                     ticker=ticker,
@@ -327,6 +340,7 @@ class ProfitOptimizedBot:
                 return
             
             # 5️⃣ 스프레드 계산 (시장가 vs 지정가 판단용)
+            time.sleep(0.15)  # API 제한 방지
             try:
                 spread_pct = self.api.calculate_spread_percentage(ticker)
                 logger.info(f"   스프레드: {spread_pct:.3f}%")
@@ -464,22 +478,30 @@ class ProfitOptimizedBot:
             logger.error(f"❌ {ticker} 매도 실행 중 오류: {e}", exc_info=True)
     
     def _get_market_data(self, ticker: str) -> Dict:
-        """시장 데이터 수집"""
+        """시장 데이터 수집 (v7.0.5.3: API 호출 간 딜레이 추가)"""
         try:
             # 현재 가격
             current_price = self.api.get_current_price(ticker)
             if not current_price:
+                logger.debug(f"   {ticker}: 현재가 조회 실패")
                 return {}
+            
+            logger.debug(f"   {ticker}: 현재가 {current_price:,.0f}원")
+            time.sleep(0.15)  # API 제한 방지
             
             # OHLCV 데이터 (1분봉)
             df_1m = self.api.get_ohlcv(ticker, interval='minute1', count=10)
             if df_1m is None or df_1m.empty:
+                logger.debug(f"   {ticker}: 1분봉 데이터 없음")
                 return {}
+            time.sleep(0.15)  # API 제한 방지
             
             # OHLCV 데이터 (5분봉)
             df_5m = self.api.get_ohlcv(ticker, interval='minute5', count=20)
             if df_5m is None or df_5m.empty:
+                logger.debug(f"   {ticker}: 5분봉 데이터 없음")
                 return {}
+            time.sleep(0.15)  # API 제한 방지
             
             # 거래량
             current_volume = float(df_1m['volume'].iloc[-1]) if not df_1m.empty else 0
@@ -508,6 +530,7 @@ class ProfitOptimizedBot:
             
             # 호가창 (매도 압력)
             orderbook = self.api.get_orderbook(ticker)
+            time.sleep(0.15)  # API 제한 방지
             if orderbook and 'orderbook_units' in orderbook:
                 orderbook_units = orderbook['orderbook_units']
                 # 매도 호가 (ask) 상위 5개
@@ -517,6 +540,8 @@ class ProfitOptimizedBot:
                 sell_pressure = sell_volume / buy_volume if buy_volume > 0 else 1.0
             else:
                 sell_pressure = 1.0
+            
+            logger.debug(f"   {ticker}: 데이터 수집 완료 (RSI:{rsi_value:.1f}, Stoch:{stoch_k_value:.1f})")
             
             return {
                 'current_price': current_price,
@@ -531,7 +556,7 @@ class ProfitOptimizedBot:
             }
         
         except Exception as e:
-            logger.error(f"❌ {ticker} 시장 데이터 수집 실패: {e}")
+            logger.error(f"❌ {ticker} 시장 데이터 수집 실패: {e}", exc_info=True)
             return {}
     
     def _get_top_volume_tickers(self, tickers: List[str], limit: int = 50) -> List[str]:

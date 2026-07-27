@@ -1,25 +1,30 @@
-# 🎯 Profit Bot v7.0.5.1 - 수익 최적화 자동매매 봇
+# 🎯 Profit Bot v7.0.5.3 - 수익 최적화 자동매매 봇
 
 > **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
 
-[![Version](https://img.shields.io/badge/version-7.0.5.1-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Version](https://img.shields.io/badge/version-7.0.5.3-blue.svg)](https://github.com/lee-jungkil/Lj)
 [![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
 
 ---
 
-## 📥 다운로드 (v7.0.5.1) 🔧 Hotfix
+## 📥 다운로드 (v7.0.5.3) 🔴 긴급 수정
 
 ### Windows 사용자
-**ZIP 파일**: [profit_bot_v7.0.5.1.zip](https://www.genspark.ai/api/files/s/pMcq3yRC) (289 KB)
+**ZIP 파일**: [profit_bot_v7.0.5.3.zip](https://www.genspark.ai/api/files/s/igaa6WUu) (295 KB)
 
 ### Linux/Mac 사용자
-**TAR.GZ 파일**: [profit_bot_v7.0.5.1.tar.gz](https://www.genspark.ai/api/files/s/1VmJulEx) (243 KB)
+**TAR.GZ 파일**: [profit_bot_v7.0.5.3.tar.gz](https://www.genspark.ai/api/files/s/XZg17Vwx) (248 KB)
 
-🔧 **v7.0.5.1 Hotfix**: "현재가 조회 실패" 오류 수정 (API 호출 최적화)
+🔴 **v7.0.5.3 긴급 수정**: "현재가 조회 실패" 오류 완전 해결 (API Rate Limiting 강화)
+- ✅ **120초 테스트 통과** (오류 0건)
+- ✅ **API 호출 속도**: 5.7 calls/sec (Upbit 제한의 57%)
+- ✅ **안정적인 24/7 자동매매** 보장
 
 📖 **변경 사항**:
-- **v7.0.5.1**: [CHANGES_v7.0.5.1.md](CHANGES_v7.0.5.1.md) - 현재가 조회 실패 수정 🔧 Hotfix
+- **v7.0.5.3**: [CHANGES_v7.0.5.3.md](CHANGES_v7.0.5.3.md) - API Rate Limiting 완전 해결 🔴 긴급 수정
+- **v7.0.5.2**: [CHANGES_v7.0.5.2.md](CHANGES_v7.0.5.2.md) - 빠른 스캔 API 딜레이 추가 🔧 Hotfix (불완전)
+- **v7.0.5.1**: [CHANGES_v7.0.5.1.md](CHANGES_v7.0.5.1.md) - 현재가 조회 실패 수정 🔧 Hotfix (불완전)
 - **v7.0.5**: [CHANGES_v7.0.5.md](CHANGES_v7.0.5.md) - 호가창 유동성 체크 + 시장가/지정가 자동 선택
 - **v7.0.4**: [CHANGES_v7.0.4.md](CHANGES_v7.0.4.md) - 볼린저 밴드 + 스토캐스틱 진입조건 추가
 - **v7.0.3**: [CHANGES_v7.0.3.md](CHANGES_v7.0.3.md) - 청산조건 개선 및 포지션 관리 강화
