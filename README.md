@@ -1,27 +1,29 @@
-# 🎯 Profit Bot v7.0.5.3 - 수익 최적화 자동매매 봇
+# 🎯 Profit Bot v7.0.5.4 - 수익 최적화 자동매매 봇
 
 > **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
 
-[![Version](https://img.shields.io/badge/version-7.0.5.3-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Version](https://img.shields.io/badge/version-7.0.5.4-blue.svg)](https://github.com/lee-jungkil/Lj)
 [![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
 
 ---
 
-## 📥 다운로드 (v7.0.5.3) 🔴 긴급 수정
+## 📥 다운로드 (v7.0.5.4) 💰 모의투자 개선
 
 ### Windows 사용자
-**ZIP 파일**: [profit_bot_v7.0.5.3.zip](https://www.genspark.ai/api/files/s/igaa6WUu) (295 KB)
+**ZIP 파일**: [profit_bot_v7.0.5.4.zip](#) (업로드 예정)
 
 ### Linux/Mac 사용자
-**TAR.GZ 파일**: [profit_bot_v7.0.5.3.tar.gz](https://www.genspark.ai/api/files/s/XZg17Vwx) (248 KB)
+**TAR.GZ 파일**: [profit_bot_v7.0.5.4.tar.gz](#) (업로드 예정)
 
-🔴 **v7.0.5.3 긴급 수정**: "현재가 조회 실패" 오류 완전 해결 (API Rate Limiting 강화)
-- ✅ **120초 테스트 통과** (오류 0건)
-- ✅ **API 호출 속도**: 5.7 calls/sec (Upbit 제한의 57%)
-- ✅ **안정적인 24/7 자동매매** 보장
+💰 **v7.0.5.4 모의투자 개선**: 초기자금 500만원으로 증액 (현실적인 시뮬레이션)
+- ✅ **모의투자 초기자금**: 100만원 → 500만원 (5배 증액)
+- ✅ **포지션 분산 개선**: 5~10개 동시 운용 가능
+- ✅ **리스크 관리**: 일일 손실 한도 25만원 (5%)
+- ✅ **v7.0.5.3 안정성 유지**: API Rate Limiting 완벽 구현
 
 📖 **변경 사항**:
+- **v7.0.5.4**: [CHANGES_v7.0.5.4.md](CHANGES_v7.0.5.4.md) - 모의투자 초기자금 500만원 증액 💰 설정 변경
 - **v7.0.5.3**: [CHANGES_v7.0.5.3.md](CHANGES_v7.0.5.3.md) - API Rate Limiting 완전 해결 🔴 긴급 수정
 - **v7.0.5.2**: [CHANGES_v7.0.5.2.md](CHANGES_v7.0.5.2.md) - 빠른 스캔 API 딜레이 추가 🔧 Hotfix (불완전)
 - **v7.0.5.1**: [CHANGES_v7.0.5.1.md](CHANGES_v7.0.5.1.md) - 현재가 조회 실패 수정 🔧 Hotfix (불완전)

@@ -82,9 +82,9 @@ class ProfitOptimizedBot:
         
         # 리스크 매니저
         self.risk_manager = RiskManager(
-            initial_capital=1000000,  # 초기 자본 100만원
-            max_daily_loss=50000,     # 일일 최대 손실 5만원 (5%)
-            max_cumulative_loss=100000,  # 누적 최대 손실 10만원
+            initial_capital=5000000,  # 초기 자본 500만원
+            max_daily_loss=250000,    # 일일 최대 손실 25만원 (5%)
+            max_cumulative_loss=500000,  # 누적 최대 손실 50만원
             max_positions=10,         # 최대 10개 포지션
             upbit_api=self.api
         )
@@ -283,7 +283,7 @@ class ProfitOptimizedBot:
                 balance = self.api.get_balance()
                 available_krw = balance.get('KRW', 0)
             else:
-                available_krw = 1000000  # 시뮬레이션: 100만원
+                available_krw = 5000000  # 시뮬레이션: 500만원
             
             if available_krw < 10000:
                 logger.warning("⚠️ 가용 자금 부족 (최소 10,000원)")
