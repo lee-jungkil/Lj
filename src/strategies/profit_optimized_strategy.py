@@ -80,8 +80,28 @@ class ProfitOptimizedStrategy:
             if sell_pressure > 1.5:  # 매도벽이 매수벽보다 1.5배 큼
                 return False, f"강한 매도벽 ({sell_pressure:.2f}x)"
             
-            # 모든 조건 통과
-            reason = f"✅ 진입! 거래량:{volume_ratio:.2f}x, 모멘텀:{price_change_1m:.2f}%, RSI:{rsi:.1f}"
+            # 5. 볼린저 밴드 + 스토캐스틱 확인 (과매도 반등)
+            # 5-1. 볼린저 밴드 하단 근처 (±5%)
+            bb_lower = market_data.get('bb_lower', 0)
+            current_price = market_data.get('current_price', 0)
+            
+            if bb_lower > 0 and current_price > 0:
+                bb_position_pct = ((current_price - bb_lower) / bb_lower) * 100
+                if not (-5 <= bb_position_pct <= 5):
+                    return False, f"BB 위치 부적절 ({bb_position_pct:.1f}%, 하단 ±5% 필요)"
+            else:
+                # BB 데이터 없으면 이 조건 스킵
+                pass
+            
+            # 5-2. 스토캐스틱 과매도 탈출 (20-40 구간 & 상승 중)
+            stoch_k = market_data.get('stoch_k', 50)
+            stoch_d = market_data.get('stoch_d', 50)
+            
+            if not (20 < stoch_k < 40 and stoch_k > stoch_d):
+                return False, f"Stoch 부적절 (K:{stoch_k:.1f}, D:{stoch_d:.1f}, 20-40 & K>D 필요)"
+            
+            # 모든 조건 통과 (6가지)
+            reason = f"✅ 진입! 거래량:{volume_ratio:.2f}x, 모멘텀:{price_change_1m:.2f}%, RSI:{rsi:.1f}, Stoch:{stoch_k:.1f}"
             logger.info(f"[PROFIT-STRATEGY] {ticker} {reason}")
             
             # 진입 시간 기록

@@ -423,9 +423,18 @@ class ProfitOptimizedBot:
                 price_change_1m = 0
             
             # RSI (14)
-            from src.utils.technical_indicators import calculate_rsi
+            from src.utils.technical_indicators import calculate_rsi, calculate_bollinger_bands, calculate_stochastic
             rsi = calculate_rsi(df_5m, period=14)
             rsi_value = float(rsi.iloc[-1]) if rsi is not None and not rsi.empty else 50
+            
+            # 볼린저 밴드 (20, 2)
+            bb_upper, bb_mid, bb_lower = calculate_bollinger_bands(df_5m, period=20, std_dev=2)
+            bb_lower_value = float(bb_lower.iloc[-1]) if bb_lower is not None and not bb_lower.empty else 0
+            
+            # 스토캐스틱 (14, 3)
+            stoch_k, stoch_d = calculate_stochastic(df_5m, period=14, smooth_k=3)
+            stoch_k_value = float(stoch_k.iloc[-1]) if stoch_k is not None and not stoch_k.empty else 50
+            stoch_d_value = float(stoch_d.iloc[-1]) if stoch_d is not None and not stoch_d.empty else 50
             
             # 호가창 (매도 압력)
             orderbook = self.api.get_orderbook(ticker)
@@ -446,6 +455,9 @@ class ProfitOptimizedBot:
                 'price_change_1m': price_change_1m,
                 'rsi': rsi_value,
                 'sell_pressure': sell_pressure,
+                'bb_lower': bb_lower_value,
+                'stoch_k': stoch_k_value,
+                'stoch_d': stoch_d_value,
             }
         
         except Exception as e:
@@ -556,7 +568,23 @@ class ProfitOptimizedBot:
             if sell_pressure > 1.2:
                 return False
             
-            logger.info(f"   ✅ {ticker}: 강화 조건 통과 (거래량:{volume_ratio:.2f}x, 모멘텀:{price_change_1m:.2f}%, RSI:{rsi:.1f})")
+            # 5. 볼린저 밴드 더 엄격하게 (±5% → ±3%)
+            bb_lower = market_data.get('bb_lower', 0)
+            current_price = market_data.get('current_price', 0)
+            
+            if bb_lower > 0 and current_price > 0:
+                bb_position_pct = ((current_price - bb_lower) / bb_lower) * 100
+                if not (-3 <= bb_position_pct <= 3):  # 강화: ±3%
+                    return False
+            
+            # 6. 스토캐스틱 더 엄격하게 (20-40 → 25-35)
+            stoch_k = market_data.get('stoch_k', 50)
+            stoch_d = market_data.get('stoch_d', 50)
+            
+            if not (25 < stoch_k < 35 and stoch_k > stoch_d + 2):  # 강화: K가 D보다 2 이상 높아야
+                return False
+            
+            logger.info(f"   ✅ {ticker}: 강화 조건 통과 (거래량:{volume_ratio:.2f}x, 모멘텀:{price_change_1m:.2f}%, RSI:{rsi:.1f}, Stoch:{stoch_k:.1f})")
             return True
             
         except Exception as e:
