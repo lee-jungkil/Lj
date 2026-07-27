@@ -772,6 +772,78 @@ class UpbitAPI:
             print(f"❌ IOC 매도 실패: {ticker}, {e}")
             return None
     
+    def check_orderbook_liquidity(self, ticker: str, target_krw: float, 
+                                   max_price_levels: int = 1) -> Dict:
+        """
+        호가창 유동성 체크 (v7.0.5)
+        
+        Args:
+            ticker: 코인 티커
+            target_krw: 목표 매수 금액 (KRW)
+            max_price_levels: 최대 호가 단계 (1=최우선만, 2=2단계, 3=3단계)
+        
+        Returns:
+            {
+                'can_fill': bool,              # 호가창에서 전량 체결 가능 여부
+                'available_krw': float,        # 호가창에서 즉시 매수 가능한 금액
+                'best_ask_price': float,       # 최우선 매도 호가 (매수 시 체결 가격)
+                'liquidity_ratio': float,      # 유동성 비율 (available/target)
+                'suggested_krw': float,        # 추천 매수 금액
+            }
+        """
+        try:
+            orderbook = self.get_orderbook(ticker)
+            if not orderbook or 'orderbook_units' not in orderbook:
+                return {
+                    'can_fill': False,
+                    'available_krw': 0.0,
+                    'best_ask_price': 0.0,
+                    'liquidity_ratio': 0.0,
+                    'suggested_krw': 0.0,
+                }
+            
+            units = orderbook['orderbook_units']
+            total_available_krw = 0.0
+            best_ask_price = units[0]['ask_price']
+            
+            # max_price_levels 만큼만 확인
+            for i in range(min(max_price_levels, len(units))):
+                ask_price = units[i]['ask_price']
+                ask_size = units[i]['ask_size']
+                ask_krw = ask_price * ask_size
+                total_available_krw += ask_krw
+                
+                # 목표 금액 충족 시 중단
+                if total_available_krw >= target_krw:
+                    break
+            
+            # 유동성 비율 계산
+            liquidity_ratio = total_available_krw / target_krw if target_krw > 0 else 0.0
+            
+            # 전량 체결 가능 여부
+            can_fill = total_available_krw >= target_krw
+            
+            # 추천 매수 금액 (호가창 물량과 목표 금액 중 작은 값)
+            suggested_krw = min(total_available_krw, target_krw)
+            
+            return {
+                'can_fill': can_fill,
+                'available_krw': total_available_krw,
+                'best_ask_price': best_ask_price,
+                'liquidity_ratio': liquidity_ratio,
+                'suggested_krw': suggested_krw,
+            }
+        
+        except Exception as e:
+            print(f"❌ {ticker} 유동성 체크 실패: {e}")
+            return {
+                'can_fill': False,
+                'available_krw': 0.0,
+                'best_ask_price': 0.0,
+                'liquidity_ratio': 0.0,
+                'suggested_krw': 0.0,
+            }
+    
     def calculate_spread_percentage(self, ticker: str) -> float:
         """
         호가창 스프레드 계산 (%)

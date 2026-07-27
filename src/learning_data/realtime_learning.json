@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-27T12:55:12.629200",
+  "params": {
+    "volume_spike_threshold": 3.1907039062500004,
+    "price_momentum_min": 0.19144223437500008,
+    "target_profit": 0.6381407812500002,
+    "stop_loss": -0.38689046874999994,
+    "time_based_exit": 120
+  },
+  "metrics": {
+    "win_rate": 0.07142857142857142,
+    "avg_profit": 0.17953321364452424,
+    "avg_loss": -0.6930941350631057,
+    "profit_factor": 0.06475787507139195
+  },
+  "trade_count": 14
+}

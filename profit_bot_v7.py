@@ -253,7 +253,7 @@ class ProfitOptimizedBot:
                 logger.error(f"❌ {ticker} 체크 중 오류: {e}")
     
     def _execute_buy(self, ticker: str, market_data: Dict):
-        """매수 실행"""
+        """매수 실행 (v7.0.5: 호가창 유동성 체크 + 시장가/지정가 자동 선택)"""
         try:
             logger.info(f"💰 매수 시작: {ticker}")
             
@@ -274,38 +274,89 @@ class ProfitOptimizedBot:
                 logger.warning("⚠️ 가용 자금 부족 (최소 10,000원)")
                 return
             
-            # 포지션 크기 계산
+            # 1️⃣ 포지션 크기 계산 (희망 매수 금액)
             quantity = self.strategy.get_position_size(available_krw, current_price)
+            desired_krw = quantity * current_price
             
-            # 최소 주문 금액 확인 (5000원)
-            order_value = quantity * current_price
-            if order_value < 5000:
-                logger.warning(f"⚠️ {ticker} 주문 금액 부족: {order_value:.0f}원 < 5000원")
+            logger.info(f"   희망 매수 금액: {desired_krw:,.0f}원")
+            
+            # 2️⃣ 호가창 유동성 체크 (v7.0.5)
+            liquidity = self.api.check_orderbook_liquidity(
+                ticker=ticker,
+                target_krw=desired_krw,
+                max_price_levels=1  # 최우선 호가만 사용 (보수적)
+            )
+            
+            logger.info(f"   호가창 유동성: {liquidity['available_krw']:,.0f}원 ({liquidity['liquidity_ratio']*100:.1f}%)")
+            
+            # 3️⃣ 유동성 기반 매수 금액 조정
+            if liquidity['liquidity_ratio'] >= 0.5:  # 50% 이상 유동성
+                # 호가창 물량이 충분 → 조정된 금액으로 매수
+                final_krw = liquidity['suggested_krw']
+                
+                if liquidity['can_fill']:
+                    logger.info(f"   ✅ 호가창 유동성 충분 → 전량 매수")
+                else:
+                    logger.info(f"   ⚠️ 호가창 유동성 부족 → 조정: {final_krw:,.0f}원 ({liquidity['liquidity_ratio']*100:.1f}%)")
+            else:
+                # 호가창 물량 50% 미만 → 이번 기회 포기
+                logger.warning(
+                    f"   ❌ {ticker} 유동성 부족으로 매수 취소\n"
+                    f"      희망: {desired_krw:,.0f}원 / 호가창: {liquidity['available_krw']:,.0f}원 ({liquidity['liquidity_ratio']*100:.1f}%)"
+                )
                 return
             
-            # 주문 실행
+            # 4️⃣ 최소 주문 금액 확인 (5000원)
+            if final_krw < 5000:
+                logger.warning(f"⚠️ {ticker} 조정된 금액 부족: {final_krw:.0f}원 < 5000원 (매수 취소)")
+                return
+            
+            # 5️⃣ 스프레드 계산 (시장가 vs 지정가 판단용)
+            spread_pct = self.api.calculate_spread_percentage(ticker)
+            logger.info(f"   스프레드: {spread_pct:.3f}%")
+            
+            # 6️⃣ 주문 방식 자동 선택 (스프레드 기반)
+            if spread_pct < 0.1:
+                # 스프레드 0.1% 미만 → 시장가 (슬리피지 무시 가능)
+                order_method = 'market'
+                order_price = current_price
+                logger.info(f"   📊 주문 방식: 시장가 (스프레드 낮음 {spread_pct:.3f}%)")
+            elif spread_pct < 0.3:
+                # 스프레드 0.1~0.3% → 최우선 호가 지정가
+                order_method = 'limit'
+                order_price = liquidity['best_ask_price']  # 최우선 매도 호가
+                logger.info(f"   📊 주문 방식: 지정가 @ {order_price:,.0f}원 (스프레드 보통 {spread_pct:.3f}%)")
+            else:
+                # 스프레드 0.3% 이상 → 최우선 호가 지정가 (슬리피지 방지)
+                order_method = 'limit'
+                order_price = liquidity['best_ask_price']
+                logger.info(f"   📊 주문 방식: 지정가 @ {order_price:,.0f}원 (스프레드 높음 {spread_pct:.3f}%)")
+            
+            # 7️⃣ 최종 수량 계산
+            final_quantity = final_krw / order_price
+            
+            # 8️⃣ 주문 실행
             if self.mode == 'live':
                 # 실전: 실제 주문
-                result = self.order_executor.execute_buy(
-                    ticker=ticker,
-                    volume=quantity,
-                    method='market'  # 시장가 매수
-                )
+                if order_method == 'market':
+                    result = self.api.buy_market_order(ticker, final_krw)
+                else:  # limit
+                    result = self.api.buy_limit_order(ticker, order_price, final_quantity)
                 
                 if not result or 'error' in result:
                     logger.error(f"❌ {ticker} 매수 주문 실패: {result}")
                     return
                 
-                logger.info(f"✅ {ticker} 매수 완료! {quantity:.8f}개 @ {current_price:,.0f}원")
+                logger.info(f"✅ {ticker} 매수 완료! {final_quantity:.8f}개 @ {order_price:,.0f}원 ({order_method})")
             else:
                 # 시뮬레이션
-                logger.info(f"✅ [시뮬] {ticker} 매수! {quantity:.8f}개 @ {current_price:,.0f}원 (금액: {order_value:,.0f}원)")
+                logger.info(f"✅ [시뮬] {ticker} 매수! {final_quantity:.8f}개 @ {order_price:,.0f}원 (금액: {final_krw:,.0f}원, {order_method})")
             
-            # 포지션 생성
+            # 9️⃣ 포지션 생성
             position = Position(
                 ticker=ticker,
-                quantity=quantity,
-                entry_price=current_price,
+                quantity=final_quantity,
+                entry_price=order_price,
                 entry_time=datetime.now(),
                 strategy_name="ProfitOptimized"
             )
