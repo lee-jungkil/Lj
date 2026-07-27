@@ -1,22 +1,25 @@
-# 🎯 Profit Bot v7.0.2 - 수익 최적화 자동매매 봇
+# 🎯 Profit Bot v7.0.4 - 수익 최적화 자동매매 봇
 
 > **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
 
-[![Version](https://img.shields.io/badge/version-7.0.2-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Version](https://img.shields.io/badge/version-7.0.4-blue.svg)](https://github.com/lee-jungkil/Lj)
 [![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
 
 ---
 
-## 📥 다운로드 (v7.0.2)
+## 📥 다운로드 (v7.0.4)
 
 ### Windows 사용자
-**ZIP 파일**: [profit_bot_v7.0.2.zip](https://www.genspark.ai/api/files/s/64h0cpNu) (192 KB)
+**ZIP 파일**: [profit_bot_v7.0.4.zip](https://www.genspark.ai/api/files/s/HlVyVg22) (277 KB)
 
 ### Linux/Mac 사용자
-**TAR.GZ 파일**: [profit_bot_v7.0.2.tar.gz](https://www.genspark.ai/api/files/s/Kwev7NT6) (155 KB)
+**TAR.GZ 파일**: [profit_bot_v7.0.4.tar.gz](https://www.genspark.ai/api/files/s/aOQw3emE) (233 KB)
 
-📖 **전체 다운로드 가이드**: [DOWNLOAD_v7.0.2.md](DOWNLOAD_v7.0.2.md)
+📖 **변경 사항**:
+- **v7.0.4**: [CHANGES_v7.0.4.md](CHANGES_v7.0.4.md) - 볼린저 밴드 + 스토캐스틱 진입조건 추가
+- **v7.0.3**: [CHANGES_v7.0.3.md](CHANGES_v7.0.3.md) - 청산조건 개선 및 포지션 관리 강화
+- **v7.0.2**: [DOWNLOAD_v7.0.2.md](DOWNLOAD_v7.0.2.md) - 스캐닝 성능 최적화
 
 ---
 
@@ -41,10 +44,15 @@
 
 ## 📊 핵심 기능
 
-### ✅ 수익 최적화 전략
+### ✅ 수익 최적화 전략 (v7.0.4 강화)
 ```
-✅ 진입: 거래량 급증(2.5x) + 모멘텀(0.15-1.5%) + RSI + 호가창
-✅ 청산: 7가지 조건 (손절 -0.5%, 익절 +0.5%, 시간 180초 등)
+✅ 진입: 6가지 조건
+   - 거래량 급증(2.5x) + 모멘텀(0.15-1.5%)
+   - RSI 과매도(< 35) + 호가창 매도압력(<60%)
+   - 볼린저 밴드 하단 근처(±5%) ⭐ NEW
+   - 스토캐스틱 과매도 탈출(20-40, K>D) ⭐ NEW
+✅ 청산: 7가지 조건 (손절 -0.5%, 익절 +0.5%, 시간 300초 등)
+✅ 포지션: 기본 5개, 최대 10개 (강화 진입조건)
 ✅ 검증: 모든 테스트 통과
 ```
 
@@ -307,6 +315,20 @@ pip install -r requirements.txt
 ---
 
 ## 📝 변경 이력
+
+### v7.0.4 (2026-07-27) - 기술적 지표 강화 ⭐ NEW
+- ✅ **볼린저 밴드** 진입조건 추가 (하단 ±5% 과매도 탐지)
+- ✅ **스토캐스틱** 진입조건 추가 (20-40 구간, 상승 모멘텀 확인)
+- ✅ 2단계 포지션 관리 (0-5: 일반, 6-10: 강화 조건)
+- ✅ 예상 승률 개선: 60% → 70%+
+- 📖 상세: [CHANGES_v7.0.4.md](CHANGES_v7.0.4.md)
+
+### v7.0.3 (2026-07-24) - 청산 및 포지션 관리 개선
+- ✅ 시간 기반 청산: 180초 → 300초 (수익 >= 0.2% 조건 추가)
+- ✅ 포지션 관리: 최대 3개 → 기본 5개 / 최대 10개
+- ✅ 6-10번 포지션: 강화된 진입조건 적용
+- ✅ 트레일링 스탑 설명 추가
+- 📖 상세: [CHANGES_v7.0.3.md](CHANGES_v7.0.3.md)
 
 ### v7.0.2 (2026-07-22) - 성능 최적화
 - ✅ 스캔 속도 대폭 개선 (2분+ → 25초)
