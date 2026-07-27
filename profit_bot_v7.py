@@ -257,11 +257,14 @@ class ProfitOptimizedBot:
         try:
             logger.info(f"💰 매수 시작: {ticker}")
             
-            # 현재 가격
-            current_price = self.api.get_current_price(ticker)
-            if not current_price:
-                logger.error(f"❌ {ticker} 가격 조회 실패")
-                return
+            # 현재 가격 (market_data에서 재사용 - API 호출 절약)
+            current_price = market_data.get('current_price', 0)
+            if not current_price or current_price <= 0:
+                # market_data에 없으면 직접 조회
+                current_price = self.api.get_current_price(ticker)
+                if not current_price:
+                    logger.error(f"❌ {ticker} 가격 조회 실패")
+                    return
             
             # 가용 자금 확인
             if self.mode == 'live':
@@ -281,11 +284,23 @@ class ProfitOptimizedBot:
             logger.info(f"   희망 매수 금액: {desired_krw:,.0f}원")
             
             # 2️⃣ 호가창 유동성 체크 (v7.0.5)
-            liquidity = self.api.check_orderbook_liquidity(
-                ticker=ticker,
-                target_krw=desired_krw,
-                max_price_levels=1  # 최우선 호가만 사용 (보수적)
-            )
+            # ⚠️ API 호출 추가 - 필요시에만 호출
+            try:
+                liquidity = self.api.check_orderbook_liquidity(
+                    ticker=ticker,
+                    target_krw=desired_krw,
+                    max_price_levels=1  # 최우선 호가만 사용 (보수적)
+                )
+            except Exception as e:
+                logger.warning(f"⚠️ {ticker} 호가창 조회 실패: {e}, 기본 동작으로 진행")
+                # 호가창 조회 실패 시 기본값 사용 (유동성 충분으로 간주)
+                liquidity = {
+                    'can_fill': True,
+                    'available_krw': desired_krw,
+                    'best_ask_price': current_price,
+                    'liquidity_ratio': 1.0,
+                    'suggested_krw': desired_krw,
+                }
             
             logger.info(f"   호가창 유동성: {liquidity['available_krw']:,.0f}원 ({liquidity['liquidity_ratio']*100:.1f}%)")
             
@@ -312,8 +327,12 @@ class ProfitOptimizedBot:
                 return
             
             # 5️⃣ 스프레드 계산 (시장가 vs 지정가 판단용)
-            spread_pct = self.api.calculate_spread_percentage(ticker)
-            logger.info(f"   스프레드: {spread_pct:.3f}%")
+            try:
+                spread_pct = self.api.calculate_spread_percentage(ticker)
+                logger.info(f"   스프레드: {spread_pct:.3f}%")
+            except Exception as e:
+                logger.warning(f"⚠️ {ticker} 스프레드 조회 실패: {e}, 시장가로 진행")
+                spread_pct = 0.05  # 기본값 (시장가 사용)
             
             # 6️⃣ 주문 방식 자동 선택 (스프레드 기반)
             if spread_pct < 0.1:
