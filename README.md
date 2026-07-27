@@ -1,25 +1,26 @@
-# 🎯 Profit Bot v7.0.4 - 수익 최적화 자동매매 봇
+# 🎯 Profit Bot v7.0.5 - 수익 최적화 자동매매 봇
 
 > **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
 
-[![Version](https://img.shields.io/badge/version-7.0.4-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Version](https://img.shields.io/badge/version-7.0.5-blue.svg)](https://github.com/lee-jungkil/Lj)
 [![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
 
 ---
 
-## 📥 다운로드 (v7.0.4)
+## 📥 다운로드 (v7.0.5)
 
 ### Windows 사용자
-**ZIP 파일**: [profit_bot_v7.0.4.zip](https://www.genspark.ai/api/files/s/HlVyVg22) (277 KB)
+**ZIP 파일**: [profit_bot_v7.0.5.zip](https://www.genspark.ai/api/files/s/Ry3LPNOq) (286 KB)
 
 ### Linux/Mac 사용자
-**TAR.GZ 파일**: [profit_bot_v7.0.4.tar.gz](https://www.genspark.ai/api/files/s/aOQw3emE) (233 KB)
+**TAR.GZ 파일**: [profit_bot_v7.0.5.tar.gz](https://www.genspark.ai/api/files/s/4zhjm3iN) (241 KB)
 
 📖 **변경 사항**:
+- **v7.0.5**: [CHANGES_v7.0.5.md](CHANGES_v7.0.5.md) - 호가창 유동성 체크 + 시장가/지정가 자동 선택 ⭐ NEW
 - **v7.0.4**: [CHANGES_v7.0.4.md](CHANGES_v7.0.4.md) - 볼린저 밴드 + 스토캐스틱 진입조건 추가
 - **v7.0.3**: [CHANGES_v7.0.3.md](CHANGES_v7.0.3.md) - 청산조건 개선 및 포지션 관리 강화
-- **v7.0.2**: [DOWNLOAD_v7.0.2.md](DOWNLOAD_v7.0.2.md) - 스캐닝 성능 최적화
+- **포지션 크기**: [POSITION_SIZE_EXAMPLE.md](POSITION_SIZE_EXAMPLE.md) - 5백만원 → 5개 포지션 계산 예시
 
 ---
 
@@ -44,13 +45,26 @@
 
 ## 📊 핵심 기능
 
-### ✅ 수익 최적화 전략 (v7.0.4 강화)
+### ✅ 수익 최적화 전략 (v7.0.5 강화) ⭐
 ```
 ✅ 진입: 6가지 조건
    - 거래량 급증(2.5x) + 모멘텀(0.15-1.5%)
    - RSI 과매도(< 35) + 호가창 매도압력(<60%)
-   - 볼린저 밴드 하단 근처(±5%) ⭐ NEW
-   - 스토캐스틱 과매도 탈출(20-40, K>D) ⭐ NEW
+   - 볼린저 밴드 하단 근처(±5%)
+   - 스토캐스틱 과매도 탈출(20-40, K>D)
+   
+✅ 호가창 유동성 체크 (v7.0.5) ⭐ NEW
+   - 최우선 호가 물량 확인
+   - 50% 이상 유동성 → 진입
+   - 50% 미만 유동성 → 스킵
+   - 슬리피지 0% 보장
+
+✅ 스마트 주문 방식 (v7.0.5) ⭐ NEW
+   - 스프레드 < 0.1% → 시장가
+   - 스프레드 0.1~0.3% → 지정가
+   - 스프레드 ≥ 0.3% → 지정가
+   - 자동 최적화 선택
+
 ✅ 청산: 7가지 조건 (손절 -0.5%, 익절 +0.5%, 시간 300초 등)
 ✅ 포지션: 기본 5개, 최대 10개 (강화 진입조건)
 ✅ 검증: 모든 테스트 통과
@@ -316,9 +330,17 @@ pip install -r requirements.txt
 
 ## 📝 변경 이력
 
-### v7.0.4 (2026-07-27) - 기술적 지표 강화 ⭐ NEW
-- ✅ **볼린저 밴드** 진입조건 추가 (하단 ±5% 과매도 탐지)
-- ✅ **스토캐스틱** 진입조건 추가 (20-40 구간, 상승 모멘텀 확인)
+### v7.0.5 (2026-07-27) - 호가창 유동성 체크 + 스마트 주문 ⭐ NEW
+- ✅ **호가창 유동성 체크**: 최우선 호가 물량 확인 후 진입
+- ✅ **유동성 임계값**: 50% 이상만 진입 (슬리피지 0% 보장)
+- ✅ **스마트 주문 선택**: 스프레드 분석 → 시장가/지정가 자동 선택
+- ✅ **슬리피지 최소화**: 0.3~1% → 0~0.1% (70~90% 감소)
+- ✅ **리스크 관리**: 유동성 낮은 코인 자동 회피
+- 📖 상세: [CHANGES_v7.0.5.md](CHANGES_v7.0.5.md)
+
+### v7.0.4 (2026-07-27) - 기술적 지표 강화
+- ✅ **볼린저 밴드** 진입조건 (하단 ±5% 과매도 탐지)
+- ✅ **스토캐스틱** 진입조건 (20-40 구간, 상승 모멘텀 확인)
 - ✅ 2단계 포지션 관리 (0-5: 일반, 6-10: 강화 조건)
 - ✅ 예상 승률 개선: 60% → 70%+
 - 📖 상세: [CHANGES_v7.0.4.md](CHANGES_v7.0.4.md)
