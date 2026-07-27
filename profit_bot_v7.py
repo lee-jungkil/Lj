@@ -85,10 +85,14 @@ class ProfitOptimizedBot:
             initial_capital=1000000,  # 초기 자본 100만원
             max_daily_loss=50000,     # 일일 최대 손실 5만원 (5%)
             max_cumulative_loss=100000,  # 누적 최대 손실 10만원
-            max_positions=3,          # 최대 3개 포지션
+            max_positions=10,         # 최대 10개 포지션
             upbit_api=self.api
         )
-        self.risk_manager.max_open_positions = 3  # 포지션 제한 명시
+        self.risk_manager.max_open_positions = 10  # 포지션 제한 명시
+        
+        # 포지션 관리 설정
+        self.base_position_limit = 5   # 기본 포지션 수
+        self.max_position_limit = 10   # 최대 포지션 수
         
         # 포지션 관리
         self.positions: Dict[str, Position] = {}
@@ -175,13 +179,24 @@ class ProfitOptimizedBot:
             
             # 2차 상세 스캔: 후보들만 상세 분석 (최대 5개까지만)
             for i, ticker in enumerate(candidates[:5]):
-                if len(self.positions) >= self.risk_manager.max_open_positions:
-                    break  # 포지션 제한 도달
+                # 동적 포지션 제한 체크
+                current_position_limit = self._get_current_position_limit()
+                if len(self.positions) >= current_position_limit:
+                    logger.info(f"⚠️ 포지션 제한 도달 ({len(self.positions)}/{current_position_limit})")
+                    break
                 
                 # 시장 데이터 수집 (상세)
                 market_data = self._get_market_data(ticker)
                 if not market_data:
                     continue
+                
+                # 포지션 수에 따라 진입 조건 강화
+                if len(self.positions) >= self.base_position_limit:
+                    # 5개 이상 시 강화된 조건 적용
+                    enhanced_entry = self._check_enhanced_entry(ticker, market_data)
+                    if not enhanced_entry:
+                        logger.debug(f"   {ticker}: 강화 조건 미충족 (현재 {len(self.positions)}개 포지션)")
+                        continue
                 
                 # 진입 조건 검사
                 should_enter, reason = self.strategy.should_enter(ticker, market_data)
@@ -491,6 +506,62 @@ class ProfitOptimizedBot:
         logger.info(f"   학습 승률: {perf['win_rate']}")
         logger.info(f"   Profit Factor: {perf['profit_factor']}")
         logger.info("=" * 60)
+    
+    def _get_current_position_limit(self) -> int:
+        """
+        현재 포지션 제한 계산
+        
+        Returns:
+            현재 허용되는 최대 포지션 수
+        """
+        # 기본: 5개까지는 일반 조건
+        # 5개 이상: 강화된 조건으로 최대 10개까지
+        return self.max_position_limit
+    
+    def _check_enhanced_entry(self, ticker: str, market_data: Dict) -> bool:
+        """
+        강화된 진입 조건 검사 (5개 포지션 이후)
+        
+        Args:
+            ticker: 티커
+            market_data: 시장 데이터
+        
+        Returns:
+            강화 조건 통과 여부
+        """
+        try:
+            # 1. 거래량 급증 더 강하게 (2.5x → 3.0x)
+            current_volume = market_data.get('current_volume', 0)
+            avg_volume = market_data.get('avg_volume_5m', 0)
+            
+            if avg_volume <= 0:
+                return False
+            
+            volume_ratio = current_volume / avg_volume
+            if volume_ratio < 3.0:  # 강화: 3배 이상
+                return False
+            
+            # 2. 가격 모멘텀 더 강하게 (0.15-1.5% → 0.3-1.2%)
+            price_change_1m = market_data.get('price_change_1m', 0)
+            if price_change_1m < 0.3 or price_change_1m > 1.2:
+                return False
+            
+            # 3. RSI 더 보수적으로 (70 → 65)
+            rsi = market_data.get('rsi', 50)
+            if rsi > 65:
+                return False
+            
+            # 4. 매도 압력 더 엄격하게 (1.5 → 1.2)
+            sell_pressure = market_data.get('sell_pressure', 1.0)
+            if sell_pressure > 1.2:
+                return False
+            
+            logger.info(f"   ✅ {ticker}: 강화 조건 통과 (거래량:{volume_ratio:.2f}x, 모멘텀:{price_change_1m:.2f}%, RSI:{rsi:.1f})")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ 강화 조건 검사 실패: {e}")
+            return False
     
     def _cleanup(self):
         """종료 처리"""

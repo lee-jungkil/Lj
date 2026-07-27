@@ -6,7 +6,8 @@
 1. 거래량 급증 + 가격 모멘텀 확인
 2. 빠른 진입/청산 (목표: 0.3-0.8%)
 3. 엄격한 손절 (-0.5%)
-4. 시간 제한 (최대 180초)
+4. 시간 제한 (최대 300초, 5분)
+5. 포지션 관리 (기본 5개, 최대 10개)
 """
 
 import time
@@ -33,7 +34,8 @@ class ProfitOptimizedStrategy:
         self.trailing_stop = 0.15       # 트레일링 하락폭: 0.15%
         
         self.stop_loss = -0.5           # 손절: -0.5%
-        self.time_based_exit = 180      # 시간 청산: 180초 (3분)
+        self.time_based_exit = 300      # 시간 청산: 300초 (5분)
+        self.time_exit_min_profit = 0.2 # 시간청산 최소 익절: 0.2%
         
         # 상태 추적
         self.max_profit_seen = {}       # 각 포지션의 최고 수익률
@@ -114,9 +116,12 @@ class ProfitOptimizedStrategy:
             if profit_pct <= self.stop_loss:
                 return True, f"🚨 손절: {profit_pct:.2f}% (기준: {self.stop_loss}%)", "STOP_LOSS"
             
-            # 2. 시간 초과 청산
+            # 2. 시간 초과 청산 (5분 경과 + 0.2% 이상 익절)
             if hold_time >= self.time_based_exit:
-                return True, f"⏰ 시간초과: {hold_time:.0f}초 (수익: {profit_pct:.2f}%)", "TIME_EXCEEDED"
+                if profit_pct >= self.time_exit_min_profit:
+                    return True, f"⏰ 시간초과 익절: {hold_time:.0f}초 (수익: {profit_pct:.2f}%)", "TIME_EXCEEDED"
+                # 익절 미달 시 계속 보유 (다른 청산 조건 대기)
+                # 손실 상태면 손절 조건(-0.5%)이 먼저 작동
             
             # 3. 빠른 익절 (30초 이내 0.3% 달성)
             if hold_time <= 30 and profit_pct >= self.quick_profit_target:
@@ -126,12 +131,17 @@ class ProfitOptimizedStrategy:
             if profit_pct >= self.target_profit:
                 return True, f"💰 목표익절: {profit_pct:.2f}%", "TAKE_PROFIT"
             
-            # 5. 트레일링 스톱 (0.8% 도달 후 0.15% 하락)
+            # 5. 트레일링 스톱 (0.8% 도달 후 최고점 대비 0.15% 하락 시)
+            # 작동 방식:
+            # - 수익률이 0.8%에 도달하면 트레일링 시작
+            # - 이후 최고 수익률을 계속 추적
+            # - 현재 수익률이 최고점 대비 0.15% 하락하면 매도
+            # 예: 최고 1.0% 도달 → 0.85% 하락 시 매도 (0.85% 익절 확보)
             max_profit = self.max_profit_seen.get(ticker, 0)
             if max_profit >= self.trailing_profit:
                 profit_drop = max_profit - profit_pct
                 if profit_drop >= self.trailing_stop:
-                    return True, f"📉 트레일링스톱: {max_profit:.2f}% → {profit_pct:.2f}% (하락: {profit_drop:.2f}%)", "TRAILING_STOP"
+                    return True, f"📉 트레일링스톱: 최고{max_profit:.2f}% → 현재{profit_pct:.2f}% (하락: {profit_drop:.2f}%)", "TRAILING_STOP"
             
             # 6. 거래량 급감 (진입 시 대비 50% 이하)
             if hold_time > 60:  # 1분 이상 보유 시
