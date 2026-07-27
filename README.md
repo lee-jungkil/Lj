@@ -1,23 +1,26 @@
-# 🎯 Profit Bot v7.0.5 - 수익 최적화 자동매매 봇
+# 🎯 Profit Bot v7.0.5.1 - 수익 최적화 자동매매 봇
 
 > **업비트 자동매매 봇 - 간결함 · 명확함 · 수익성 · 학습 · 안전성**
 
-[![Version](https://img.shields.io/badge/version-7.0.5-blue.svg)](https://github.com/lee-jungkil/Lj)
+[![Version](https://img.shields.io/badge/version-7.0.5.1-blue.svg)](https://github.com/lee-jungkil/Lj)
 [![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](https://github.com/lee-jungkil/Lj)
 
 ---
 
-## 📥 다운로드 (v7.0.5)
+## 📥 다운로드 (v7.0.5.1) 🔧 Hotfix
 
 ### Windows 사용자
-**ZIP 파일**: [profit_bot_v7.0.5.zip](https://www.genspark.ai/api/files/s/Ry3LPNOq) (286 KB)
+**ZIP 파일**: [profit_bot_v7.0.5.1.zip](https://www.genspark.ai/api/files/s/pMcq3yRC) (289 KB)
 
 ### Linux/Mac 사용자
-**TAR.GZ 파일**: [profit_bot_v7.0.5.tar.gz](https://www.genspark.ai/api/files/s/4zhjm3iN) (241 KB)
+**TAR.GZ 파일**: [profit_bot_v7.0.5.1.tar.gz](https://www.genspark.ai/api/files/s/1VmJulEx) (243 KB)
+
+🔧 **v7.0.5.1 Hotfix**: "현재가 조회 실패" 오류 수정 (API 호출 최적화)
 
 📖 **변경 사항**:
-- **v7.0.5**: [CHANGES_v7.0.5.md](CHANGES_v7.0.5.md) - 호가창 유동성 체크 + 시장가/지정가 자동 선택 ⭐ NEW
+- **v7.0.5.1**: [CHANGES_v7.0.5.1.md](CHANGES_v7.0.5.1.md) - 현재가 조회 실패 수정 🔧 Hotfix
+- **v7.0.5**: [CHANGES_v7.0.5.md](CHANGES_v7.0.5.md) - 호가창 유동성 체크 + 시장가/지정가 자동 선택
 - **v7.0.4**: [CHANGES_v7.0.4.md](CHANGES_v7.0.4.md) - 볼린저 밴드 + 스토캐스틱 진입조건 추가
 - **v7.0.3**: [CHANGES_v7.0.3.md](CHANGES_v7.0.3.md) - 청산조건 개선 및 포지션 관리 강화
 - **포지션 크기**: [POSITION_SIZE_EXAMPLE.md](POSITION_SIZE_EXAMPLE.md) - 5백만원 → 5개 포지션 계산 예시
@@ -330,7 +333,14 @@ pip install -r requirements.txt
 
 ## 📝 변경 이력
 
-### v7.0.5 (2026-07-27) - 호가창 유동성 체크 + 스마트 주문 ⭐ NEW
+### v7.0.5.1 (2026-07-27) - Hotfix 🔧
+- 🔧 **"현재가 조회 실패" 오류 수정**: API 호출 최적화 (4→0~3회/매수)
+- ✅ **market_data 재사용**: 중복 API 호출 제거
+- ✅ **에러 처리 강화**: 호가창/스프레드 조회 실패 시 기본값 사용
+- ✅ **안정성 향상**: API 오류 시에도 봇 계속 동작
+- 📖 상세: [CHANGES_v7.0.5.1.md](CHANGES_v7.0.5.1.md)
+
+### v7.0.5 (2026-07-27) - 호가창 유동성 체크 + 스마트 주문
 - ✅ **호가창 유동성 체크**: 최우선 호가 물량 확인 후 진입
 - ✅ **유동성 임계값**: 50% 이상만 진입 (슬리피지 0% 보장)
 - ✅ **스마트 주문 선택**: 스프레드 분석 → 시장가/지정가 자동 선택
